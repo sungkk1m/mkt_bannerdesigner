@@ -4,6 +4,13 @@
 # Claude Code per-user 설정 (권한 캐시, 로컬 절대경로 포함)
 .claude/settings.local.json
 
+# 일회성 에셋 인코딩 스크립트 (v1.3 r2, 사용 후 정리 예정)
+_inject_badges.py
+
+# 스토어 뱃지 원본 에셋 폴더 (base64로 HTML에 인라인됨, 원본은 커밋 제외)
+Apple badge/
+Google badge/
+
 # OS / Editor 메타파일
 .DS_Store
 Thumbs.db

@@ -100,6 +100,7 @@ _(작업 지시 시 최신 상태로 갱신)_
   - 사용자 실측으로 B-01 재현 확인 → 최소 스코프 수정 착수
 - 2026-04-22: **[bugfix r4] B-01 Critical 수정 완료 (실측 OK)** — `applyCustomPresetToBatch`에 DOM input 직접 갱신 블록 추가 (9줄). 배치 프리셋 적용 end-to-end 정상화 **브라우저 실측 확인**. 다른 코드는 미변경. 남은 B-02~B-15는 후속 트랙 대기.
 - 2026-04-23: **GitHub 원격 등록 완료** — `origin/main` upstream 설정. 초기 커밋 `289a68c`에 v1.2 본체 + PDCA r1~r4 + Review 15건 포함 (8 files, 3638 insertions). `.bkit/`·`.claude/settings.local.json`은 `.gitignore`로 제외. 인증은 Git Credential Manager OAuth device flow로 자동 처리됨.
+- 2026-04-23: **[App Badge v1.3] 신규 템플릿 "App Badge & Icon" 추가 + r3a~r3h 레이아웃 이터레이션** — 헤더 드롭다운으로 Today Tap ↔ App Badge 전환. 3사이즈(1:1 / 9:16 / 1200×628) × 4언어(ko/en/ja/zh-TW) × 2상태(download / preregister) 지원. 공식 스토어 뱃지 16개 base64 인라인(Apple 8 SVG + Google 8 PNG). 주요 상수/함수: `BADGE_ASSETS`, `APP_BADGE_CANVAS_SPECS`, `HEADLINE_PRESETS` + `HEADLINE_PRESETS_1200`(1200×628 전용 2줄 버전), `HEADLINE_FX`(4종 효과), `buildAppBadgeBanner`(DOM) · `buildAppBadgeCanvas`(Canvas). 레이아웃 이터레이션: **r3a** 사이즈별 기본 / **r3b** 1:1 아이콘 550 + 뱃지 중앙 / **r3c** 1200×628 2줄 헤드라인 도입 / **r3d** 로고 텍스트영역 중심 / **r3e** 헤드라인·로고 가운데 정렬(중심 x=338, 뱃지 2종 중점) + 첫줄 0.72× / **r3f** JA+download 전용 line2 축소(108px, firstLineScale 0.87) — `data-preset` 속성 + Canvas `overrides['download:ja']` / **r3g** 로고 상향(maxH 175) / **r3h** 로고 `bottomY` 앵커로 전환(가로비율 다른 로고라도 헤드라인과 일정 간격 유지). `.gitignore`에 `Apple badge/` · `Google badge/` · `_inject_badges.py` 추가(원본 에셋·일회성 스크립트 커밋 제외). 뱃지 스트레치 진단: `drawImage` 5-인자가 박스에 강제 맞춤 → JA 뱃지 원본 2.72:1이 박스 3.57:1에서 +31% 늘어남. 수정은 사용자 선택 대기.
 
 ## 히스토리
 
