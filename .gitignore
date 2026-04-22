@@ -1,0 +1,21 @@
+# PDCA runtime artifacts (도구 산출물, 코드 아님)
+.bkit/
+
+# Claude Code per-user 설정 (권한 캐시, 로컬 절대경로 포함)
+.claude/settings.local.json
+
+# OS / Editor 메타파일
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+
+# IDE
+.idea/
+.vscode/
+
+# Node / 빌드 (향후 대비)
+node_modules/
+dist/
+*.log

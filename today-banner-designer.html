@@ -1,0 +1,2380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Today Banner Designer — 크리에이티브 소재 자동화</title>
+
+<!-- Tailwind (utility CSS) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Fonts -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800;900&family=Noto+Sans+TC:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+<style>
+  /* =========================
+     Global
+     ========================= */
+  :root {
+    --panel-bg: #0f1115;
+    --panel-border: #1f2127;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --accent: #6366f1;
+    --accent-hover: #4f46e5;
+    --danger: #ef4444;
+    --input-bg: #17191f;
+  }
+
+  html, body {
+    background: #0b0c10;
+    color: var(--text);
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+
+  /* =========================
+     Banner (실제 출력 대상)
+     ========================= */
+  .banner {
+    position: relative;
+    background: #ffffff;
+    overflow: hidden;  /* banner bounding box 는 고정 크기 유지 */
+    font-family: 'Pretendard', sans-serif;
+    color: #000;
+    box-sizing: border-box;
+  }
+
+  /* === 1:1 (1080x1080) === */
+  .banner.size-1x1 { width: 1080px; height: 1080px; padding: 60px; }
+  .banner.size-1x1 .banner-header {
+    font-size: 120px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin-bottom: 24px;
+  }
+  .banner.size-1x1 .banner-card {
+    height: calc(100% - 120px - 24px - 40px);
+  }
+  .banner.size-1x1 .banner-darkbar {
+    height: 180px; padding: 0 44px;
+    left: 60px; right: 60px; bottom: 60px;
+  }
+  .banner.size-1x1 .banner-icon { width: 110px; height: 110px; border-radius: 26px; }
+  .banner.size-1x1 .game-title { font-size: 42px; }
+  .banner.size-1x1 .game-subtitle { font-size: 24px; }
+  .banner.size-1x1 .cta-button { font-size: 26px; padding: 14px 32px; }
+
+  /* === 9:16 (1080x1920) === */
+  .banner.size-9x16 { width: 1080px; height: 1920px; padding: 80px; }
+  .banner.size-9x16 .banner-header {
+    font-size: 180px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin-bottom: 36px;
+  }
+  .banner.size-9x16 .banner-card {
+    height: calc(100% - 180px - 36px - 60px);
+  }
+  .banner.size-9x16 .banner-darkbar {
+    height: 220px; padding: 0 56px;
+    left: 80px; right: 80px; bottom: 80px;
+  }
+  .banner.size-9x16 .banner-icon { width: 140px; height: 140px; border-radius: 32px; }
+  .banner.size-9x16 .game-title { font-size: 56px; }
+  .banner.size-9x16 .game-subtitle { font-size: 32px; }
+  .banner.size-9x16 .cta-button { font-size: 34px; padding: 18px 40px; }
+
+  /* === 1200x628 (가로) — 레퍼런스 기준: 세로 스택 레이아웃 === */
+  .banner.size-1200x628 { width: 1200px; height: 628px; padding: 30px 40px 28px 40px; }
+  .banner.size-1200x628 .banner-header {
+    font-size: 104px;
+    font-weight: 900;
+    font-style: italic;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin-bottom: 12px;
+  }
+  .banner.size-1200x628 .banner-card {
+    height: calc(100% - 104px - 12px);
+    border-radius: 28px;
+  }
+  .banner.size-1200x628 .banner-darkbar {
+    height: 108px; padding: 0 28px;
+    left: 40px; right: 40px; bottom: 28px;
+  }
+  .banner.size-1200x628 .banner-icon { width: 74px; height: 74px; border-radius: 18px; }
+  .banner.size-1200x628 .game-title { font-size: 30px; }
+  .banner.size-1200x628 .game-subtitle { font-size: 17px; }
+  .banner.size-1200x628 .cta-button { font-size: 22px; padding: 11px 28px; border-width: 2.5px; }
+  .banner.size-1200x628 .profile-icon { display: flex; top: 30px; right: 40px; width: 44px; height: 44px; }
+
+  /* === 공통 카드/요소 === */
+  /* 레이어 구조: card(z:0) < overflow(z:10) < header/profile/darkbar/disclaimer(z:20) */
+  .banner-card {
+    position: relative;
+    z-index: 0;
+    width: 100%;
+    border-radius: 45px;
+    overflow: hidden;
+    background: #1a1a1a;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  }
+  .banner.size-1200x628 .banner-card { border-radius: 32px; }
+
+  .banner-keyart {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .banner-keyart-placeholder {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 48px;
+    font-weight: 700;
+  }
+
+  /* 오버플로우 레이어 (v1.2 → bugfix FR-12: 하단만 클립, 상·좌·우 자유) */
+  .banner-overflow-wrap {
+    position: absolute;
+    z-index: 10;
+    pointer-events: none;
+    clip-path: inset(-9999px -9999px 0 -9999px);
+  }
+  .banner-overflow-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+    display: block;
+  }
+  /* Plan FR-05: 하단 bottom을 darkbar 상단으로 정렬 (darkbar_bottom_offset + darkbar_height) */
+  .banner.size-1x1 .banner-overflow-wrap {
+    top: calc(60px + 120px + 24px - 80px);
+    left: 60px; right: 60px;
+    bottom: calc(60px + 180px);
+  }
+  .banner.size-9x16 .banner-overflow-wrap {
+    top: calc(80px + 180px + 36px - 140px);
+    left: 80px; right: 80px;
+    bottom: calc(80px + 220px);
+  }
+  .banner.size-1200x628 .banner-overflow-wrap {
+    top: calc(30px + 104px + 12px - 40px);
+    left: 40px; right: 40px;
+    bottom: calc(28px + 108px);
+  }
+
+  .banner-darkbar {
+    position: absolute;
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.97);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    color: #ffffff;
+    border-radius: 0 0 45px 45px;
+  }
+  .banner.size-1200x628 .banner-darkbar { border-radius: 0 0 32px 32px; }
+
+  .darkbar-left { display: flex; align-items: center; gap: 20px; min-width: 0; }
+  .banner.size-1200x628 .darkbar-left { gap: 14px; }
+
+  .banner-icon { object-fit: cover; background: #333; flex-shrink: 0; }
+
+  /* r3 FR-16: title↔subtitle 상하 간격 2→4px 전 사이즈 통일 */
+  .darkbar-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+  /* Plan FR-01: ellipsis/overflow 제거, nowrap 유지 — 긴 제목은 CTA 영역으로 침범 허용 */
+  .game-title {
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+
+  /* Plan FR-10: subtitle도 nowrap, 잘림 없음 (title과 동일 정책) */
+  .game-subtitle { font-weight: 400; color: #b3b3b3; line-height: 1.2; white-space: nowrap; }
+
+  .cta-button {
+    font-weight: 600;
+    color: #ffffff;
+    background: transparent;
+    border: 2px solid #ffffff;
+    border-radius: 9999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: -0.01em;
+  }
+
+  /* Plan FR-03/04: nowrap 강제 + 1:1 폰트 축소(20→16) + 위치 조정(right 40→28) */
+  .banner-disclaimer {
+    position: absolute;
+    right: 28px; bottom: 20px;
+    color: #8a8a8a;
+    font-size: 16px;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  .banner.size-9x16 .banner-disclaimer { right: 60px; bottom: 34px; font-size: 24px; }
+  .banner.size-1200x628 .banner-disclaimer { right: 32px; bottom: 8px; font-size: 15px; }
+
+  .profile-icon {
+    position: absolute;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #5b9bd5;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .profile-icon svg { width: 70%; height: 70%; }
+
+  .banner[data-lang="ja"] { font-family: 'Noto Sans JP', 'Pretendard', sans-serif; }
+  .banner[data-lang="zh-TW"] { font-family: 'Noto Sans TC', 'Pretendard', sans-serif; }
+
+  /* r3 FR-14: 일본어 title/subtitle 0.85배 고정 축소 (한/영/번체 영향 없음) */
+  .banner.size-1x1[data-lang="ja"] .game-title         { font-size: 36px; } /* 42 × 0.85 */
+  .banner.size-1x1[data-lang="ja"] .game-subtitle      { font-size: 20px; } /* 24 × 0.85 */
+  .banner.size-9x16[data-lang="ja"] .game-title        { font-size: 48px; } /* 56 × 0.85 */
+  .banner.size-9x16[data-lang="ja"] .game-subtitle     { font-size: 27px; } /* 32 × 0.85 */
+  .banner.size-1200x628[data-lang="ja"] .game-title    { font-size: 26px; } /* 30 × 0.85 */
+  .banner.size-1200x628[data-lang="ja"] .game-subtitle { font-size: 14px; } /* 17 × 0.85 */
+
+  .preview-frame {
+    display: inline-block;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    transform-origin: top left;
+  }
+
+  .side-panel { background: var(--panel-bg); border-right: 1px solid var(--panel-border); }
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .input-base {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid #262932;
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .input-base:focus { border-color: var(--accent); }
+  .btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.15s;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: transparent; border-color: #262932; color: var(--text); }
+  .btn-secondary:hover { background: #17191f; }
+  .btn-danger { background: transparent; border-color: #374151; color: #fca5a5; }
+  .tab-btn {
+    padding: 10px 20px;
+    font-weight: 600;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+
+  .dropzone {
+    position: relative;
+    border: 2px dashed #2a2d35;
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--input-bg);
+  }
+  .dropzone:hover { border-color: var(--accent); color: var(--text); }
+  .dropzone.has-image { padding: 0; border-style: solid; overflow: hidden; }
+  .dropzone img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  .dropzone-remove {
+    position: absolute;
+    top: 6px; right: 6px;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    border: none;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    display: none;
+  }
+  .dropzone.has-image .dropzone-remove { display: block; }
+
+  .check-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .check-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--input-bg);
+    border: 1px solid #262932;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    user-select: none;
+  }
+  .check-pill input { accent-color: var(--accent); }
+  .check-pill.selected { border-color: var(--accent); background: rgba(99,102,241,0.08); }
+
+  .thumb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .thumb-card {
+    background: #14151a;
+    border: 1px solid #20222a;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+  .thumb-card img { width: 100%; display: block; }
+  .thumb-card .thumb-meta {
+    padding: 8px 10px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid #20222a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .thumb-card .thumb-meta strong { color: var(--text); }
+
+  .progress-bar {
+    height: 6px;
+    background: #1a1c22;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-bar .bar {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1, #a78bfa);
+    width: 0%;
+    transition: width 0.25s;
+  }
+
+  #renderStage {
+    position: fixed;
+    left: -99999px;
+    top: 0;
+    pointer-events: none;
+  }
+
+  aside::-webkit-scrollbar { width: 8px; }
+  aside::-webkit-scrollbar-track { background: transparent; }
+  aside::-webkit-scrollbar-thumb { background: #2a2d35; border-radius: 4px; }
+
+  @media (max-width: 900px) {
+    .layout-grid { grid-template-columns: 1fr !important; }
+    aside { max-height: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============== HEADER ============== -->
+<header class="border-b border-[#1f2127] bg-[#0f1115]">
+  <div class="max-w-[1600px] mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 grid place-items-center font-black text-white text-lg" style="font-style: italic;">T</div>
+      <div>
+        <h1 class="text-base font-bold text-white">Today Banner Designer</h1>
+        <p class="text-xs text-gray-400">App Store Today 스타일 광고 배너 자동 생성 시스템 · v1.2</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-1">
+      <button class="tab-btn active" data-tab="single">단건 편집</button>
+      <button class="tab-btn" data-tab="batch">배치 생성</button>
+      <button class="tab-btn" data-tab="help">도움말</button>
+    </div>
+  </div>
+</header>
+
+<!-- ============== SINGLE MODE ============== -->
+<section id="tab-single" class="tab-content">
+  <div class="layout-grid grid" style="grid-template-columns: 400px 1fr; min-height: calc(100vh - 65px);">
+    <aside class="side-panel overflow-y-auto p-5 space-y-5" style="max-height: calc(100vh - 65px);">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <div class="field-label">규격</div>
+          <select id="s-size" class="input-base">
+            <option value="1x1">1:1 (1080×1080)</option>
+            <option value="9x16">9:16 (1080×1920)</option>
+            <option value="1200x628">1200×628 (가로)</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label">언어</div>
+          <select id="s-lang" class="input-base">
+            <option value="ko">한국어 (KR)</option>
+            <option value="en">English (EN)</option>
+            <option value="ja">日本語 (JP)</option>
+            <option value="zh-TW">繁體中文 (TW)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <div><div class="field-label">헤드라인 (기본: Today)</div><input id="s-header" class="input-base" value="Today" /></div>
+        <div>
+          <div class="field-label">게임명</div>
+          <input id="s-title" class="input-base" placeholder="예: 언더다크 : 디펜스" />
+          <p id="s-title-hint" class="text-[11px] text-gray-500 mt-1">권장 글자수: ~18자 (한글 기준, 1:1)</p>
+        </div>
+        <div>
+          <div class="field-label">부제</div>
+          <input id="s-subtitle" class="input-base" placeholder="예: 성큰 디펜스" />
+          <p id="s-subtitle-hint" class="text-[11px] text-gray-500 mt-1">권장 글자수: ~24자 (한글 기준, 1:1)</p>
+        </div>
+        <div><div class="field-label">CTA 버튼 텍스트</div><input id="s-cta" class="input-base" value="지금 다운로드" /></div>
+        <div>
+          <div class="field-label">고지 문구 (우측 하단, 비우면 미표시)</div>
+          <input id="s-disclaimer" class="input-base" value="*확률형 아이템 포함" />
+          <p class="text-[11px] text-gray-500 mt-1">언어 변경 시 자동으로 기본값이 채워집니다 (한국어만 기본값 존재)</p>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <div class="field-label">키아트 (카드 배경, PNG/JPG)</div>
+          <div id="s-drop-keyart" class="dropzone" data-target="keyart">
+            <p class="text-sm">클릭 또는 파일을 여기에 드롭</p>
+            <p class="text-[11px] mt-1">배경 포함 키아트 권장 · 1500px 이상</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">오버플로우 레이어 (투명 PNG, 선택)</div>
+          <div id="s-drop-overflow" class="dropzone" data-target="overflow">
+            <p class="text-sm">클릭 또는 파일을 여기에 드롭</p>
+            <p class="text-[11px] mt-1">카드 위로 튀어나올 SD 캐릭터 · 배경 투명 PNG 권장</p>
+            <input type="file" accept="image/png" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">앱 아이콘 (1:1 권장)</div>
+          <div id="s-drop-icon" class="dropzone" data-target="icon">
+            <p class="text-sm">클릭 또는 파일을 여기에 드롭</p>
+            <p class="text-[11px] mt-1">512px 이상 권장</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="border border-[#262932] rounded-lg p-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-semibold text-gray-300">오버플로우 위치 조정</p>
+          <button id="s-overflow-reset" type="button" class="text-[10px] text-indigo-400 hover:underline">사이즈 프리셋 복원</button>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-[11px] text-gray-400"><span>X 오프셋 (좌우)</span><span id="s-overflow-x-label">0%</span></div>
+          <input id="s-overflow-x" type="range" min="-80" max="80" step="1" value="0" class="w-full" />
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-[11px] text-gray-400"><span>Y 오프셋 (상하)</span><span id="s-overflow-y-label">0%</span></div>
+          <input id="s-overflow-y" type="range" min="-80" max="80" step="1" value="0" class="w-full" />
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-[11px] text-gray-400"><span>Scale (크기)</span><span id="s-overflow-scale-label">100%</span></div>
+          <input id="s-overflow-scale" type="range" min="80" max="200" step="1" value="100" class="w-full" />
+        </div>
+        <p class="text-[10px] text-gray-500">규격 변경 시 해당 사이즈 기본 프리셋이 자동 주입됩니다</p>
+      </div>
+
+      <!-- Plan FR-12~15: Drop Shadow UI (단건 모드) -->
+      <div class="border border-[#262932] rounded-lg p-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-semibold text-gray-300">오버플로우 Drop Shadow</p>
+          <label class="flex items-center gap-1 text-[11px] text-gray-400 cursor-pointer">
+            <input id="s-shadow-enabled" type="checkbox" /> 활성화
+          </label>
+        </div>
+        <div id="s-shadow-controls" class="space-y-2" style="opacity: 0.4; pointer-events: none;">
+          <div>
+            <div class="flex items-center justify-between text-[11px] text-gray-400"><span>X 오프셋</span><span id="s-shadow-x-label">0px</span></div>
+            <input id="s-shadow-x" type="range" min="-20" max="20" step="1" value="0" class="w-full" />
+          </div>
+          <div>
+            <div class="flex items-center justify-between text-[11px] text-gray-400"><span>Y 오프셋</span><span id="s-shadow-y-label">8px</span></div>
+            <input id="s-shadow-y" type="range" min="-20" max="20" step="1" value="8" class="w-full" />
+          </div>
+          <div>
+            <div class="flex items-center justify-between text-[11px] text-gray-400"><span>Blur</span><span id="s-shadow-blur-label">16px</span></div>
+            <input id="s-shadow-blur" type="range" min="0" max="40" step="1" value="16" class="w-full" />
+          </div>
+          <div>
+            <div class="flex items-center justify-between text-[11px] text-gray-400"><span>Opacity</span><span id="s-shadow-opacity-label">40%</span></div>
+            <input id="s-shadow-opacity" type="range" min="0" max="100" step="1" value="40" class="w-full" />
+          </div>
+        </div>
+        <p class="text-[10px] text-gray-500">SD 캐릭터 외곽선을 따라 그림자 생성 (투명 PNG 기반)</p>
+      </div>
+
+      <div>
+        <div class="field-label">샘플 프리셋</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button class="btn btn-secondary text-xs" data-preset="underdark">🗡 언더다크 샘플</button>
+          <button class="btn btn-secondary text-xs" data-preset="necomancer">🐈 네코맨서 샘플</button>
+        </div>
+      </div>
+
+      <!-- r3 FR-22: 단건 모드 사용자 프리셋 목록 -->
+      <div>
+        <div class="field-label">내 프리셋</div>
+        <div id="s-custom-preset-list" class="grid grid-cols-2 gap-2"></div>
+        <p class="text-[10px] text-gray-500 mt-1">선택 시 현재 언어의 필드로 복원 · 🗑 클릭 시 삭제</p>
+      </div>
+
+      <div class="pt-2 border-t border-[#1f2127] space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="field-label">포맷</div>
+            <select id="s-format" class="input-base"><option value="png">PNG</option><option value="jpg">JPG</option></select>
+          </div>
+          <div>
+            <div class="field-label">해상도</div>
+            <select id="s-scale" class="input-base"><option value="1">1x (기본)</option><option value="2">2x (레티나)</option></select>
+          </div>
+        </div>
+        <!-- r3 FR-21: 단건 프리셋 저장 버튼 (다운로드 바로 위) -->
+        <button id="s-save-preset" class="btn btn-secondary w-full">💾 프리셋 저장</button>
+        <button id="s-download" class="btn btn-primary w-full">⬇ 이미지 다운로드</button>
+        <p id="s-status" class="text-xs text-gray-500 text-center"></p>
+      </div>
+    </aside>
+
+    <main class="p-8 overflow-auto" style="background: radial-gradient(circle at 30% 20%, #141824 0%, #0b0c10 70%);">
+      <div class="mb-4 flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-semibold">실시간 미리보기</h2>
+          <p id="s-preview-meta" class="text-xs text-gray-500 mt-1">—</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-xs text-gray-400">미리보기 크기</label>
+          <input type="range" id="s-preview-scale" min="20" max="90" value="45" class="w-28" />
+          <span id="s-preview-scale-label" class="text-xs text-gray-400 w-10">45%</span>
+        </div>
+      </div>
+      <div id="s-preview-container" class="preview-frame"></div>
+    </main>
+  </div>
+</section>
+
+<!-- ============== BATCH MODE ============== -->
+<section id="tab-batch" class="tab-content hidden">
+  <div class="layout-grid grid" style="grid-template-columns: 400px 1fr; min-height: calc(100vh - 65px);">
+    <aside class="side-panel overflow-y-auto p-5 space-y-5" style="max-height: calc(100vh - 65px);">
+      <div>
+        <div class="field-label">생성할 규격 (복수 선택)</div>
+        <div class="check-grid">
+          <!-- r3 FR-18: 기본 체크 1:1 + 1200x628 (9:16은 unchecked) -->
+          <label class="check-pill selected"><input type="checkbox" class="b-size" value="1x1" checked /> 1:1 (1080×1080)</label>
+          <label class="check-pill"><input type="checkbox" class="b-size" value="9x16" /> 9:16 (1080×1920)</label>
+          <label class="check-pill selected" style="grid-column: span 2;"><input type="checkbox" class="b-size" value="1200x628" checked /> 1200×628 (가로)</label>
+        </div>
+      </div>
+
+      <div>
+        <div class="field-label">생성할 언어 (복수 선택)</div>
+        <div class="check-grid">
+          <!-- r3 FR-19: 기본 4개 언어 모두 체크 -->
+          <label class="check-pill selected"><input type="checkbox" class="b-lang" value="ko" checked /> 한국어</label>
+          <label class="check-pill selected"><input type="checkbox" class="b-lang" value="en" checked /> English</label>
+          <label class="check-pill selected"><input type="checkbox" class="b-lang" value="ja" checked /> 日本語</label>
+          <label class="check-pill selected"><input type="checkbox" class="b-lang" value="zh-TW" checked /> 繁體中文</label>
+        </div>
+      </div>
+
+      <div>
+        <div class="field-label">프리셋 불러오기 (선택)</div>
+        <!-- r3 FR-22: 샘플 + 내 프리셋 optgroup 분리, 삭제 버튼 추가 -->
+        <div class="flex gap-2">
+          <select id="b-preset" class="input-base flex-1">
+            <option value="">— 직접 입력 —</option>
+            <optgroup label="샘플">
+              <option value="underdark">언더다크 : 디펜스</option>
+              <option value="necomancer">네코맨서: 타워 디펜스</option>
+            </optgroup>
+            <optgroup id="b-custom-preset-optgroup" label="내 프리셋 (없음)" disabled></optgroup>
+          </select>
+          <button id="b-apply-preset" class="btn btn-secondary text-xs whitespace-nowrap">적용</button>
+          <button id="b-delete-preset" class="btn btn-secondary text-xs whitespace-nowrap" title="선택된 사용자 프리셋 삭제">🗑</button>
+        </div>
+        <p class="text-[11px] text-gray-500 mt-1">선택 시 체크된 모든 언어의 필드를 한번에 채웁니다 · 내 프리셋은 4개 언어 스냅샷</p>
+      </div>
+
+      <div class="border border-[#262932] rounded-lg p-3 space-y-3">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-semibold text-gray-300">언어별 입력</p>
+          <p class="text-[10px] text-gray-500">체크한 언어만 표시</p>
+        </div>
+        <p class="text-[10px] text-gray-500 leading-relaxed">
+          권장 글자수 (한글): <strong class="text-gray-400">게임명</strong> 1:1 ~18자 / 9:16 ~15자 / 1200×628 ~14자 ·
+          <strong class="text-gray-400">부제</strong> 1:1 ~24자 / 9:16 ~20자 / 1200×628 ~22자
+        </p>
+        <div id="b-lang-fields" class="space-y-4"></div>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <div class="field-label">키아트 (카드 배경)</div>
+          <div id="b-drop-keyart" class="dropzone" data-target="b-keyart">
+            <p class="text-sm">클릭 또는 드롭</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">오버플로우 (투명 PNG, 선택)</div>
+          <div id="b-drop-overflow" class="dropzone" data-target="b-overflow">
+            <p class="text-sm">클릭 또는 드롭</p>
+            <p class="text-[11px] mt-1">SD 캐릭터 투명 PNG — 카드 밖으로 튀어나옴</p>
+            <input type="file" accept="image/png" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label">앱 아이콘</div>
+          <div id="b-drop-icon" class="dropzone" data-target="b-icon">
+            <p class="text-sm">클릭 또는 드롭</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="border border-[#262932] rounded-lg p-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-semibold text-gray-300">오버플로우 위치 조정</p>
+          <button id="b-overflow-reset" type="button" class="text-[10px] text-indigo-400 hover:underline">사이즈 프리셋 복원</button>
+        </div>
+        <div>
+          <div class="field-label">편집할 사이즈</div>
+          <select id="b-overflow-size" class="input-base text-sm">
+            <option value="1x1">1:1 (1080×1080)</option>
+            <option value="9x16">9:16 (1080×1920)</option>
+            <option value="1200x628">1200×628 (가로)</option>
+          </select>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-[11px] text-gray-400"><span>X 오프셋 (좌우)</span><span id="b-overflow-x-label">0%</span></div>
+          <input id="b-overflow-x" type="range" min="-80" max="80" step="1" value="0" class="w-full" />
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-[11px] text-gray-400"><span>Y 오프셋 (상하)</span><span id="b-overflow-y-label">0%</span></div>
+          <input id="b-overflow-y" type="range" min="-80" max="80" step="1" value="0" class="w-full" />
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-[11px] text-gray-400"><span>Scale (크기)</span><span id="b-overflow-scale-label">100%</span></div>
+          <input id="b-overflow-scale" type="range" min="80" max="200" step="1" value="100" class="w-full" />
+        </div>
+        <p class="text-[10px] text-gray-500">사이즈별로 위치가 독립 저장됩니다 · 저장된 값은 배치 생성 시 자동 적용</p>
+      </div>
+
+      <!-- Plan FR-12~15: Drop Shadow UI (배치 모드 · 사이즈별 독립 저장) -->
+      <div class="border border-[#262932] rounded-lg p-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-semibold text-gray-300">오버플로우 Drop Shadow</p>
+          <label class="flex items-center gap-1 text-[11px] text-gray-400 cursor-pointer">
+            <input id="b-shadow-enabled" type="checkbox" /> 활성화
+          </label>
+        </div>
+        <p class="text-[10px] text-gray-500">편집할 사이즈는 위 "편집할 사이즈" 드롭다운과 연동됩니다</p>
+        <div id="b-shadow-controls" class="space-y-2" style="opacity: 0.4; pointer-events: none;">
+          <div>
+            <div class="flex items-center justify-between text-[11px] text-gray-400"><span>X 오프셋</span><span id="b-shadow-x-label">0px</span></div>
+            <input id="b-shadow-x" type="range" min="-20" max="20" step="1" value="0" class="w-full" />
+          </div>
+          <div>
+            <div class="flex items-center justify-between text-[11px] text-gray-400"><span>Y 오프셋</span><span id="b-shadow-y-label">8px</span></div>
+            <input id="b-shadow-y" type="range" min="-20" max="20" step="1" value="8" class="w-full" />
+          </div>
+          <div>
+            <div class="flex items-center justify-between text-[11px] text-gray-400"><span>Blur</span><span id="b-shadow-blur-label">16px</span></div>
+            <input id="b-shadow-blur" type="range" min="0" max="40" step="1" value="16" class="w-full" />
+          </div>
+          <div>
+            <div class="flex items-center justify-between text-[11px] text-gray-400"><span>Opacity</span><span id="b-shadow-opacity-label">40%</span></div>
+            <input id="b-shadow-opacity" type="range" min="0" max="100" step="1" value="40" class="w-full" />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="field-label">파일명 Prefix (영문, 공백 없이)</div>
+        <input id="b-prefix" class="input-base" placeholder="예: underdark_today_v1" />
+        <p class="text-[11px] text-gray-500 mt-1">결과: <code>prefix_1x1_ko.png</code> 형식으로 저장됩니다</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div><div class="field-label">포맷</div><select id="b-format" class="input-base"><option value="png">PNG</option><option value="jpg">JPG</option></select></div>
+        <div><div class="field-label">해상도</div><select id="b-scale" class="input-base"><option value="1">1x</option><option value="2">2x</option></select></div>
+      </div>
+
+      <div class="pt-2 border-t border-[#1f2127] space-y-3">
+        <!-- Plan FR-07/08: 2단계 분리 - 프리뷰 먼저, 다운로드는 사용자 트리거 시점에만 이미지 변환 -->
+        <!-- r3 FR-21: 배치 프리셋 저장 버튼 (프리뷰 바로 위, 4개 언어 스냅샷) -->
+        <button id="b-save-preset" class="btn btn-secondary w-full">💾 프리셋 저장 (4개 언어 스냅샷)</button>
+        <button id="b-preview" class="btn btn-primary w-full">🖼 프리뷰 생성</button>
+        <button id="b-export-zip" class="btn btn-secondary w-full" disabled style="opacity: 0.5;">💾 ZIP 일괄 다운로드</button>
+        <div class="progress-bar"><div id="b-progress" class="bar"></div></div>
+        <p id="b-status" class="text-xs text-gray-500 text-center">대기 중</p>
+      </div>
+    </aside>
+
+    <main class="p-8 overflow-auto" style="background: radial-gradient(circle at 30% 20%, #141824 0%, #0b0c10 70%);">
+      <div class="mb-4">
+        <h2 class="text-sm font-semibold">배치 결과</h2>
+        <p class="text-xs text-gray-500 mt-1">규격 × 언어 조합별로 생성된 배너가 아래에 표시됩니다</p>
+      </div>
+      <div id="b-thumbs" class="thumb-grid">
+        <div class="text-gray-500 text-sm col-span-full text-center py-16">좌측 입력을 완료하고 "일괄 생성"을 누르세요</div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ============== HELP MODE ============== -->
+<section id="tab-help" class="tab-content hidden">
+  <div class="max-w-3xl mx-auto p-8">
+    <h2 class="text-xl font-bold mb-4">📘 사용 가이드</h2>
+    <h3 class="text-base font-semibold mt-6 mb-2">1. 단건 편집 모드</h3>
+    <p class="text-sm text-gray-300">한 번에 1개 배너를 정성스럽게 편집·미리보기·다운로드할 때 사용합니다. 규격/언어를 바꾸면서 빠르게 시안을 비교할 수 있습니다.</p>
+    <h3 class="text-base font-semibold mt-6 mb-2">2. 배치 생성 모드</h3>
+    <p class="text-sm text-gray-300">리소스를 한 번만 입력하고, 생성할 <strong>규격(1:1 / 9:16 / 1200×628)</strong>과 <strong>언어(한/영/일/번체)</strong>를 체크하면 모든 조합을 자동 렌더링하여 ZIP으로 내보냅니다. v1.1부터 <strong>게임명·부제도 언어별로 각자 입력</strong>할 수 있어 로컬라이제이션이 필요한 상황에도 대응 가능합니다.</p>
+    <h3 class="text-base font-semibold mt-6 mb-2">3. 확률형 고지 문구</h3>
+    <p class="text-sm text-gray-300">한국어에만 <code>*확률형 아이템 포함</code>이 기본 노출됩니다. 영어/일본어/번체에서는 고지 필드가 비워져 있습니다 (필요 시 직접 입력 가능).</p>
+    <h3 class="text-base font-semibold mt-6 mb-2">4. 리소스 준비 팁</h3>
+    <ul class="text-sm text-gray-300 list-disc list-inside space-y-1">
+      <li>키아트: 배경 포함 1500px 이상 고해상도 PNG/JPG 권장. 카드 내부 배경으로만 사용됨</li>
+      <li>오버플로우 (v1.2): <strong>배경이 투명한 PNG</strong>로 SD 캐릭터만 크롭해서 업로드. 카드 경계를 넘어 튀어나오는 효과가 자동 적용됨</li>
+      <li>앱 아이콘: 1:1 정사각형 512px 이상. 시스템이 자동으로 rounded square 처리</li>
+    </ul>
+    <h3 class="text-base font-semibold mt-6 mb-2">5. 오버플로우 레이어 (v1.2 신규)</h3>
+    <p class="text-sm text-gray-300">키아트(카드 배경)와 오버플로우(카드 밖으로 튀어나오는 투명 PNG 캐릭터)는 <strong>별도로 업로드</strong>합니다. 업로드 후 사이드바의 슬라이더(X 오프셋 ±30%, Y 오프셋 ±15%, Scale 80%~120%)로 위치를 미세 조정할 수 있습니다. 규격을 변경하면 해당 사이즈 기본 프리셋이 자동 주입됩니다. 배치 모드에서는 사이즈별로 위치를 독립 저장하므로, 각 규격에 맞게 세밀히 튜닝 가능합니다. 레이어 순서는 <code>키아트 카드 &lt; 오버플로우 캐릭터 &lt; 다크바/CTA/Today 워드마크</code>로 고정되어 있어 UI 텍스트가 캐릭터에 가려지지 않습니다.</p>
+    <h3 class="text-base font-semibold mt-6 mb-2">6. 매체 심사 주의</h3>
+    <p class="text-sm text-gray-300">"Today" 워드마크는 Apple App Store 피처링 포맷을 차용한 것이므로, Google Ads/Meta 심사에서 일부 거절 사례가 있을 수 있습니다. 집행 전 매체별 승인 상태를 확인하세요.</p>
+    <h3 class="text-base font-semibold mt-6 mb-2">7. 폰트</h3>
+    <p class="text-sm text-gray-300">Pretendard(한/영), Noto Sans JP(일), Noto Sans TC(번체)가 CDN에서 로드됩니다. 모두 상업 사용 무료입니다. 오프라인 환경에서는 폰트가 제대로 렌더링되지 않을 수 있습니다.</p>
+  </div>
+</section>
+
+<div id="renderStage"></div>
+
+<script>
+// ===========================================================================
+// 1. 언어팩 & 기본값
+// ===========================================================================
+const LANG_PACK = {
+  'ko':   { header: 'Today', cta: '지금 다운로드',       disclaimer: '*확률형 아이템 포함', label: '한국어' },
+  'en':   { header: 'Today', cta: 'Download Now',        disclaimer: '',                    label: 'English' },
+  'ja':   { header: 'Today', cta: '今すぐダウンロード',    disclaimer: '',                    label: '日本語' },
+  'zh-TW':{ header: 'Today', cta: '立即下載',             disclaimer: '',                    label: '繁體中文' },
+};
+
+const SIZE_PACK = {
+  '1x1':      { w: 1080, h: 1080, label: '1:1' },
+  '9x16':     { w: 1080, h: 1920, label: '9:16' },
+  '1200x628': { w: 1200, h: 628,  label: '1200×628' },
+};
+
+const OVERFLOW_PRESETS = {
+  '1x1':      { x:  0, y: -5, scale: 105 },
+  '9x16':     { x:  0, y: -3, scale: 103 },
+  '1200x628': { x:  5, y: -2, scale: 102 },
+};
+
+// Plan FR-02/11: 사이즈별 권장 글자수 (한글 기준)
+const TITLE_HINTS    = { '1x1': 18, '9x16': 15, '1200x628': 14 };
+const SUBTITLE_HINTS = { '1x1': 24, '9x16': 20, '1200x628': 22 };
+
+// Plan FR-15: Drop Shadow 기본값 (비활성 상태)
+const SHADOW_DEFAULT = { enabled: false, x: 0, y: 8, blur: 16, opacity: 40 };
+
+const PRESETS = {
+  underdark:  { title: '언더다크 : 디펜스',  subtitle: '성큰 디펜스' },
+  necomancer: { title: '네코맨서: 타워 디펜스', subtitle: '오컬트 타워 디펜스' },
+};
+
+// ===========================================================================
+// r3 FR-20~25: 사용자 정의 프리셋 (localStorage 기반)
+// 저장 대상: title + subtitle + cta + disclaimer (이미지 제외, β안)
+// 단건 저장 시 현재 언어만 값, 나머지 3개 언어는 빈 문자열
+// 배치 저장 시 4개 언어 전체 스냅샷
+// ===========================================================================
+const CP_KEY = 'todayBannerDesigner:customPresets:v1';
+const CP_LANGS = ['ko', 'en', 'ja', 'zh-TW'];
+
+function getCustomPresets() {
+  try {
+    const raw = localStorage.getItem(CP_KEY);
+    if (!raw) return { presets: [] };
+    const parsed = JSON.parse(raw);
+    return parsed && Array.isArray(parsed.presets) ? parsed : { presets: [] };
+  } catch (_) {
+    return { presets: [] };
+  }
+}
+
+function saveCustomPresets(obj) {
+  try {
+    localStorage.setItem(CP_KEY, JSON.stringify(obj));
+    return true;
+  } catch (err) {
+    alert('프리셋 저장 실패: localStorage 접근 불가 또는 공간 초과.\n오래된 프리셋을 삭제 후 다시 시도해주세요.');
+    return false;
+  }
+}
+
+function emptyLangSlot() {
+  return { title: '', subtitle: '', cta: '', disclaimer: '' };
+}
+
+function makePresetDataFromSingle() {
+  const s = state.single;
+  const data = {};
+  CP_LANGS.forEach(l => data[l] = emptyLangSlot());
+  data[s.lang] = {
+    title: s.title || '',
+    subtitle: s.subtitle || '',
+    cta: s.cta || '',
+    disclaimer: s.disclaimer || '',
+  };
+  return data;
+}
+
+function makePresetDataFromBatch() {
+  const b = state.batch;
+  const data = {};
+  CP_LANGS.forEach(lang => {
+    // 현재 DOM input 값을 우선 사용 (state.langOverrides는 syncBatch 시점 이전일 수 있음)
+    const titleEl    = document.getElementById(`b-title-${lang}`);
+    const subtitleEl = document.getElementById(`b-subtitle-${lang}`);
+    const ctaEl      = document.getElementById(`b-cta-${lang}`);
+    const discEl     = document.getElementById(`b-disc-${lang}`);
+    const o = b.langOverrides[lang] || {};
+    data[lang] = {
+      title:      (titleEl    ? titleEl.value    : o.title)      || '',
+      subtitle:   (subtitleEl ? subtitleEl.value : o.subtitle)   || '',
+      cta:        (ctaEl      ? ctaEl.value      : o.cta)        || '',
+      disclaimer: (discEl     ? discEl.value     : o.disclaimer) || '',
+    };
+  });
+  return data;
+}
+
+function savePresetFlow(source /* 'single' | 'batch' */) {
+  const name = (prompt('프리셋 이름을 입력하세요:') || '').trim();
+  if (!name) return;
+  const store = getCustomPresets();
+  const existing = store.presets.find(p => p.name === name);
+  const data = source === 'single' ? makePresetDataFromSingle() : makePresetDataFromBatch();
+  const now = new Date().toISOString();
+  if (existing) {
+    if (!confirm(`"${name}" 프리셋이 이미 존재합니다. 덮어쓸까요?`)) return;
+    existing.data = data;
+    existing.updatedAt = now;
+  } else {
+    store.presets.push({
+      id: `p_${Date.now()}`,
+      name,
+      createdAt: now,
+      updatedAt: now,
+      data,
+    });
+  }
+  if (!saveCustomPresets(store)) return;
+  renderPresetListUI();
+  alert(`프리셋 "${name}" 저장 완료`);
+}
+
+function deletePresetById(id) {
+  const store = getCustomPresets();
+  const p = store.presets.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`"${p.name}" 프리셋을 삭제할까요?`)) return;
+  store.presets = store.presets.filter(x => x.id !== id);
+  if (!saveCustomPresets(store)) return;
+  renderPresetListUI();
+}
+
+function applyCustomPresetToSingle(preset) {
+  const slot = (preset.data && preset.data[state.single.lang]) || emptyLangSlot();
+  // 빈 문자열은 덮어쓰지 않음 (단건 프리셋 상호운용 — 다른 언어에서 저장된 프리셋은 현재 언어 slot이 비어있을 수 있음)
+  if (slot.title)      { state.single.title = slot.title;           document.getElementById('s-title').value      = slot.title; }
+  if (slot.subtitle)   { state.single.subtitle = slot.subtitle;     document.getElementById('s-subtitle').value   = slot.subtitle; }
+  if (slot.cta)        { state.single.cta = slot.cta;               document.getElementById('s-cta').value        = slot.cta; }
+  if (slot.disclaimer) { state.single.disclaimer = slot.disclaimer; document.getElementById('s-disclaimer').value = slot.disclaimer; }
+  refreshSinglePreview();
+  const statusEl = document.getElementById('s-status');
+  if (statusEl) statusEl.textContent = `프리셋 "${preset.name}" 적용됨 (${LANG_PACK[state.single.lang].label})`;
+}
+
+function applyCustomPresetToBatch(preset) {
+  // 체크된 언어 기준으로 복원 (체크 안 된 언어의 slot 값은 langOverrides에만 저장됨)
+  const selectedLangs = [...document.querySelectorAll('.b-lang:checked')].map(cb => cb.value);
+  CP_LANGS.forEach(lang => {
+    const slot = (preset.data && preset.data[lang]) || emptyLangSlot();
+    state.batch.langOverrides[lang] = state.batch.langOverrides[lang] || {};
+    Object.assign(state.batch.langOverrides[lang], {
+      title: slot.title,
+      subtitle: slot.subtitle,
+      cta: slot.cta || LANG_PACK[lang].cta,
+      disclaimer: slot.disclaimer,
+    });
+    // B-01 fix: renderBatchLangFields가 existing(현 DOM 값)을 우선하므로
+    //           현재 표시 중인 input에 프리셋 값을 직접 써줘야 재렌더 이후에도 반영됨
+    const titleEl    = document.getElementById(`b-title-${lang}`);
+    const subtitleEl = document.getElementById(`b-subtitle-${lang}`);
+    const ctaEl      = document.getElementById(`b-cta-${lang}`);
+    const discEl     = document.getElementById(`b-disc-${lang}`);
+    if (titleEl)    titleEl.value    = slot.title;
+    if (subtitleEl) subtitleEl.value = slot.subtitle;
+    if (ctaEl)      ctaEl.value      = slot.cta || LANG_PACK[lang].cta;
+    if (discEl)     discEl.value     = slot.disclaimer;
+  });
+  renderBatchLangFields(); // 입력란 재렌더 (existing 스냅샷이 방금 쓴 프리셋 값을 담음)
+  const statusEl = document.getElementById('b-status');
+  if (statusEl) statusEl.textContent = `프리셋 "${preset.name}" 적용됨 (${selectedLangs.length}개 언어)`;
+}
+
+function renderPresetListUI() {
+  const store = getCustomPresets();
+
+  // 단건 모드: #s-custom-preset-list 에 버튼들 렌더
+  const singleList = document.getElementById('s-custom-preset-list');
+  if (singleList) {
+    singleList.innerHTML = '';
+    if (store.presets.length === 0) {
+      singleList.innerHTML = '<p class="text-[10px] text-gray-500 col-span-2">저장된 프리셋이 없습니다</p>';
+    } else {
+      store.presets.forEach(p => {
+        const wrap = document.createElement('div');
+        wrap.className = 'flex items-center gap-1';
+        wrap.innerHTML = `
+          <button class="btn btn-secondary text-xs flex-1 truncate" data-custom-id="${p.id}" title="${escapeHTML(p.name)}">${escapeHTML(p.name)}</button>
+          <button class="btn btn-secondary text-xs" data-custom-delete="${p.id}" title="삭제">🗑</button>
+        `;
+        singleList.appendChild(wrap);
+      });
+      singleList.querySelectorAll('[data-custom-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-custom-id');
+          const preset = getCustomPresets().presets.find(x => x.id === id);
+          if (preset) applyCustomPresetToSingle(preset);
+        });
+      });
+      singleList.querySelectorAll('[data-custom-delete]').forEach(btn => {
+        btn.addEventListener('click', () => deletePresetById(btn.getAttribute('data-custom-delete')));
+      });
+    }
+  }
+
+  // 배치 모드: #b-custom-preset-optgroup 에 option 주입
+  const batchOptgroup = document.getElementById('b-custom-preset-optgroup');
+  if (batchOptgroup) {
+    batchOptgroup.innerHTML = '';
+    store.presets.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = `custom:${p.id}`;
+      opt.textContent = p.name;
+      batchOptgroup.appendChild(opt);
+    });
+    // 프리셋 0개면 optgroup 자체 비활성화 (select에서 빈 optgroup 숨김)
+    batchOptgroup.disabled = store.presets.length === 0;
+    batchOptgroup.label = store.presets.length === 0 ? '내 프리셋 (없음)' : '내 프리셋';
+  }
+}
+
+// ===========================================================================
+// 2. 공통 state
+// ===========================================================================
+const state = {
+  single: {
+    size: '1x1', lang: 'ko', header: 'Today',
+    title: '', subtitle: '',
+    cta: '지금 다운로드', disclaimer: '*확률형 아이템 포함',
+    keyart: null, icon: null,
+    format: 'png', scale: 1,
+    overflow: null,
+    overflowX: OVERFLOW_PRESETS['1x1'].x,
+    overflowY: OVERFLOW_PRESETS['1x1'].y,
+    overflowScale: OVERFLOW_PRESETS['1x1'].scale,
+    // Plan FR-12/13: Drop Shadow 설정
+    shadow: { ...SHADOW_DEFAULT },
+  },
+  batch: {
+    // r3 FR-18/19: 기본값 변경 (9:16→1200x628, 2개 언어→4개 언어)
+    sizes: ['1x1', '1200x628'],
+    langs: ['ko', 'en', 'ja', 'zh-TW'],
+    langOverrides: {},
+    keyart: null, icon: null,
+    prefix: 'banner', format: 'png', scale: 1,
+    overflow: null,
+    overflowEditingSize: '1x1',
+    overflowPerSize: {
+      '1x1':      { ...OVERFLOW_PRESETS['1x1'] },
+      '9x16':     { ...OVERFLOW_PRESETS['9x16'] },
+      '1200x628': { ...OVERFLOW_PRESETS['1200x628'] },
+    },
+    // Plan FR-14: 사이즈별 Drop Shadow 독립 저장
+    shadowPerSize: {
+      '1x1':      { ...SHADOW_DEFAULT },
+      '9x16':     { ...SHADOW_DEFAULT },
+      '1200x628': { ...SHADOW_DEFAULT },
+    },
+    // Plan FR-07: 프리뷰 단계에서 생성된 config 보관 (다운로드 시 재사용)
+    previewCombos: [],
+  },
+  ui: { previewScale: 0.45 },
+};
+
+// ===========================================================================
+// 3. 배너 렌더 함수
+// ===========================================================================
+function renderBanner(cfg) {
+  const banner = document.createElement('div');
+  banner.className = `banner size-${cfg.size}`;
+  banner.setAttribute('data-lang', cfg.lang);
+
+  const header = document.createElement('div');
+  header.className = 'banner-header';
+  header.style.position = 'relative';
+  header.style.zIndex = '20';
+  header.textContent = cfg.header || LANG_PACK[cfg.lang].header;
+  banner.appendChild(header);
+
+  const profile = document.createElement('div');
+  profile.className = 'profile-icon';
+  profile.style.zIndex = '20';
+  profile.innerHTML = '<svg viewBox="0 0 24 24" fill="#ffffff" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+  banner.appendChild(profile);
+
+  const card = buildCard(cfg);
+  banner.appendChild(card);
+
+  if (cfg.overflow) {
+    const ox = (cfg.overflowX ?? 0);
+    const oy = (cfg.overflowY ?? 0);
+    const oscale = (cfg.overflowScale ?? 100) / 100;
+    const wrap = document.createElement('div');
+    wrap.className = 'banner-overflow-wrap';
+    // bugfix FR-13: transform을 wrap → img로 이동 (wrap의 clip-path가 정상 작동하도록 wrap 위치 고정)
+    const img = document.createElement('img');
+    img.className = 'banner-overflow-img';
+    img.src = cfg.overflow;
+    img.crossOrigin = 'anonymous';
+    img.style.transform = `translate(${ox}%, ${oy}%) scale(${oscale})`;
+    img.style.transformOrigin = 'center bottom';
+    // Plan FR-12 (banner-bugfix): Drop Shadow (cfg.shadow.enabled일 때만)
+    if (cfg.shadow && cfg.shadow.enabled) {
+      const op = (cfg.shadow.opacity ?? 40) / 100;
+      img.style.filter =
+        `drop-shadow(${cfg.shadow.x ?? 0}px ${cfg.shadow.y ?? 8}px ${cfg.shadow.blur ?? 16}px rgba(0,0,0,${op}))`;
+    }
+    wrap.appendChild(img);
+    banner.appendChild(wrap);
+  }
+
+  const darkbar = buildDarkbar(cfg);
+  banner.appendChild(darkbar);
+
+  if (cfg.disclaimer && cfg.disclaimer.trim()) {
+    const disc = document.createElement('div');
+    disc.className = 'banner-disclaimer';
+    disc.style.zIndex = '20';
+    disc.textContent = cfg.disclaimer;
+    banner.appendChild(disc);
+  }
+
+  return banner;
+}
+
+function buildCard(cfg) {
+  const card = document.createElement('div');
+  card.className = 'banner-card';
+  if (cfg.keyart) {
+    const img = document.createElement('img');
+    img.className = 'banner-keyart';
+    img.src = cfg.keyart;
+    img.crossOrigin = 'anonymous';
+    card.appendChild(img);
+  } else {
+    const ph = document.createElement('div');
+    ph.className = 'banner-keyart-placeholder';
+    ph.textContent = 'Keyart';
+    card.appendChild(ph);
+  }
+  return card;
+}
+
+function buildDarkbar(cfg) {
+  const darkbar = document.createElement('div');
+  darkbar.className = 'banner-darkbar';
+  const left = document.createElement('div');
+  left.className = 'darkbar-left';
+  if (cfg.icon) {
+    const iconImg = document.createElement('img');
+    iconImg.className = 'banner-icon';
+    iconImg.src = cfg.icon;
+    iconImg.crossOrigin = 'anonymous';
+    left.appendChild(iconImg);
+  } else {
+    const iconPh = document.createElement('div');
+    iconPh.className = 'banner-icon';
+    iconPh.style.background = '#444';
+    left.appendChild(iconPh);
+  }
+  const text = document.createElement('div');
+  text.className = 'darkbar-text';
+  const t1 = document.createElement('div');
+  t1.className = 'game-title';
+  t1.textContent = cfg.title || 'Game Title';
+  const t2 = document.createElement('div');
+  t2.className = 'game-subtitle';
+  t2.textContent = cfg.subtitle || 'Subtitle';
+  text.appendChild(t1);
+  text.appendChild(t2);
+  left.appendChild(text);
+  const right = document.createElement('button');
+  right.className = 'cta-button';
+  right.textContent = cfg.cta || LANG_PACK[cfg.lang].cta;
+  darkbar.appendChild(left);
+  darkbar.appendChild(right);
+  return darkbar;
+}
+
+// ===========================================================================
+// 4. 이미지 변환 유틸
+// ===========================================================================
+function fileToDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function bannerToImage(bannerEl, opts = {}) {
+  const { format = 'png', scale = 1 } = opts;
+  const htmlToImage = window.htmlToImage;
+  const commonOpts = { pixelRatio: scale, cacheBust: true, skipFonts: false };
+  if (format === 'jpg' || format === 'jpeg') {
+    return await htmlToImage.toJpeg(bannerEl, { ...commonOpts, quality: 0.95, backgroundColor: '#ffffff' });
+  }
+  return await htmlToImage.toPng(bannerEl, commonOpts);
+}
+
+// ===========================================================================
+// 4-B. bugfix Plan: Canvas 직접 합성 (FR-01 ~ FR-08)
+// html-to-image를 대체하여 배치 8장 기준 20~30초 → 1~2초 목표
+// ===========================================================================
+
+// bugfix Plan R-08: 롤백 플래그. false로 바꾸면 기존 html-to-image 경로로 복구
+const USE_CANVAS_EXPORT = true;
+
+// bugfix Plan FR-03: 사이즈별 레이아웃 수치 (CSS 값과 동일하게 이관)
+const CANVAS_SPECS = {
+  '1x1': {
+    w: 1080, h: 1080,
+    padding: { top: 60, right: 60, bottom: 60, left: 60 },
+    header: { fontSize: 120, weight: 900, style: 'italic', letterSpacing: -0.04, marginBottom: 24 },
+    card: { radius: 45, reservedBottom: 40 },
+    darkbar: { bottomOffset: 60, height: 180, paddingX: 44, gap: 24, radius: 45 },
+    leftGap: 20,
+    icon: { size: 110, radius: 26 },
+    title: { fontSize: 42, weight: 800, letterSpacing: -0.02, lineHeight: 1.15, color: '#ffffff' },
+    subtitle: { fontSize: 24, weight: 400, color: '#b3b3b3', lineHeight: 1.2 },
+    cta: { fontSize: 26, weight: 600, paddingX: 32, paddingY: 14, borderWidth: 2, letterSpacing: -0.01 },
+    disclaimer: { fontSize: 16, bottom: 20, right: 28, color: '#8a8a8a' },
+    profile: { show: false },
+  },
+  '9x16': {
+    w: 1080, h: 1920,
+    padding: { top: 80, right: 80, bottom: 80, left: 80 },
+    header: { fontSize: 180, weight: 900, style: 'italic', letterSpacing: -0.04, marginBottom: 36 },
+    card: { radius: 45, reservedBottom: 60 },
+    darkbar: { bottomOffset: 80, height: 220, paddingX: 56, gap: 24, radius: 45 },
+    leftGap: 20,
+    icon: { size: 140, radius: 32 },
+    title: { fontSize: 56, weight: 800, letterSpacing: -0.02, lineHeight: 1.15, color: '#ffffff' },
+    subtitle: { fontSize: 32, weight: 400, color: '#b3b3b3', lineHeight: 1.2 },
+    cta: { fontSize: 34, weight: 600, paddingX: 40, paddingY: 18, borderWidth: 2, letterSpacing: -0.01 },
+    disclaimer: { fontSize: 24, bottom: 34, right: 60, color: '#8a8a8a' },
+    profile: { show: false },
+  },
+  '1200x628': {
+    w: 1200, h: 628,
+    padding: { top: 30, right: 40, bottom: 28, left: 40 },
+    header: { fontSize: 104, weight: 900, style: 'italic', letterSpacing: -0.04, marginBottom: 12 },
+    card: { radius: 32, reservedBottom: 0 },
+    darkbar: { bottomOffset: 28, height: 108, paddingX: 28, gap: 24, radius: 32 },
+    leftGap: 14,
+    icon: { size: 74, radius: 18 },
+    title: { fontSize: 30, weight: 800, letterSpacing: -0.02, lineHeight: 1.15, color: '#ffffff' },
+    subtitle: { fontSize: 17, weight: 400, color: '#b3b3b3', lineHeight: 1.2 },
+    cta: { fontSize: 22, weight: 600, paddingX: 28, paddingY: 11, borderWidth: 2.5, letterSpacing: -0.01 },
+    disclaimer: { fontSize: 15, bottom: 8, right: 32, color: '#8a8a8a' },
+    profile: { show: true, size: 44, top: 30, right: 40, bg: '#5b9bd5' },
+  },
+};
+
+// roundRect polyfill (Chrome 99+ / Safari 16+ / Firefox 115+에서 기본 제공)
+if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    let tl, tr, br, bl;
+    if (typeof r === 'number') { tl = tr = br = bl = r; }
+    else if (Array.isArray(r)) {
+      if (r.length === 4) [tl, tr, br, bl] = r;
+      else if (r.length === 2) [tl, br] = r, tr = tl, bl = br;
+      else [tl] = r, tr = br = bl = tl;
+    } else { tl = tr = br = bl = 0; }
+    this.moveTo(x + tl, y);
+    this.lineTo(x + w - tr, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + tr);
+    this.lineTo(x + w, y + h - br);
+    this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+    this.lineTo(x + bl, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - bl);
+    this.lineTo(x, y + tl);
+    this.quadraticCurveTo(x, y, x + tl, y);
+    return this;
+  };
+}
+
+// bugfix Plan: 이미지 decode 1회 캐시 (data URL 기반). 배치 시 동일 키아트/오버플로우 재사용
+const _imgCache = new Map();
+async function loadCachedImage(dataURL) {
+  if (!dataURL) return null;
+  if (_imgCache.has(dataURL)) return _imgCache.get(dataURL);
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = dataURL;
+  if (img.decode) { try { await img.decode(); } catch (_) {} }
+  else { await new Promise(r => { img.onload = r; img.onerror = r; }); }
+  _imgCache.set(dataURL, img);
+  return img;
+}
+
+async function prepCfgImages(cfg) {
+  const [keyartImg, overflowImg, iconImg] = await Promise.all([
+    loadCachedImage(cfg.keyart),
+    loadCachedImage(cfg.overflow),
+    loadCachedImage(cfg.icon),
+  ]);
+  return { ...cfg, _keyartImg: keyartImg, _overflowImg: overflowImg, _iconImg: iconImg };
+}
+
+// bugfix Plan FR-04: 폰트 사전 로드
+let _fontsLoadedPromise = null;
+function ensureFontsLoaded() {
+  if (_fontsLoadedPromise) return _fontsLoadedPromise;
+  if (!document.fonts || !document.fonts.load) {
+    _fontsLoadedPromise = Promise.resolve();
+    return _fontsLoadedPromise;
+  }
+  const specs = [
+    "italic 900 180px 'Pretendard'",
+    "800 56px 'Pretendard'", "400 32px 'Pretendard'",
+    "600 34px 'Pretendard'", "400 24px 'Pretendard'",
+    "italic 900 180px 'Noto Sans JP'",
+    "800 56px 'Noto Sans JP'", "400 32px 'Noto Sans JP'",
+    "italic 900 180px 'Noto Sans TC'",
+    "800 56px 'Noto Sans TC'", "400 32px 'Noto Sans TC'",
+  ];
+  _fontsLoadedPromise = Promise.all(specs.map(s => document.fonts.load(s).catch(() => {})))
+    .then(() => document.fonts.ready)
+    .catch(() => {});
+  return _fontsLoadedPromise;
+}
+
+function getFontFamilyForLang(lang) {
+  if (lang === 'ja')    return "'Noto Sans JP', 'Pretendard', sans-serif";
+  if (lang === 'zh-TW') return "'Noto Sans TC', 'Pretendard', sans-serif";
+  return "'Pretendard', sans-serif";
+}
+
+// r3 FR-15: 일본어 game-title/subtitle 0.85배 고정 축소 (CTA 영역 침범 방지)
+function getTitleScaleByLang(lang) {
+  return lang === 'ja' ? 0.85 : 1;
+}
+
+// object-fit: cover 재현
+function drawImageCover(ctx, img, x, y, w, h) {
+  const scale = Math.max(w / img.width, h / img.height);
+  const sw = w / scale, sh = h / scale;
+  const sx = (img.width - sw) / 2;
+  const sy = (img.height - sh) / 2;
+  ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+}
+
+// bugfix Plan FR-01/02/05: Canvas 직접 합성 핵심
+async function buildBannerCanvas(cfg) {
+  const spec = CANVAS_SPECS[cfg.size];
+  const pixelRatio = Math.max(1, cfg.scale || 1);
+  const canvas = document.createElement('canvas');
+  canvas.width  = spec.w * pixelRatio;
+  canvas.height = spec.h * pixelRatio;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(pixelRatio, pixelRatio);
+  ctx.textBaseline = 'top';
+  const fontFamily = getFontFamilyForLang(cfg.lang);
+
+  // [1] 배경
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, spec.w, spec.h);
+
+  const pad = spec.padding;
+
+  // [2] Today 헤더 (italic, letter-spacing)
+  const headerText = cfg.header || LANG_PACK[cfg.lang].header;
+  ctx.fillStyle = '#000000';
+  ctx.font = `${spec.header.style} ${spec.header.weight} ${spec.header.fontSize}px ${fontFamily}`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = `${spec.header.letterSpacing}em`;
+  ctx.textAlign = 'left';
+  ctx.fillText(headerText, pad.left, pad.top);
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+
+  // [3] 프로필 아이콘 (1200×628만)
+  if (spec.profile.show) {
+    const p = spec.profile;
+    const cx = spec.w - p.right - p.size / 2;
+    const cy = p.top + p.size / 2;
+    const r = p.size / 2;
+    ctx.fillStyle = p.bg;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.fill();
+    // SVG 사람 아이콘 근사 (머리 + 어깨)
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(cx, cy - r * 0.18, r * 0.28, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, cy + r * 0.55, r * 0.56, Math.PI, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  // [4] 카드 영역 계산 (CSS: height = 100% - header - margin - reservedBottom)
+  const contentH = spec.h - pad.top - pad.bottom;
+  const cardX = pad.left;
+  const cardY = pad.top + spec.header.fontSize + spec.header.marginBottom;
+  const cardW = spec.w - pad.left - pad.right;
+  const cardH = contentH - spec.header.fontSize - spec.header.marginBottom - spec.card.reservedBottom;
+
+  // 카드: rounded clip + 키아트 (또는 placeholder)
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(cardX, cardY, cardW, cardH, spec.card.radius);
+  ctx.clip();
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillRect(cardX, cardY, cardW, cardH);
+  if (cfg._keyartImg) {
+    drawImageCover(ctx, cfg._keyartImg, cardX, cardY, cardW, cardH);
+  } else {
+    const grad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
+    grad.addColorStop(0, '#1e293b');
+    grad.addColorStop(1, '#0f172a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(cardX, cardY, cardW, cardH);
+    ctx.fillStyle = '#64748b';
+    ctx.font = `700 48px ${fontFamily}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Keyart', cardX + cardW / 2, cardY + cardH / 2);
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'left';
+  }
+  ctx.restore();
+
+  // [5] 다크바 영역 사전 계산 (오버플로우 clip 경계로 사용)
+  const db = spec.darkbar;
+  const darkbarX = pad.left;
+  const darkbarY = spec.h - db.bottomOffset - db.height;
+  const darkbarW = spec.w - pad.left - pad.right;
+
+  // [6] 오버플로우 + drop-shadow (clip: 하단만, 상·좌·우 자유)
+  if (cfg._overflowImg) {
+    // wrap 영역 (CSS 계산식 재현): top = pad.top + header + margin - [사이즈별 보조값]
+    // CSS 값:
+    //   1:1    : top = 60 + 120 + 24 - 80  (= 124),  bottom = 60 + 180  (= 240, banner bottom 기준)
+    //   9:16   : top = 80 + 180 + 36 - 140 (= 156),  bottom = 80 + 220  (= 300)
+    //   1200x628: top = 30 + 104 + 12 - 40  (= 106),  bottom = 28 + 108  (= 136)
+    const wrapTopBoost  = cfg.size === '9x16' ? 140 : cfg.size === '1200x628' ? 40 : 80;
+    const wrapTop       = pad.top + spec.header.fontSize + spec.header.marginBottom - wrapTopBoost;
+    const wrapBottomY   = spec.h - (db.bottomOffset + db.height);  // = darkbar top (하단 클립선)
+    const wrapLeft      = pad.left;
+    const wrapRight     = pad.right;
+    const wrapX         = wrapLeft;
+    const wrapY         = wrapTop;
+    const wrapW         = spec.w - wrapLeft - wrapRight;
+    const wrapH         = wrapBottomY - wrapTop;
+
+    // object-fit: contain + object-position: center bottom
+    const img = cfg._overflowImg;
+    const fit = Math.min(wrapW / img.width, wrapH / img.height);
+    const imgW0 = img.width  * fit;
+    const imgH0 = img.height * fit;
+    const imgX0 = wrapX + (wrapW - imgW0) / 2;
+    const imgY0 = wrapY + (wrapH - imgH0);  // bottom-aligned (object-position center bottom)
+
+    const ox = cfg.overflowX ?? 0;
+    const oy = cfg.overflowY ?? 0;
+    const os = (cfg.overflowScale ?? 100) / 100;
+    const originX = wrapX + wrapW / 2;
+    const originY = wrapY + wrapH;  // center bottom
+
+    ctx.save();
+    // FR-12: 하단만 클립 — 좌우·상단 무제한. 하단 경계 = darkbar 상단
+    ctx.beginPath();
+    ctx.rect(-10000, -10000, spec.w + 20000, wrapBottomY + 10000);
+    ctx.clip();
+
+    // Drop shadow 적용
+    if (cfg.shadow && cfg.shadow.enabled) {
+      ctx.shadowOffsetX = cfg.shadow.x || 0;
+      ctx.shadowOffsetY = cfg.shadow.y || 0;
+      ctx.shadowBlur    = cfg.shadow.blur || 0;
+      ctx.shadowColor   = `rgba(0,0,0,${(cfg.shadow.opacity || 0) / 100})`;
+    }
+
+    // transform 적용 (translate then scale around center bottom)
+    ctx.translate(originX, originY);
+    ctx.translate((ox / 100) * wrapW, (oy / 100) * wrapH);
+    ctx.scale(os, os);
+    ctx.translate(-originX, -originY);
+
+    ctx.drawImage(img, imgX0, imgY0, imgW0, imgH0);
+    ctx.restore();
+  }
+
+  // [7] 다크바 (rounded 하단, rgba 97% 검정)
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(darkbarX, darkbarY, darkbarW, db.height, [0, 0, db.radius, db.radius]);
+  ctx.clip();
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.97)';
+  ctx.fillRect(darkbarX, darkbarY, darkbarW, db.height);
+  ctx.restore();
+
+  // [8] 앱 아이콘 (rounded)
+  const iconX = darkbarX + db.paddingX;
+  const iconY = darkbarY + (db.height - spec.icon.size) / 2;
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(iconX, iconY, spec.icon.size, spec.icon.size, spec.icon.radius);
+  ctx.clip();
+  ctx.fillStyle = '#444';
+  ctx.fillRect(iconX, iconY, spec.icon.size, spec.icon.size);
+  if (cfg._iconImg) {
+    drawImageCover(ctx, cfg._iconImg, iconX, iconY, spec.icon.size, spec.icon.size);
+  }
+  ctx.restore();
+
+  // [9] CTA 먼저 측정 → 우측 배치
+  const ctaText = cfg.cta || LANG_PACK[cfg.lang].cta;
+  ctx.font = `${spec.cta.weight} ${spec.cta.fontSize}px ${fontFamily}`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = `${spec.cta.letterSpacing}em`;
+  const ctaTextW = ctx.measureText(ctaText).width;
+  const ctaW = ctaTextW + spec.cta.paddingX * 2;
+  const ctaH = spec.cta.fontSize + spec.cta.paddingY * 2;
+  const ctaX = darkbarX + darkbarW - db.paddingX - ctaW;
+  const ctaY = darkbarY + (db.height - ctaH) / 2;
+  const ctaRadius = ctaH / 2;
+
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = spec.cta.borderWidth;
+  ctx.beginPath();
+  ctx.roundRect(ctaX, ctaY, ctaW, ctaH, ctaRadius);
+  ctx.stroke();
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(ctaText, ctaX + ctaW / 2, ctaY + ctaH / 2 + 1);
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+
+  // [10] 게임명 + 부제 (nowrap, no ellipsis — bugfix에서도 동일 정책)
+  const textX = iconX + spec.icon.size + spec.leftGap;
+  // r3 FR-15: 일본어 0.85배 축소 (title/subtitle 공통)
+  const titleScale = getTitleScaleByLang(cfg.lang);
+  const titleFS = Math.round(spec.title.fontSize * titleScale);
+  const subFS = Math.round(spec.subtitle.fontSize * titleScale);
+  // r3 FR-17: lineGap 2→4 통일
+  const lineGap = 4;
+  const textBlockH = titleFS + lineGap + subFS;
+  const textBlockY = darkbarY + (db.height - textBlockH) / 2;
+
+  // title
+  ctx.fillStyle = spec.title.color;
+  ctx.font = `${spec.title.weight} ${titleFS}px ${fontFamily}`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = `${spec.title.letterSpacing}em`;
+  ctx.fillText(cfg.title || 'Game Title', textX, textBlockY);
+
+  // subtitle
+  ctx.fillStyle = spec.subtitle.color;
+  ctx.font = `${spec.subtitle.weight} ${subFS}px ${fontFamily}`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  ctx.fillText(cfg.subtitle || 'Subtitle', textX, textBlockY + titleFS + lineGap);
+
+  // [11] 고지문구
+  if (cfg.disclaimer && cfg.disclaimer.trim()) {
+    const d = spec.disclaimer;
+    ctx.fillStyle = d.color;
+    ctx.font = `400 ${d.fontSize}px ${fontFamily}`;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(cfg.disclaimer, spec.w - d.right, spec.h - d.bottom);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+  }
+
+  return canvas;
+}
+
+function canvasToDataURL(canvas, format, quality) {
+  const mime = (format === 'jpg' || format === 'jpeg') ? 'image/jpeg' : 'image/png';
+  return canvas.toDataURL(mime, quality !== undefined ? quality : 0.95);
+}
+
+function downloadDataURL(dataURL, filename) {
+  const a = document.createElement('a');
+  a.href = dataURL;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+// ===========================================================================
+// 5. Dropzone 바인딩
+// ===========================================================================
+function setupDropzone(zoneId, onFile) {
+  const zone = document.getElementById(zoneId);
+  const input = zone.querySelector('input[type="file"]');
+  const removeBtn = zone.querySelector('.dropzone-remove');
+  zone.addEventListener('click', (e) => { if (e.target === removeBtn) return; input.click(); });
+  input.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const dataURL = await fileToDataURL(file);
+    setZoneImage(zone, dataURL);
+    onFile(dataURL);
+  });
+  zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.style.borderColor = 'var(--accent)'; });
+  zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; });
+  zone.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    zone.style.borderColor = '';
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const dataURL = await fileToDataURL(file);
+    setZoneImage(zone, dataURL);
+    onFile(dataURL);
+  });
+  removeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    clearZoneImage(zone);
+    input.value = '';
+    onFile(null);
+  });
+}
+
+function setZoneImage(zone, dataURL) {
+  clearZoneImage(zone);
+  zone.classList.add('has-image');
+  const img = document.createElement('img');
+  img.src = dataURL;
+  img.style.height = '120px';
+  zone.insertBefore(img, zone.firstChild);
+}
+function clearZoneImage(zone) {
+  zone.classList.remove('has-image');
+  const existing = zone.querySelector('img');
+  if (existing) existing.remove();
+}
+
+// ===========================================================================
+// 6. SINGLE 모드 이벤트 바인딩
+// ===========================================================================
+function bindSingleMode() {
+  const ids = ['s-size', 's-lang', 's-header', 's-title', 's-subtitle', 's-cta', 's-disclaimer', 's-format', 's-scale'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => { syncSingleStateFromUI(); refreshSinglePreview(); });
+    el.addEventListener('change', () => { syncSingleStateFromUI(); refreshSinglePreview(); });
+  });
+
+  document.getElementById('s-lang').addEventListener('change', (e) => {
+    const lang = e.target.value;
+    const pack = LANG_PACK[lang];
+    document.getElementById('s-cta').value = pack.cta;
+    document.getElementById('s-disclaimer').value = pack.disclaimer;
+    syncSingleStateFromUI();
+    refreshSinglePreview();
+  });
+
+  document.getElementById('s-size').addEventListener('change', (e) => {
+    applySingleOverflowPreset(e.target.value);
+    updateSingleHints(e.target.value);  // Plan FR-02/11: 사이즈 변경 시 힌트 갱신
+  });
+
+  setupDropzone('s-drop-keyart', (dataURL) => { state.single.keyart = dataURL; refreshSinglePreview(); });
+  setupDropzone('s-drop-overflow', (dataURL) => { state.single.overflow = dataURL; refreshSinglePreview(); });
+  setupDropzone('s-drop-icon', (dataURL) => { state.single.icon = dataURL; refreshSinglePreview(); });
+
+  ['s-overflow-x', 's-overflow-y', 's-overflow-scale'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      syncSingleStateFromUI();
+      updateSingleOverflowLabels();
+      refreshSinglePreview();
+    });
+  });
+
+  document.getElementById('s-overflow-reset').addEventListener('click', (e) => {
+    e.preventDefault();
+    applySingleOverflowPreset(state.single.size);
+  });
+
+  // Plan FR-13: Shadow UI 이벤트 바인딩 (단건 모드)
+  document.getElementById('s-shadow-enabled').addEventListener('change', (e) => {
+    state.single.shadow.enabled = e.target.checked;
+    applySingleShadowControlsState();
+    refreshSinglePreview();
+  });
+  ['s-shadow-x', 's-shadow-y', 's-shadow-blur', 's-shadow-opacity'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      syncSingleShadowFromUI();
+      updateSingleShadowLabels();
+      refreshSinglePreview();
+    });
+  });
+
+  document.querySelectorAll('[data-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const preset = PRESETS[btn.getAttribute('data-preset')];
+      if (!preset) return;
+      document.getElementById('s-title').value = preset.title;
+      document.getElementById('s-subtitle').value = preset.subtitle;
+      syncSingleStateFromUI();
+      refreshSinglePreview();
+    });
+  });
+
+  const slider = document.getElementById('s-preview-scale');
+  const label = document.getElementById('s-preview-scale-label');
+  slider.addEventListener('input', () => {
+    const v = parseInt(slider.value, 10) / 100;
+    state.ui.previewScale = v;
+    label.textContent = slider.value + '%';
+    applyPreviewScale();
+  });
+
+  document.getElementById('s-download').addEventListener('click', handleSingleDownload);
+
+  // r3 FR-21: 단건 프리셋 저장 버튼
+  const savePresetBtn = document.getElementById('s-save-preset');
+  if (savePresetBtn) savePresetBtn.addEventListener('click', () => {
+    syncSingleStateFromUI();  // 최신 입력값을 state에 반영 후 저장
+    savePresetFlow('single');
+  });
+}
+
+function syncSingleStateFromUI() {
+  state.single.size = document.getElementById('s-size').value;
+  state.single.lang = document.getElementById('s-lang').value;
+  state.single.header = document.getElementById('s-header').value;
+  state.single.title = document.getElementById('s-title').value;
+  state.single.subtitle = document.getElementById('s-subtitle').value;
+  state.single.cta = document.getElementById('s-cta').value;
+  state.single.disclaimer = document.getElementById('s-disclaimer').value;
+  state.single.format = document.getElementById('s-format').value;
+  state.single.scale = parseInt(document.getElementById('s-scale').value, 10);
+  state.single.overflowX = parseInt(document.getElementById('s-overflow-x').value, 10);
+  state.single.overflowY = parseInt(document.getElementById('s-overflow-y').value, 10);
+  state.single.overflowScale = parseInt(document.getElementById('s-overflow-scale').value, 10);
+}
+
+function applySingleOverflowPreset(size) {
+  const p = OVERFLOW_PRESETS[size] || OVERFLOW_PRESETS['1x1'];
+  document.getElementById('s-overflow-x').value = p.x;
+  document.getElementById('s-overflow-y').value = p.y;
+  document.getElementById('s-overflow-scale').value = p.scale;
+  state.single.overflowX = p.x;
+  state.single.overflowY = p.y;
+  state.single.overflowScale = p.scale;
+  updateSingleOverflowLabels();
+  refreshSinglePreview();
+}
+
+function updateSingleOverflowLabels() {
+  document.getElementById('s-overflow-x-label').textContent = state.single.overflowX + '%';
+  document.getElementById('s-overflow-y-label').textContent = state.single.overflowY + '%';
+  document.getElementById('s-overflow-scale-label').textContent = state.single.overflowScale + '%';
+}
+
+// Plan FR-13: Shadow 유틸 (단건 모드)
+function syncSingleShadowFromUI() {
+  state.single.shadow.x       = parseInt(document.getElementById('s-shadow-x').value, 10);
+  state.single.shadow.y       = parseInt(document.getElementById('s-shadow-y').value, 10);
+  state.single.shadow.blur    = parseInt(document.getElementById('s-shadow-blur').value, 10);
+  state.single.shadow.opacity = parseInt(document.getElementById('s-shadow-opacity').value, 10);
+}
+
+function updateSingleShadowLabels() {
+  document.getElementById('s-shadow-x-label').textContent       = state.single.shadow.x + 'px';
+  document.getElementById('s-shadow-y-label').textContent       = state.single.shadow.y + 'px';
+  document.getElementById('s-shadow-blur-label').textContent    = state.single.shadow.blur + 'px';
+  document.getElementById('s-shadow-opacity-label').textContent = state.single.shadow.opacity + '%';
+}
+
+function applySingleShadowControlsState() {
+  const el = document.getElementById('s-shadow-controls');
+  if (state.single.shadow.enabled) {
+    el.style.opacity = '1';
+    el.style.pointerEvents = 'auto';
+  } else {
+    el.style.opacity = '0.4';
+    el.style.pointerEvents = 'none';
+  }
+}
+
+// Plan FR-02/11: 단건 모드 힌트 갱신 (사이즈 변경 시)
+function updateSingleHints(size) {
+  const t = TITLE_HINTS[size] ?? 18;
+  const s = SUBTITLE_HINTS[size] ?? 24;
+  const sizeLabel = SIZE_PACK[size]?.label || size;
+  const titleHint = document.getElementById('s-title-hint');
+  const subtitleHint = document.getElementById('s-subtitle-hint');
+  if (titleHint)    titleHint.textContent    = `권장 글자수: ~${t}자 (한글 기준, ${sizeLabel})`;
+  if (subtitleHint) subtitleHint.textContent = `권장 글자수: ~${s}자 (한글 기준, ${sizeLabel})`;
+}
+
+function refreshSinglePreview() {
+  const container = document.getElementById('s-preview-container');
+  container.innerHTML = '';
+  const banner = renderBanner(state.single);
+  container.appendChild(banner);
+  applyPreviewScale();
+  const size = SIZE_PACK[state.single.size];
+  document.getElementById('s-preview-meta').textContent =
+    `${size.label} · ${size.w}×${size.h}px · ${LANG_PACK[state.single.lang].label}`;
+}
+
+function applyPreviewScale() {
+  const container = document.getElementById('s-preview-container');
+  const scale = state.ui.previewScale;
+  const size = SIZE_PACK[state.single.size];
+  container.style.transform = `scale(${scale})`;
+  container.style.width = size.w + 'px';
+  container.style.height = size.h + 'px';
+  container.parentElement.style.paddingBottom = (size.h * scale) + 'px';
+}
+
+// bugfix Plan FR-06: Canvas 경로로 전환 (롤백은 USE_CANVAS_EXPORT=false)
+async function handleSingleDownload() {
+  const statusEl = document.getElementById('s-status');
+  statusEl.textContent = '이미지 생성 중...';
+  const startT = performance.now();
+  try {
+    const ext = state.single.format === 'jpg' ? 'jpg' : 'png';
+    const filename = buildFilename({
+      prefix: slugify(state.single.title) || 'banner',
+      size: state.single.size, lang: state.single.lang, ext,
+    });
+    let dataURL;
+    if (USE_CANVAS_EXPORT) {
+      await ensureFontsLoaded();
+      const cfg = await prepCfgImages({ ...state.single });
+      const canvas = await buildBannerCanvas(cfg);
+      dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
+    } else {
+      // Fallback: 기존 html-to-image 경로
+      const stage = document.getElementById('renderStage');
+      stage.innerHTML = '';
+      const banner = renderBanner(state.single);
+      stage.appendChild(banner);
+      await waitForImages(banner);
+      await document.fonts.ready;
+      dataURL = await bannerToImage(banner, { format: state.single.format, scale: state.single.scale });
+      stage.innerHTML = '';
+    }
+    downloadDataURL(dataURL, filename);
+    const ms = Math.round(performance.now() - startT);
+    statusEl.textContent = `✅ 다운로드 완료: ${filename} (${ms}ms)`;
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = '❌ 실패: ' + err.message;
+  }
+}
+
+// Plan FR-09: img.decode() 기반 대기 (setTimeout 제거). 미지원 브라우저는 onload 폴백
+async function waitForImages(container) {
+  const imgs = container.querySelectorAll('img');
+  await Promise.all([...imgs].map(async img => {
+    if (img.complete && img.naturalWidth > 0) return;
+    if (typeof img.decode === 'function') {
+      try { await img.decode(); return; } catch (_) { /* fall through */ }
+    }
+    return new Promise((resolve) => { img.onload = resolve; img.onerror = resolve; });
+  }));
+}
+
+function slugify(str) {
+  return (str || '').toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_').slice(0, 40);
+}
+
+function buildFilename({ prefix, size, lang, ext }) {
+  return `${prefix}_${size}_${lang}.${ext}`;
+}
+
+// ===========================================================================
+// 7. BATCH 모드 이벤트 바인딩
+// ===========================================================================
+function bindBatchMode() {
+  document.querySelectorAll('.b-size, .b-lang').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('.check-pill').classList.toggle('selected', cb.checked);
+      syncBatchStateFromUI();
+      renderBatchLangFields();
+    });
+  });
+
+  ['b-prefix', 'b-format', 'b-scale'].forEach(id => {
+    document.getElementById(id).addEventListener('input', syncBatchStateFromUI);
+    document.getElementById(id).addEventListener('change', syncBatchStateFromUI);
+  });
+
+  setupDropzone('b-drop-keyart', (dataURL) => { state.batch.keyart = dataURL; });
+  setupDropzone('b-drop-overflow', (dataURL) => { state.batch.overflow = dataURL; });
+  setupDropzone('b-drop-icon', (dataURL) => { state.batch.icon = dataURL; });
+
+  // Plan FR-07/08: 2단계 분리 - 프리뷰 (이미지 변환 없음) / ZIP export (변환 + 다운로드)
+  document.getElementById('b-preview').addEventListener('click', handleBatchPreview);
+  document.getElementById('b-export-zip').addEventListener('click', handleBatchExportZip);
+
+  document.getElementById('b-apply-preset').addEventListener('click', (e) => {
+    e.preventDefault();
+    applyBatchPreset();
+  });
+
+  // r3 FR-21/23: 배치 프리셋 저장/삭제 이벤트
+  const bSaveBtn = document.getElementById('b-save-preset');
+  if (bSaveBtn) bSaveBtn.addEventListener('click', () => {
+    syncBatchStateFromUI();  // 최신 입력값 반영
+    savePresetFlow('batch');
+  });
+  const bDelBtn = document.getElementById('b-delete-preset');
+  if (bDelBtn) bDelBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const val = document.getElementById('b-preset').value;
+    if (!val.startsWith('custom:')) {
+      alert('삭제는 "내 프리셋" 그룹의 항목에만 가능합니다.');
+      return;
+    }
+    deletePresetById(val.slice('custom:'.length));
+    document.getElementById('b-preset').value = '';
+  });
+
+  document.getElementById('b-overflow-size').addEventListener('change', (e) => {
+    state.batch.overflowEditingSize = e.target.value;
+    loadBatchOverflowSliders();
+    loadBatchShadowSliders();  // Plan FR-14: Shadow도 사이즈별 복원
+  });
+
+  ['b-overflow-x', 'b-overflow-y', 'b-overflow-scale'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      const size = state.batch.overflowEditingSize;
+      state.batch.overflowPerSize[size] = {
+        x:     parseInt(document.getElementById('b-overflow-x').value, 10),
+        y:     parseInt(document.getElementById('b-overflow-y').value, 10),
+        scale: parseInt(document.getElementById('b-overflow-scale').value, 10),
+      };
+      updateBatchOverflowLabels();
+    });
+  });
+
+  document.getElementById('b-overflow-reset').addEventListener('click', (e) => {
+    e.preventDefault();
+    const size = state.batch.overflowEditingSize;
+    state.batch.overflowPerSize[size] = { ...OVERFLOW_PRESETS[size] };
+    loadBatchOverflowSliders();
+  });
+
+  // Plan FR-13/14: Shadow 이벤트 바인딩 (배치 모드, 사이즈별 저장)
+  document.getElementById('b-shadow-enabled').addEventListener('change', (e) => {
+    const size = state.batch.overflowEditingSize;
+    state.batch.shadowPerSize[size].enabled = e.target.checked;
+    applyBatchShadowControlsState();
+  });
+  ['b-shadow-x', 'b-shadow-y', 'b-shadow-blur', 'b-shadow-opacity'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      const size = state.batch.overflowEditingSize;
+      state.batch.shadowPerSize[size] = {
+        enabled: document.getElementById('b-shadow-enabled').checked,
+        x:       parseInt(document.getElementById('b-shadow-x').value, 10),
+        y:       parseInt(document.getElementById('b-shadow-y').value, 10),
+        blur:    parseInt(document.getElementById('b-shadow-blur').value, 10),
+        opacity: parseInt(document.getElementById('b-shadow-opacity').value, 10),
+      };
+      updateBatchShadowLabels();
+    });
+  });
+
+  renderBatchLangFields();
+  loadBatchOverflowSliders();
+  loadBatchShadowSliders();  // Plan FR-14: 초기 Shadow 슬라이더 로드
+}
+
+function loadBatchOverflowSliders() {
+  const size = state.batch.overflowEditingSize;
+  const p = state.batch.overflowPerSize[size] || OVERFLOW_PRESETS[size];
+  document.getElementById('b-overflow-x').value = p.x;
+  document.getElementById('b-overflow-y').value = p.y;
+  document.getElementById('b-overflow-scale').value = p.scale;
+  updateBatchOverflowLabels();
+}
+
+function updateBatchOverflowLabels() {
+  const size = state.batch.overflowEditingSize;
+  const p = state.batch.overflowPerSize[size] || OVERFLOW_PRESETS[size];
+  document.getElementById('b-overflow-x-label').textContent = p.x + '%';
+  document.getElementById('b-overflow-y-label').textContent = p.y + '%';
+  document.getElementById('b-overflow-scale-label').textContent = p.scale + '%';
+}
+
+// Plan FR-14: 배치 모드 Shadow 사이즈별 로드/저장/라벨 갱신
+function loadBatchShadowSliders() {
+  const size = state.batch.overflowEditingSize;
+  const s = state.batch.shadowPerSize[size] || SHADOW_DEFAULT;
+  document.getElementById('b-shadow-enabled').checked = !!s.enabled;
+  document.getElementById('b-shadow-x').value       = s.x;
+  document.getElementById('b-shadow-y').value       = s.y;
+  document.getElementById('b-shadow-blur').value    = s.blur;
+  document.getElementById('b-shadow-opacity').value = s.opacity;
+  applyBatchShadowControlsState();
+  updateBatchShadowLabels();
+}
+
+function updateBatchShadowLabels() {
+  const size = state.batch.overflowEditingSize;
+  const s = state.batch.shadowPerSize[size] || SHADOW_DEFAULT;
+  document.getElementById('b-shadow-x-label').textContent       = s.x + 'px';
+  document.getElementById('b-shadow-y-label').textContent       = s.y + 'px';
+  document.getElementById('b-shadow-blur-label').textContent    = s.blur + 'px';
+  document.getElementById('b-shadow-opacity-label').textContent = s.opacity + '%';
+}
+
+function applyBatchShadowControlsState() {
+  const size = state.batch.overflowEditingSize;
+  const enabled = state.batch.shadowPerSize[size]?.enabled;
+  const el = document.getElementById('b-shadow-controls');
+  if (enabled) {
+    el.style.opacity = '1';
+    el.style.pointerEvents = 'auto';
+  } else {
+    el.style.opacity = '0.4';
+    el.style.pointerEvents = 'none';
+  }
+}
+
+function syncBatchStateFromUI() {
+  state.batch.sizes = [...document.querySelectorAll('.b-size:checked')].map(cb => cb.value);
+  state.batch.langs = [...document.querySelectorAll('.b-lang:checked')].map(cb => cb.value);
+  state.batch.prefix = document.getElementById('b-prefix').value || 'banner';
+  state.batch.format = document.getElementById('b-format').value;
+  state.batch.scale = parseInt(document.getElementById('b-scale').value, 10);
+
+  state.batch.langOverrides = {};
+  state.batch.langs.forEach(lang => {
+    const titleEl = document.getElementById(`b-title-${lang}`);
+    const subtitleEl = document.getElementById(`b-subtitle-${lang}`);
+    const ctaEl = document.getElementById(`b-cta-${lang}`);
+    const discEl = document.getElementById(`b-disc-${lang}`);
+    state.batch.langOverrides[lang] = {
+      title: titleEl ? titleEl.value : '',
+      subtitle: subtitleEl ? subtitleEl.value : '',
+      cta: ctaEl ? ctaEl.value : LANG_PACK[lang].cta,
+      disclaimer: discEl ? discEl.value : LANG_PACK[lang].disclaimer,
+    };
+  });
+}
+
+function renderBatchLangFields() {
+  const container = document.getElementById('b-lang-fields');
+  const existing = {};
+  container.querySelectorAll('input').forEach(i => { existing[i.id] = i.value; });
+  const langs = [...document.querySelectorAll('.b-lang:checked')].map(cb => cb.value);
+  container.innerHTML = '';
+  if (langs.length === 0) {
+    container.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">위에서 언어를 1개 이상 선택하세요</p>';
+    return;
+  }
+  langs.forEach((lang, idx) => {
+    const pack = LANG_PACK[lang];
+    const group = document.createElement('div');
+    group.className = 'space-y-2 pb-4' + (idx < langs.length - 1 ? ' border-b border-[#1f2127]' : '');
+    const titleVal    = existing[`b-title-${lang}`]    !== undefined ? existing[`b-title-${lang}`]    : '';
+    const subtitleVal = existing[`b-subtitle-${lang}`] !== undefined ? existing[`b-subtitle-${lang}`] : '';
+    const ctaVal      = existing[`b-cta-${lang}`]      !== undefined ? existing[`b-cta-${lang}`]      : pack.cta;
+    const discVal     = existing[`b-disc-${lang}`]     !== undefined ? existing[`b-disc-${lang}`]     : pack.disclaimer;
+    group.innerHTML = `
+      <div class="flex items-center justify-between">
+        <span class="text-xs text-gray-200 font-semibold">${pack.label}</span>
+        <button type="button" class="text-[10px] text-indigo-400 hover:underline" data-copy-from="${lang}" title="이 언어의 게임명·부제를 다른 선택 언어에 복사">다른 언어에 복사</button>
+      </div>
+      <input id="b-title-${lang}"    class="input-base text-sm" placeholder="게임명 (${pack.label})"    value="${escapeHTML(titleVal)}" />
+      <input id="b-subtitle-${lang}" class="input-base text-sm" placeholder="부제 (${pack.label})"     value="${escapeHTML(subtitleVal)}" />
+      <div class="grid grid-cols-2 gap-2">
+        <input id="b-cta-${lang}"  class="input-base text-sm" placeholder="CTA"            value="${escapeHTML(ctaVal)}" />
+        <input id="b-disc-${lang}" class="input-base text-sm" placeholder="고지문구 (선택)" value="${escapeHTML(discVal)}" />
+      </div>
+    `;
+    container.appendChild(group);
+  });
+  container.querySelectorAll('input').forEach(i => { i.addEventListener('input', syncBatchStateFromUI); });
+  container.querySelectorAll('[data-copy-from]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      copyLangTitleToOthers(btn.getAttribute('data-copy-from'));
+    });
+  });
+  syncBatchStateFromUI();
+}
+
+function copyLangTitleToOthers(srcLang) {
+  const srcTitle    = document.getElementById(`b-title-${srcLang}`)?.value    || '';
+  const srcSubtitle = document.getElementById(`b-subtitle-${srcLang}`)?.value || '';
+  const langs = [...document.querySelectorAll('.b-lang:checked')].map(cb => cb.value);
+  let copied = 0;
+  langs.forEach(lang => {
+    if (lang === srcLang) return;
+    const t = document.getElementById(`b-title-${lang}`);
+    const s = document.getElementById(`b-subtitle-${lang}`);
+    if (t) { t.value = srcTitle; copied++; }
+    if (s) { s.value = srcSubtitle; }
+  });
+  syncBatchStateFromUI();
+  if (copied > 0) {
+    const statusEl = document.getElementById('b-status');
+    if (statusEl) statusEl.textContent = `${srcLang} → 나머지 ${copied}개 언어에 게임명·부제 복사됨`;
+  }
+}
+
+function applyBatchPreset() {
+  const presetKey = document.getElementById('b-preset').value;
+  if (!presetKey) return;
+
+  // r3 FR-22/24: 사용자 프리셋 분기 (custom:<id> 형식)
+  if (presetKey.startsWith('custom:')) {
+    const id = presetKey.slice('custom:'.length);
+    const preset = getCustomPresets().presets.find(x => x.id === id);
+    if (!preset) return;
+    applyCustomPresetToBatch(preset);
+    return;
+  }
+
+  // 기존 샘플 프리셋 경로
+  if (!PRESETS[presetKey]) return;
+  const preset = PRESETS[presetKey];
+  const langs = [...document.querySelectorAll('.b-lang:checked')].map(cb => cb.value);
+  langs.forEach(lang => {
+    const t = document.getElementById(`b-title-${lang}`);
+    const s = document.getElementById(`b-subtitle-${lang}`);
+    if (t) t.value = preset.title;
+    if (s) s.value = preset.subtitle;
+  });
+  syncBatchStateFromUI();
+  const statusEl = document.getElementById('b-status');
+  if (statusEl) statusEl.textContent = `프리셋 "${preset.title}" 적용됨 (${langs.length}개 언어)`;
+}
+
+function escapeHTML(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Plan FR-07: 배치 조합별 cfg 생성 (공통 유틸)
+function buildBatchCfgs() {
+  const { sizes, langs } = state.batch;
+  const combos = [];
+  sizes.forEach(sz => langs.forEach(lg => combos.push({ size: sz, lang: lg })));
+  return combos.map(combo => {
+    const langOverride = state.batch.langOverrides[combo.lang] || {};
+    const ofPos = state.batch.overflowPerSize[combo.size] || OVERFLOW_PRESETS[combo.size];
+    const shadow = state.batch.shadowPerSize[combo.size] || SHADOW_DEFAULT;
+    return {
+      _combo: combo,
+      size: combo.size, lang: combo.lang,
+      header: LANG_PACK[combo.lang].header,
+      title: langOverride.title !== undefined ? langOverride.title : '',
+      subtitle: langOverride.subtitle !== undefined ? langOverride.subtitle : '',
+      cta: langOverride.cta !== undefined ? langOverride.cta : LANG_PACK[combo.lang].cta,
+      disclaimer: langOverride.disclaimer !== undefined ? langOverride.disclaimer : LANG_PACK[combo.lang].disclaimer,
+      keyart: state.batch.keyart, icon: state.batch.icon,
+      overflow: state.batch.overflow,
+      overflowX: ofPos.x, overflowY: ofPos.y, overflowScale: ofPos.scale,
+      shadow: { ...shadow },  // Plan FR-14: 사이즈별 Shadow 적용
+    };
+  });
+}
+
+// Plan FR-07: 프리뷰 - 이미지 변환 없이 DOM 직접 렌더
+function handleBatchPreview() {
+  syncBatchStateFromUI();
+  const { sizes, langs } = state.batch;
+  if (sizes.length === 0 || langs.length === 0) {
+    alert('규격과 언어를 각각 최소 1개 이상 선택하세요.');
+    return;
+  }
+  const cfgs = buildBatchCfgs();
+  state.batch.previewCombos = cfgs;
+
+  const thumbsEl = document.getElementById('b-thumbs');
+  const statusEl = document.getElementById('b-status');
+  const barEl    = document.getElementById('b-progress');
+  thumbsEl.innerHTML = '';
+  barEl.style.width = '0%';
+
+  const THUMB_W = 220; // 썸네일 폭 고정, 높이는 비율 따라 계산
+  cfgs.forEach((cfg, i) => {
+    const size = SIZE_PACK[cfg.size];
+    const scale = THUMB_W / size.w;
+    const thumbH = Math.round(size.h * scale);
+
+    const banner = renderBanner(cfg);
+
+    const frame = document.createElement('div');
+    frame.style.cssText = `width:${THUMB_W}px;height:${thumbH}px;overflow:hidden;position:relative;background:#14151a;`;
+    const inner = document.createElement('div');
+    inner.style.cssText = `transform: scale(${scale}); transform-origin: top left; width:${size.w}px; height:${size.h}px;`;
+    inner.appendChild(banner);
+    frame.appendChild(inner);
+
+    const thumb = document.createElement('div');
+    thumb.className = 'thumb-card';
+    thumb.appendChild(frame);
+    const meta = document.createElement('div');
+    meta.className = 'thumb-meta';
+    meta.innerHTML = `
+      <span><strong>${size.label}</strong> · ${LANG_PACK[cfg.lang].label}</span>
+      <button class="text-[11px] text-indigo-400 hover:underline" data-idx="${i}">⬇ 다운로드</button>
+    `;
+    meta.querySelector('[data-idx]').addEventListener('click', () => downloadBatchItem(i));
+    thumb.appendChild(meta);
+    thumbsEl.appendChild(thumb);
+  });
+
+  statusEl.textContent = `✅ 프리뷰 ${cfgs.length}장 생성됨 · ZIP 또는 개별 다운로드 가능`;
+  const btnZip = document.getElementById('b-export-zip');
+  btnZip.disabled = false;
+  btnZip.style.opacity = '1';
+}
+
+// Plan FR-08 (banner-bugfix) + bugfix FR-06: 개별 다운로드, Canvas 경로
+async function downloadBatchItem(idx) {
+  const cfg = state.batch.previewCombos[idx];
+  if (!cfg) return;
+  const statusEl = document.getElementById('b-status');
+  statusEl.textContent = `변환 중: ${cfg.size} · ${cfg.lang}...`;
+  const startT = performance.now();
+  try {
+    const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
+    const filename = `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+    let dataURL;
+    if (USE_CANVAS_EXPORT) {
+      await ensureFontsLoaded();
+      const cfgWithImgs = await prepCfgImages({ ...cfg, scale: state.batch.scale });
+      const canvas = await buildBannerCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
+    } else {
+      const stage = document.getElementById('renderStage');
+      stage.innerHTML = '';
+      const banner = renderBanner(cfg);
+      stage.appendChild(banner);
+      await waitForImages(banner);
+      await document.fonts.ready;
+      dataURL = await bannerToImage(banner, { format: state.batch.format, scale: state.batch.scale });
+      stage.innerHTML = '';
+    }
+    downloadDataURL(dataURL, filename);
+    const ms = Math.round(performance.now() - startT);
+    statusEl.textContent = `✅ 다운로드 완료: ${filename} (${ms}ms)`;
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = `❌ 실패: ${err.message}`;
+  }
+}
+
+// Plan FR-08 (banner-bugfix) + bugfix FR-06: ZIP 일괄 다운로드, Canvas 경로
+async function handleBatchExportZip() {
+  const cfgs = state.batch.previewCombos;
+  if (!cfgs || cfgs.length === 0) {
+    alert('먼저 "프리뷰 생성" 버튼을 눌러주세요.');
+    return;
+  }
+  const total = cfgs.length;
+  const statusEl = document.getElementById('b-status');
+  const barEl    = document.getElementById('b-progress');
+  const zip = new JSZip();
+  barEl.style.width = '0%';
+
+  const startT = performance.now();
+
+  if (USE_CANVAS_EXPORT) {
+    statusEl.textContent = '폰트 로드 중...';
+    await ensureFontsLoaded();
+    // bugfix: 이미지 1회만 decode하고 모든 조합 재사용
+    statusEl.textContent = '이미지 준비 중...';
+    const sharedImgs = await Promise.all([
+      loadCachedImage(state.batch.keyart),
+      loadCachedImage(state.batch.overflow),
+      loadCachedImage(state.batch.icon),
+    ]);
+    const [keyartImg, overflowImg, iconImg] = sharedImgs;
+    statusEl.textContent = `0 / ${total} 변환 중...`;
+    for (let i = 0; i < cfgs.length; i++) {
+      const cfg = cfgs[i];
+      try {
+        const canvas = await buildBannerCanvas({
+          ...cfg,
+          scale: state.batch.scale,
+          _keyartImg: keyartImg,
+          _overflowImg: overflowImg,
+          _iconImg: iconImg,
+        });
+        const dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
+        const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
+        const filename = `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+        zip.file(filename, dataURL.split(',')[1], { base64: true });
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `❌ ${cfg.size} ${cfg.lang} 실패: ${err.message}`;
+      }
+      const progress = ((i + 1) / total) * 100;
+      barEl.style.width = progress + '%';
+      statusEl.textContent = `${i + 1} / ${total} 변환 완료`;
+    }
+  } else {
+    // Fallback: 기존 html-to-image 경로
+    const stage = document.getElementById('renderStage');
+    statusEl.textContent = `0 / ${total} 변환 중...`;
+    for (let i = 0; i < cfgs.length; i++) {
+      const cfg = cfgs[i];
+      stage.innerHTML = '';
+      const banner = renderBanner(cfg);
+      stage.appendChild(banner);
+      try {
+        await waitForImages(banner);
+        await document.fonts.ready;
+        const dataURL = await bannerToImage(banner, { format: state.batch.format, scale: state.batch.scale });
+        const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
+        const filename = `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+        zip.file(filename, dataURL.split(',')[1], { base64: true });
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `❌ ${cfg.size} ${cfg.lang} 실패: ${err.message}`;
+      }
+      const progress = ((i + 1) / total) * 100;
+      barEl.style.width = progress + '%';
+      statusEl.textContent = `${i + 1} / ${total} 변환 완료`;
+    }
+    stage.innerHTML = '';
+  }
+
+  statusEl.textContent = 'ZIP 파일 생성 중...';
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${state.batch.prefix}_banners.zip`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  const elapsed = Math.round(performance.now() - startT);
+  statusEl.textContent = `✅ 완료! ${total}장 ZIP 다운로드됨 (${elapsed}ms)`;
+}
+
+// ===========================================================================
+// 8. 탭 전환
+// ===========================================================================
+function bindTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-content').forEach(sec => {
+        sec.classList.toggle('hidden', sec.id !== `tab-${target}`);
+      });
+    });
+  });
+}
+
+// ===========================================================================
+// 9. 초기화
+// ===========================================================================
+window.addEventListener('DOMContentLoaded', () => {
+  bindTabs();
+  bindSingleMode();
+  bindBatchMode();
+  applySingleOverflowPreset(state.single.size);
+  updateSingleHints(state.single.size);       // Plan FR-02/11
+  applySingleShadowControlsState();           // Plan FR-13
+  updateSingleShadowLabels();
+  syncSingleStateFromUI();
+  refreshSinglePreview();
+  renderPresetListUI();                       // r3 FR-22: 사용자 프리셋 목록 초기 렌더
+});
+</script>
+
+</body>
+</html>
