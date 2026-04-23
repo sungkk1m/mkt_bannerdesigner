@@ -1976,6 +1976,22 @@ function drawImageCover(ctx, img, x, y, w, h) {
   ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
 }
 
+// M-4 fix: object-fit: contain 재현 — 원본 비율 보존 + 박스 내 중앙 정렬
+// DOM의 CSS `object-fit: contain`과 동일한 결과를 Canvas에서 재현하기 위함.
+// 스토어 뱃지 등 언어별로 원본 가로세로 비율이 다른 에셋을 박스에 강제 맞춤 없이 안전하게 그림.
+function drawImageContain(ctx, img, x, y, w, h) {
+  if (!img) return;
+  const iw = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
+  if (!iw || !ih) return;
+  const scale = Math.min(w / iw, h / ih);
+  const dw = iw * scale;
+  const dh = ih * scale;
+  const dx = x + (w - dw) / 2;
+  const dy = y + (h - dh) / 2;
+  ctx.drawImage(img, dx, dy, dw, dh);
+}
+
 // ===========================================================================
 // v1.3: App Badge — Canvas 직접 합성
 // ===========================================================================
@@ -2116,11 +2132,13 @@ async function buildAppBadgeCanvas(cfg) {
     gpX = startX;
     asX = startX + bSpec.each.w + (bSpec.gap || 0);
   }
+  // M-4 fix: drawImageContain 으로 원본 비율 보존 + 중앙 정렬
+  // (언어별 뱃지 원본 비율 편차로 인한 스트레치 방지, DOM 프리뷰와 결과 일치)
   if (cfg._googlePlayImg) {
-    ctx.drawImage(cfg._googlePlayImg, gpX, bY, bSpec.each.w, bSpec.each.h);
+    drawImageContain(ctx, cfg._googlePlayImg, gpX, bY, bSpec.each.w, bSpec.each.h);
   }
   if (cfg._appStoreImg) {
-    ctx.drawImage(cfg._appStoreImg, asX, bY, bSpec.each.w, bSpec.each.h);
+    drawImageContain(ctx, cfg._appStoreImg, asX, bY, bSpec.each.w, bSpec.each.h);
   }
 
   // [8] 고지 문구
