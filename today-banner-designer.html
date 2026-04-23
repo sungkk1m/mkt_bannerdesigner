@@ -1912,6 +1912,18 @@ if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D
 
 // bugfix Plan: 이미지 decode 1회 캐시 (data URL 기반). 배치 시 동일 키아트/오버플로우 재사용
 const _imgCache = new Map();
+
+// M-2 fix: 이미지 상태 교체 시 이전 dataURL의 cache 엔트리를 정리하여 메모리 누수 방지.
+// 드롭존 업로드로 교체(newDataURL!=null)하든 🗑 제거로 clear(newDataURL=null)하든 양쪽 모두
+// 이전 값이 있으면 캐시에서 제거하여 Map key(거대 base64 문자열) + 디코딩 Image를 함께 회수함.
+function updateStateImage(stateObj, prop, newDataURL) {
+  const prev = stateObj[prop];
+  if (prev && prev !== newDataURL) {
+    _imgCache.delete(prev);
+  }
+  stateObj[prop] = newDataURL;
+}
+
 async function loadCachedImage(dataURL) {
   if (!dataURL) return null;
   if (_imgCache.has(dataURL)) return _imgCache.get(dataURL);
@@ -2505,15 +2517,15 @@ function bindSingleMode() {
   });
 
   setupDropzone('s-drop-keyart', async (dataURL) => {
-    state.single.keyart = dataURL;
+    updateStateImage(state.single, 'keyart', dataURL);  // M-2: 이전 dataURL 캐시 정리 포함
     // v1.3: App Badge의 outline 효과를 위해 배경 기반 accent color 재계산 (비동기, UI 블로킹 최소)
     if (typeof window._recomputeAccentOnKeyart === 'function') {
       try { await window._recomputeAccentOnKeyart(); } catch (_) {}
     }
     refreshSinglePreview();
   });
-  setupDropzone('s-drop-overflow', (dataURL) => { state.single.overflow = dataURL; refreshSinglePreview(); });
-  setupDropzone('s-drop-icon', (dataURL) => { state.single.icon = dataURL; refreshSinglePreview(); });
+  setupDropzone('s-drop-overflow', (dataURL) => { updateStateImage(state.single, 'overflow', dataURL); refreshSinglePreview(); });
+  setupDropzone('s-drop-icon', (dataURL) => { updateStateImage(state.single, 'icon', dataURL); refreshSinglePreview(); });
 
   ['s-overflow-x', 's-overflow-y', 's-overflow-scale'].forEach(id => {
     document.getElementById(id).addEventListener('input', () => {
@@ -2931,16 +2943,16 @@ function bindBatchMode() {
   });
 
   setupDropzone('b-drop-keyart', async (dataURL) => {
-    state.batch.keyart = dataURL;
+    updateStateImage(state.batch, 'keyart', dataURL);  // M-2: 이전 dataURL 캐시 정리 포함
     // v1.3: App Badge outline 효과용 accent color 재계산
     try {
       state.batch.ab_accentColor = await getAccentColorFromDataURL(dataURL);
     } catch (_) {}
   });
-  setupDropzone('b-drop-overflow', (dataURL) => { state.batch.overflow = dataURL; });
-  setupDropzone('b-drop-icon', (dataURL) => { state.batch.icon = dataURL; });
+  setupDropzone('b-drop-overflow', (dataURL) => { updateStateImage(state.batch, 'overflow', dataURL); });
+  setupDropzone('b-drop-icon', (dataURL) => { updateStateImage(state.batch, 'icon', dataURL); });
   // v1.3: 배치 App Badge 로고 업로드
-  setupDropzone('b-drop-logo', (dataURL) => { state.batch.ab_logo = dataURL; });
+  setupDropzone('b-drop-logo', (dataURL) => { updateStateImage(state.batch, 'ab_logo', dataURL); });
 
   // v1.3 r2: App Badge 공통 설정 (preset · effect · bg opacity)
   const abPreset = document.getElementById('b-ab-headline-preset');
