@@ -100,6 +100,43 @@ _(작업 지시 시 최신 상태로 갱신)_
   - 사용자 실측으로 B-01 재현 확인 → 최소 스코프 수정 착수
 - 2026-04-22: **[bugfix r4] B-01 Critical 수정 완료 (실측 OK)** — `applyCustomPresetToBatch`에 DOM input 직접 갱신 블록 추가 (9줄). 배치 프리셋 적용 end-to-end 정상화 **브라우저 실측 확인**. 다른 코드는 미변경. 남은 B-02~B-15는 후속 트랙 대기.
 - 2026-04-23: **GitHub 원격 등록 완료** — `origin/main` upstream 설정. 초기 커밋 `289a68c`에 v1.2 본체 + PDCA r1~r4 + Review 15건 포함 (8 files, 3638 insertions). `.bkit/`·`.claude/settings.local.json`은 `.gitignore`로 제외. 인증은 Git Credential Manager OAuth device flow로 자동 처리됨.
+- 2026-04-24: **[App Badge v1.4 r5] 헤드라인 영역 오버플로우 클리핑 예외처리**
+  - 잠재적 클리핑 3곳 모두 해제:
+    1. `.ab-headline` 공통: `overflow: visible` 명시 (기본값이지만 안전장치)
+    2. `.size-1x1 .ab-headline`: `height: 95px; display: flex; align-items/justify-content: center` 제거 → `top: 287.5px + transform: translateY(-50%)` (텍스트 높이가 95를 넘어도 상·하 양방향으로 자연 확장)
+    3. `.banner.tmpl-app-badge`: `overflow: hidden` → `overflow: visible` (DOM 프리뷰에서 banner 경계 밖 텍스트/그림자 표시 허용. 배경 이미지는 자체 `object-fit: cover + inset: 0`으로 bounded)
+  - Canvas `buildAppBadgeCanvas` 헤드라인 verticalCenter 로직: `Math.max(0, (boxH - blockH) / 2)` → `(boxH - blockH) / 2` (음수 허용 = DOM translateY(-50%) 동작과 정확히 일치, boxH 초과 시 위로도 확장)
+  - 영향 범위: 1:1 사이즈만 CSS 변경, 9:16 / 1200×628은 기존 layout 보존. Canvas 변경은 모든 사이즈 공통이나 verticalCenter 플래그가 1:1에만 있어 실질적으로 1:1만 영향
+  - 문법 검증: `node --check` 통과
+- 2026-04-24: **[App Badge v1.4 r4] 1:1 뱃지 그룹 명시적 중앙정렬 + Drop Shadow inner→outer 확정**
+  - 뱃지 그룹: `.size-1x1 .ab-badges` `left:50%+translateX(-50%)`(shrink-to-content + 중앙 이동) → `left:0; right:0; width:100%; justify-content:center` 로 전환 (flex 컨테이너 전체 너비 + 명시적 중앙정렬). `flex-shrink:0` 추가해 이미지 의도치 않은 축소 방지
+  - Drop Shadow 이슈 원인: `background-clip:text` + `color:transparent` 조합에서 `text-shadow`가 일부 브라우저에서 글리프 내부로 클리핑 → **inner-shadow 같은 시각 효과**
+  - 수정 (DOM): `.fx-drop-shadow .ab-headline` `text-shadow` → **`filter: drop-shadow(0 8px 16px rgba(0,0,0,0.7))`** 요소 렌더 후 외부 projection이라 그라데이션과 무관하게 outer 보장
+  - 수정 (로고): `filter: drop-shadow` 값 `0 6px 14px/.55` → `0 10px 20px/.7` 강화
+  - 수정 (Canvas): `HEADLINE_FX['drop-shadow'].shadow` color/blur/offsetY `rgba(.55)/24/12` → `rgba(.7)/32/16` 강화 (Canvas는 원래 outer지만 프리뷰와 시각 균일 맞춤)
+  - 문법 검증: `node --check` 통과
+- 2026-04-24: **[App Badge v1.4 r3] 1:1 뱃지 aspect 보존 + 실제 40px gap**
+  - 원인 진단: 기존 1:1 뱃지가 고정 354×100 박스에 강제 렌더 → SVG 원본(appstore 3.231:1=323w, googleplay 3.375:1=338w)이 가로 +9~10% stretch · CSS flex-gap 40은 박스 기준이라 실제 뱃지 사이 시각적 공백이 31~62px로 불규칙
+  - 수정 1 (CSS `.size-1x1 .ab-badges img`): `width:354 height:100` → `height:100 width:auto` + 컨테이너 `align-items:center` (뱃지 원본 비율 보존, flex gap 40이 실제 뱃지 엣지 간 거리로 작동)
+  - 수정 2 (Canvas `APP_BADGE_CANVAS_SPECS['1x1'].badges`): `fitByHeight:true` 플래그 추가 · `buildAppBadgeCanvas` 뱃지 렌더 분기에서 fitByHeight일 때 각 이미지 `naturalWidth/naturalHeight`로 w 계산 → `totalW = gpW + asW + gap`으로 centerX 기준 startX 재계산 → 실제 40px 간격 보장
+  - 9:16 / 1200×628은 기존 고정 w 유지 (1:1만 변경)
+  - 문법 검증: `node --check` 통과
+- 2026-04-24: **[App Badge v1.4 r2] 1:1 헤드라인 fontSize 110 + 한국어 사전예약 뱃지 교체**
+  - 1:1 headline fontSize 72 → **110** (CSS + Canvas 동기) · boxH=95 유지 (verticalCenter 로직으로 overflow 시에도 시각적 balance 유지)
+  - 하단 뱃지 중앙 정렬 + gap 40 (기존 값 재확인, 변경 없음)
+  - 한국어 사전예약 뱃지 교체: `BADGE_ASSETS.appStore.preregister.ko` · `BADGE_ASSETS.googlePlay.preregister.ko` 를 사용자 제공 SVG 2종 (`~/Downloads/ko_appstore_pre.svg` / `ko_googleplay_pre.svg`) 의 base64 data URI로 덮어쓰기 (두 파일 모두 svg+xml 타입 통일)
+  - 교체 라인: L1295 (appStore) · L1309 (googlePlay) — 공백·trailing comma 보존 정규식 기반 in-place 치환
+  - 문법 검증: `node --check` 통과
+- 2026-04-24: **[App Badge v1.4] 1:1 사용자 지정 그리드 + 신규 시각 효과 3종**
+  - 1:1 그리드 (top→bot): margin 40 / logo 160h / gap 40 / text 95 / gap 40 / icon 515×515 / gap 50 / badge 100h (gap 40) / margin 40
+  - 아이콘 좌표: left=282 (1080-515)/2 · badge w=354 h=100 · logo maxH=160 maxW=900 · headline fontSize 72 (vertical-center in 95h box)
+  - CSS+Canvas 동기 수정 (`.size-1x1`, `APP_BADGE_CANVAS_SPECS['1x1']`), Canvas에 `verticalCenter`+`boxH` 신규 필드 + 계산 로직 추가
+  - 신규 효과 1: **앱 아이콘 Outglow** — `iconGlowColor` + `iconGlowEnabled`, CSS `has-icon-glow` 토글 클래스 + box-shadow 2중, Canvas는 아이콘 clip 전에 컬러 레이어 2회 stacked fill로 재현
+  - 신규 효과 2: **헤드라인 그라데이션** — `headlineGradColor` + `headlineGradEnabled`, CSS `has-head-grad` + `-webkit-background-clip: text`, Canvas는 라인별 `createLinearGradient(y, y+fs)` 흰색→지정컬러
+  - 신규 효과 3: **로고 Drop Shadow** — 모든 사이즈 공통, CSS `filter: drop-shadow(0 6px 14px rgba(0,0,0,.55))` + Canvas `shadowColor/Blur/OffsetY` drawImage 시 적용
+  - UI: 단건·배치 양쪽에 체크박스 + 컬러 피커 2쌍 (헤드라인 그라데이션 / 아이콘 outglow)
+  - 수정 파일: `today-banner-designer.html` 1개 · state 필드 8개 신규 (single.app_badge × 4 + batch × 4) · 이벤트 핸들러 8개 신규
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과
 - 2026-04-23: **[App Badge v1.3] 신규 템플릿 "App Badge & Icon" 추가 + r3a~r3h 레이아웃 이터레이션** — 헤더 드롭다운으로 Today Tap ↔ App Badge 전환. 3사이즈(1:1 / 9:16 / 1200×628) × 4언어(ko/en/ja/zh-TW) × 2상태(download / preregister) 지원. 공식 스토어 뱃지 16개 base64 인라인(Apple 8 SVG + Google 8 PNG). 주요 상수/함수: `BADGE_ASSETS`, `APP_BADGE_CANVAS_SPECS`, `HEADLINE_PRESETS` + `HEADLINE_PRESETS_1200`(1200×628 전용 2줄 버전), `HEADLINE_FX`(4종 효과), `buildAppBadgeBanner`(DOM) · `buildAppBadgeCanvas`(Canvas). 레이아웃 이터레이션: **r3a** 사이즈별 기본 / **r3b** 1:1 아이콘 550 + 뱃지 중앙 / **r3c** 1200×628 2줄 헤드라인 도입 / **r3d** 로고 텍스트영역 중심 / **r3e** 헤드라인·로고 가운데 정렬(중심 x=338, 뱃지 2종 중점) + 첫줄 0.72× / **r3f** JA+download 전용 line2 축소(108px, firstLineScale 0.87) — `data-preset` 속성 + Canvas `overrides['download:ja']` / **r3g** 로고 상향(maxH 175) / **r3h** 로고 `bottomY` 앵커로 전환(가로비율 다른 로고라도 헤드라인과 일정 간격 유지). `.gitignore`에 `Apple badge/` · `Google badge/` · `_inject_badges.py` 추가(원본 에셋·일회성 스크립트 커밋 제외). 뱃지 스트레치 진단: `drawImage` 5-인자가 박스에 강제 맞춤 → JA 뱃지 원본 2.72:1이 박스 3.57:1에서 +31% 늘어남. 수정은 사용자 선택 대기.
 - 2026-04-23: **[Code Review] 전체 품질 리뷰 완료** — `today-banner-designer.html` 3291라인 · 374KB 기준. Critical 0건 · Major 4건(M-1 CDN SRI 미적용 / M-2 `_imgCache` 무제한 누적 / M-3 slugify CJK 소실(기존 B-03) / M-4 스토어 뱃지 Canvas 스트레치) · Minor 7건 · Info 3건. Score 78/100. 긍정: XSS 방어(escapeHTML 일관), 에러 경계, localStorage 방어, 폰트 사전로드, 이미지 캐시 최적화 모두 충실.
 - 2026-04-23: **[M-4 수정 완료 — 실측 OK]** `today-banner-designer.html` Canvas 뱃지 스트레치 해소. **변경**: `drawImageCover` 옆에 `drawImageContain(ctx, img, x, y, w, h)` 헬퍼 신규 추가 (`naturalWidth/Height` → `Math.min(w/iw, h/ih)` → 중앙 정렬 `drawImage`). `buildAppBadgeCanvas` [7] 섹션의 Google Play·App Store 뱃지 `ctx.drawImage` 5-인자 호출 2곳을 `drawImageContain`으로 교체. **효과**: JA +31% / KO +10% 스트레치 → **0%**. DOM `object-fit: contain` 프리뷰와 다운로드 PNG 100% 일치. 실측 확인 조합: 1200×628 + JA·ZH-TW, 1:1 + ZH-TW (캡처 3장 — 뱃지 문자·사과 아이콘 원형 유지 확인). 박스 치수·주변 좌표 불변이라 회귀 0. 권장 `drawImageContain`을 택함(Option 1). M-1~M-3은 후속 트랙 대기.
