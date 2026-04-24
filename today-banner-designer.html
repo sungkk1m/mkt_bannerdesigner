@@ -474,17 +474,7 @@
     /* v1.4 r4: 로고 outer drop-shadow 강화 (offset·blur·opacity 상향) */
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.7));
   }
-  /* v1.4 r6: 로고 스케일 (transform scale). 기존 translateX(-50%) 과 체인.
-     transform-origin은 사이즈별로 다름 (1:1/9:16 top center / 1200x628 bottom center) */
-  .banner.tmpl-app-badge.size-1x1 .ab-logo,
-  .banner.tmpl-app-badge.size-9x16 .ab-logo {
-    transform-origin: top center;
-    transform: translateX(-50%) scale(var(--ab-logo-scale, 1));
-  }
-  .banner.tmpl-app-badge.size-1200x628 .ab-logo {
-    transform-origin: bottom center;
-    transform: translateX(-50%) scale(var(--ab-logo-scale, 1));
-  }
+  /* v1.4 r6: 로고 스케일 — 사이즈별 `.size-* .ab-logo` 규칙에 직접 병합 (라인 565 등 참고) */
   .banner.tmpl-app-badge .ab-headline {
     position: absolute;
     z-index: 15;
@@ -562,7 +552,9 @@
   .banner.tmpl-app-badge.size-1x1 { width: 1080px; height: 1080px; }
   .banner.tmpl-app-badge.size-1x1 .ab-disclaimer { top: 20px; right: 20px; font-size: 20px; }
   .banner.tmpl-app-badge.size-1x1 .ab-logo {
-    top: 40px; left: 50%; transform: translateX(-50%);
+    top: 40px; left: 50%;
+    transform-origin: top center;
+    transform: translateX(-50%) scale(var(--ab-logo-scale, 1));
     max-height: 160px; max-width: 900px;
   }
   /* v1.4 r5: height 제거 → transform 기반 수직 중앙정렬 (텍스트 높이가 95px 초과 시에도 클리핑 없이 위아래로 자연스럽게 확장) */
@@ -593,7 +585,9 @@
   .banner.tmpl-app-badge.size-9x16 { width: 1080px; height: 1920px; }
   .banner.tmpl-app-badge.size-9x16 .ab-disclaimer { top: 50px; right: 60px; font-size: 28px; }
   .banner.tmpl-app-badge.size-9x16 .ab-logo {
-    top: 100px; left: 50%; transform: translateX(-50%);
+    top: 100px; left: 50%;
+    transform-origin: top center;
+    transform: translateX(-50%) scale(var(--ab-logo-scale, 1));
     max-height: 230px; max-width: 560px;
   }
   .banner.tmpl-app-badge.size-9x16 .ab-headline {
@@ -619,7 +613,9 @@
   .banner.tmpl-app-badge.size-1200x628 .ab-disclaimer { top: 22px; right: 30px; font-size: 16px; }
   /* r3h: 로고 bottom-anchor로 전환 — 가로 비율 달라도 헤드라인과 일정 간격 유지 */
   .banner.tmpl-app-badge.size-1200x628 .ab-logo {
-    top: auto; bottom: 453px; left: 338px; transform: translateX(-50%);
+    top: auto; bottom: 453px; left: 338px;
+    transform-origin: bottom center;
+    transform: translateX(-50%) scale(var(--ab-logo-scale, 1));
     max-height: 160px; max-width: 380px;
   }
   .banner.tmpl-app-badge.size-1200x628 .ab-headline {
