@@ -554,7 +554,7 @@
   .banner.tmpl-app-badge.size-1x1 .ab-logo {
     top: 40px; left: 50%;
     transform-origin: top center;
-    transform: translateX(-50%) scale(var(--ab-logo-scale, 1));
+    transform: translateX(-50%) translateY(var(--ab-logo-y, 0px)) scale(var(--ab-logo-scale, 1));
     max-height: 160px; max-width: 900px;
   }
   /* v1.4 r5: height 제거 → transform 기반 수직 중앙정렬 (텍스트 높이가 95px 초과 시에도 클리핑 없이 위아래로 자연스럽게 확장) */
@@ -587,7 +587,7 @@
   .banner.tmpl-app-badge.size-9x16 .ab-logo {
     top: 100px; left: 50%;
     transform-origin: top center;
-    transform: translateX(-50%) scale(var(--ab-logo-scale, 1));
+    transform: translateX(-50%) translateY(var(--ab-logo-y, 0px)) scale(var(--ab-logo-scale, 1));
     max-height: 230px; max-width: 560px;
   }
   .banner.tmpl-app-badge.size-9x16 .ab-headline {
@@ -615,7 +615,7 @@
   .banner.tmpl-app-badge.size-1200x628 .ab-logo {
     top: auto; bottom: 453px; left: 338px;
     transform-origin: bottom center;
-    transform: translateX(-50%) scale(var(--ab-logo-scale, 1));
+    transform: translateX(-50%) translateY(var(--ab-logo-y, 0px)) scale(var(--ab-logo-scale, 1));
     max-height: 160px; max-width: 380px;
   }
   .banner.tmpl-app-badge.size-1200x628 .ab-headline {
@@ -800,6 +800,14 @@
               <span id="s-ab-logo-scale-label">100%</span>
             </div>
             <input id="s-ab-logo-scale" type="range" min="50" max="150" step="1" value="100" class="w-full" />
+          </div>
+          <!-- v1.4 r7: 로고 Y축 위치 슬라이더 -->
+          <div class="mt-2">
+            <div class="flex items-center justify-between text-[11px] text-gray-400">
+              <span>로고 Y 위치 (↕)</span>
+              <span id="s-ab-logo-y-label">0px</span>
+            </div>
+            <input id="s-ab-logo-y" type="range" min="-200" max="200" step="1" value="0" class="w-full" />
           </div>
         </div>
         <div>
@@ -1007,6 +1015,14 @@
               <span id="b-ab-logo-scale-label">100%</span>
             </div>
             <input id="b-ab-logo-scale" type="range" min="50" max="150" step="1" value="100" class="w-full" />
+          </div>
+          <!-- v1.4 r7: 로고 Y축 위치 슬라이더 (배치 공통) -->
+          <div class="mt-2">
+            <div class="flex items-center justify-between text-[11px] text-gray-400">
+              <span>로고 Y 위치 (↕)</span>
+              <span id="b-ab-logo-y-label">0px</span>
+            </div>
+            <input id="b-ab-logo-y" type="range" min="-200" max="200" step="1" value="0" class="w-full" />
           </div>
         </div>
         <div>
@@ -1381,6 +1397,8 @@ const APP_BADGE_DEFAULT = {
   headlineGradEnabled: true,    // 헤드라인 그라데이션 사용 여부
   // v1.4 r6: 로고 이미지 스케일 (50 ~ 150, 기본 100)
   logoScale: 100,
+  // v1.4 r7: 로고 Y축 오프셋 (px, -200 ~ +200, 기본 0, 양수 = 아래로)
+  logoY: 0,
 };
 
 const PRESETS = {
@@ -1636,6 +1654,8 @@ const state = {
     ab_headlineGradEnabled: true,
     // v1.4 r6: 로고 스케일
     ab_logoScale: 100,
+    // v1.4 r7: 로고 Y축 오프셋
+    ab_logoY: 0,
   },
   ui: { previewScale: 0.45 },
 };
@@ -1736,6 +1756,8 @@ function buildAppBadgeBanner(cfg) {
   banner.style.setProperty('--ab-icon-glow', cfg.iconGlowColor || '#ffffff');
   // v1.4 r6: 로고 스케일 (50~150 → 0.5~1.5)
   banner.style.setProperty('--ab-logo-scale', String((cfg.logoScale ?? 100) / 100));
+  // v1.4 r7: 로고 Y축 오프셋 (px)
+  banner.style.setProperty('--ab-logo-y', (cfg.logoY ?? 0) + 'px');
 
   // [1] 배경 이미지 (반투명 오버레이 적용)
   if (cfg.bg) {
@@ -2168,7 +2190,8 @@ async function buildAppBadgeCanvas(cfg) {
     const lh = img.height * ratio * logoScale;
     const lx = ('centerX' in logoSpec) ? logoSpec.centerX - lw / 2 : logoSpec.left;
     // r3h: bottomY 필드 지원 — 로고 아래 변을 bottomY에 고정 (가로 비율 달라도 헤드라인과 일정 간격 유지)
-    const ly = ('bottomY' in logoSpec) ? (logoSpec.bottomY - lh) : logoSpec.top;
+    // v1.4 r7: logoY 오프셋 합산 (양수 = 아래로, 음수 = 위로) — DOM translateY(var(--ab-logo-y))와 동일 의미
+    const ly = (('bottomY' in logoSpec) ? (logoSpec.bottomY - lh) : logoSpec.top) + (cfg.logoY ?? 0);
     ctx.save();
     ctx.shadowColor = 'rgba(0,0,0,0.55)';
     ctx.shadowBlur = 14;
@@ -2847,6 +2870,15 @@ function bindAppBadgeSingleUI() {
     refreshSinglePreview();
   });
 
+  // v1.4 r7: 로고 Y축 위치 (-200 ~ +200 px)
+  const sLogoY = document.getElementById('s-ab-logo-y');
+  if (sLogoY) sLogoY.addEventListener('input', (e) => {
+    const v = parseInt(e.target.value, 10);
+    state.single.app_badge.logoY = v;
+    document.getElementById('s-ab-logo-y-label').textContent = v + 'px';
+    refreshSinglePreview();
+  });
+
   // 언어 변경 시 헤드라인 프리셋 재적용 (custom이 아닐 때만)
   document.getElementById('s-lang').addEventListener('change', () => {
     const ab = state.single.app_badge;
@@ -3107,6 +3139,8 @@ function buildAppBadgeCfgForCanvas(s) {
     headlineGradColor: ab.headlineGradColor || '#ffd700',
     // v1.4 r6: 로고 스케일
     logoScale: ab.logoScale ?? 100,
+    // v1.4 r7: 로고 Y 오프셋
+    logoY: ab.logoY ?? 0,
   };
 }
 
@@ -3226,6 +3260,16 @@ function bindBatchMode() {
     state.batch.ab_logoScale = v;
     const lb = document.getElementById('b-ab-logo-scale-label');
     if (lb) lb.textContent = v + '%';
+    syncBatchStateFromUI();
+  });
+
+  // v1.4 r7: 배치 로고 Y축 위치
+  const bLogoY = document.getElementById('b-ab-logo-y');
+  if (bLogoY) bLogoY.addEventListener('input', () => {
+    const v = parseInt(bLogoY.value, 10);
+    state.batch.ab_logoY = v;
+    const lb = document.getElementById('b-ab-logo-y-label');
+    if (lb) lb.textContent = v + 'px';
     syncBatchStateFromUI();
   });
 
@@ -3549,6 +3593,8 @@ function buildBatchCfgs() {
         headlineGradColor: state.batch.ab_headlineGradColor || '#ffd700',
         // v1.4 r6: 로고 스케일
         logoScale: state.batch.ab_logoScale ?? 100,
+        // v1.4 r7: 로고 Y 오프셋
+        logoY: state.batch.ab_logoY ?? 0,
       };
     }
     // Today Tap (기본)
