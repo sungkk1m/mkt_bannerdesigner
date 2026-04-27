@@ -644,6 +644,244 @@
   }
   .banner.tmpl-app-badge.size-1200x628 .ab-badges img { width: 250px; height: 70px; }
 
+  /* =========================
+     AppStore Screenshot Template (v1.5)
+     픽셀 퍼펙트 iOS App Store 제품 페이지 모방, 9:16 (1080×1920) 전용
+     ========================= */
+  .banner.tmpl-appstore-screenshot {
+    /* Theme tokens — Dark (default) */
+    --as-bg: #000000;
+    --as-text-primary: #ffffff;
+    --as-text-secondary: #98989f;
+    --as-text-tertiary: #6e6e73;
+    --as-divider: rgba(255,255,255,0.12);
+    --as-card-bg: #1c1c1e;
+    --as-card-shadow: rgba(0,0,0,0.5);
+    --as-statusbar-icon: #ffffff;
+    --as-cta-bg: #0a84ff;
+    --as-cta-text: #ffffff;
+    --as-link: #0a84ff;
+    --as-tab-active: #0a84ff;
+    --as-tab-inactive: #98989f;
+    --as-stat-value: #98989f;
+  }
+  .banner.tmpl-appstore-screenshot[data-theme="light"] {
+    --as-bg: #ffffff;
+    --as-text-primary: #000000;
+    --as-text-secondary: #6e6e73;
+    --as-text-tertiary: #8e8e93;
+    --as-divider: rgba(60,60,67,0.18);
+    --as-card-bg: #f2f2f7;
+    --as-card-shadow: rgba(0,0,0,0.10);
+    --as-statusbar-icon: #000000;
+    --as-cta-bg: #007aff;
+    --as-cta-text: #ffffff;
+    --as-link: #007aff;
+    --as-tab-active: #007aff;
+    --as-tab-inactive: #8e8e93;
+    --as-stat-value: #6e6e73;
+  }
+
+  /* Container — 9:16 only (1080×1920) */
+  .banner.tmpl-appstore-screenshot.size-9x16 {
+    width: 1080px; height: 1920px; padding: 0;
+    background: var(--as-bg);
+    color: var(--as-text-primary);
+    display: flex; flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Pretendard', sans-serif;
+  }
+  /* Per-language font stack */
+  .banner.tmpl-appstore-screenshot[data-lang="ko"] { font-family: 'Pretendard', -apple-system, sans-serif; }
+  .banner.tmpl-appstore-screenshot[data-lang="ja"] { font-family: 'Noto Sans JP', -apple-system, sans-serif; }
+  .banner.tmpl-appstore-screenshot[data-lang="zh-TW"] { font-family: 'Noto Sans TC', -apple-system, sans-serif; }
+
+  /* === Status bar (top) — fixed values === */
+  .banner.tmpl-appstore-screenshot .as-statusbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 28px 56px 0 56px; height: 80px;
+    color: var(--as-statusbar-icon);
+    font-size: 36px; font-weight: 600; letter-spacing: -0.5px;
+  }
+  .banner.tmpl-appstore-screenshot .as-statusbar-time {
+    font-variant-numeric: tabular-nums;
+  }
+  .banner.tmpl-appstore-screenshot .as-statusbar-icons {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .banner.tmpl-appstore-screenshot .as-statusbar-icons svg { fill: var(--as-statusbar-icon); display: block; }
+
+  /* === Header (back arrow + search label) === */
+  .banner.tmpl-appstore-screenshot .as-header {
+    display: flex; align-items: center; gap: 6px;
+    padding: 18px 36px;
+    color: var(--as-link);
+    font-size: 38px; font-weight: 400;
+  }
+  .banner.tmpl-appstore-screenshot .as-header svg { fill: var(--as-link); display: block; }
+
+  /* === App info block (icon + title + Get) === */
+  .banner.tmpl-appstore-screenshot .as-app-info {
+    display: grid; grid-template-columns: 220px 1fr;
+    gap: 32px; padding: 12px 50px 24px 50px;
+    align-items: center;
+  }
+  .banner.tmpl-appstore-screenshot .as-icon {
+    width: 220px; height: 220px; border-radius: 50px;
+    overflow: hidden; background: var(--as-card-bg); position: relative;
+    box-shadow: 0 4px 12px var(--as-card-shadow);
+  }
+  .banner.tmpl-appstore-screenshot .as-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .banner.tmpl-appstore-screenshot .as-icon-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--as-text-tertiary); font-size: 24px;
+  }
+  .banner.tmpl-appstore-screenshot .as-app-info-text {
+    display: flex; flex-direction: column; gap: 4px;
+    min-width: 0;
+  }
+  .banner.tmpl-appstore-screenshot .as-title {
+    font-size: 54px; font-weight: 700; letter-spacing: -1.4px;
+    line-height: 1.05; color: var(--as-text-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .banner.tmpl-appstore-screenshot .as-subtitle {
+    font-size: 28px; font-weight: 400;
+    color: var(--as-text-secondary);
+    line-height: 1.2;
+  }
+  .banner.tmpl-appstore-screenshot .as-cta-row {
+    display: flex; align-items: center; gap: 22px;
+    margin-top: 18px;
+  }
+  .banner.tmpl-appstore-screenshot .as-cta-button {
+    background: var(--as-cta-bg); color: var(--as-cta-text);
+    padding: 11px 56px; border-radius: 100px;
+    font-size: 32px; font-weight: 700;
+    line-height: 1; min-width: 0;
+  }
+  .banner.tmpl-appstore-screenshot .as-iap-label {
+    font-size: 22px; font-weight: 400;
+    color: var(--as-text-secondary);
+    line-height: 1.15; max-width: 260px;
+  }
+
+  /* === Stats: 4 columns === */
+  .banner.tmpl-appstore-screenshot .as-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    margin: 4px 0 0 0; padding: 22px 0 26px 0;
+    border-top: 1px solid var(--as-divider);
+    border-bottom: 1px solid var(--as-divider);
+  }
+  .banner.tmpl-appstore-screenshot .as-stat {
+    text-align: center; position: relative;
+    padding: 0 16px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    color: var(--as-stat-value);
+  }
+  .banner.tmpl-appstore-screenshot .as-stat + .as-stat::before {
+    content: ''; position: absolute;
+    left: 0; top: 14px; bottom: 14px;
+    width: 1px; background: var(--as-divider);
+  }
+  .banner.tmpl-appstore-screenshot .as-stat-top {
+    font-size: 22px; font-weight: 400;
+    color: var(--as-text-secondary);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    line-height: 1.1;
+  }
+  .banner.tmpl-appstore-screenshot .as-stat-mid {
+    font-size: 38px; font-weight: 700;
+    color: var(--as-stat-value);
+    line-height: 1.05;
+  }
+  .banner.tmpl-appstore-screenshot .as-stat-stars {
+    display: flex; gap: 3px; align-items: center; justify-content: center;
+  }
+  .banner.tmpl-appstore-screenshot .as-stat-stars svg { fill: var(--as-stat-value); display: block; }
+  .banner.tmpl-appstore-screenshot .as-stat-bot {
+    font-size: 22px; font-weight: 400;
+    color: var(--as-text-secondary);
+    line-height: 1.1;
+  }
+  .banner.tmpl-appstore-screenshot .as-stat-bot.as-stat-age-suffix {
+    font-size: 18px; margin-top: 0;
+  }
+  .banner.tmpl-appstore-screenshot .as-stat-icon {
+    width: 36px; height: 36px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .banner.tmpl-appstore-screenshot .as-stat-icon svg { fill: var(--as-stat-value); display: block; }
+
+  /* === Keyart card === */
+  .banner.tmpl-appstore-screenshot .as-keyart-wrap {
+    padding: 28px 50px 0 50px;
+  }
+  .banner.tmpl-appstore-screenshot .as-keyart {
+    width: 100%;
+    border-radius: 28px;
+    overflow: hidden;
+    background: var(--as-card-bg);
+    box-shadow: 0 12px 36px var(--as-card-shadow);
+    aspect-ratio: 16 / 9;
+    position: relative;
+  }
+  .banner.tmpl-appstore-screenshot .as-keyart img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .banner.tmpl-appstore-screenshot .as-keyart-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--as-text-tertiary); font-size: 24px;
+  }
+
+  /* === Device label === */
+  .banner.tmpl-appstore-screenshot .as-device {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 16px 50px 0 50px; padding: 18px 0;
+    color: var(--as-text-secondary); font-size: 28px;
+    border-bottom: 1px solid var(--as-divider);
+  }
+  .banner.tmpl-appstore-screenshot .as-device-platforms {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .banner.tmpl-appstore-screenshot .as-device-platforms svg { fill: var(--as-text-secondary); display: block; }
+  .banner.tmpl-appstore-screenshot .as-device-chevron svg { fill: var(--as-text-secondary); display: block; }
+
+  /* === Description === */
+  .banner.tmpl-appstore-screenshot .as-description {
+    padding: 20px 50px 0 50px;
+    font-size: 30px; font-weight: 400; line-height: 1.4;
+    color: var(--as-text-primary);
+    overflow: hidden;
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;
+  }
+  .banner.tmpl-appstore-screenshot .as-description-more {
+    color: var(--as-link); font-weight: 400;
+    margin-left: 6px;
+  }
+
+  /* === Tab bar (bottom) === */
+  .banner.tmpl-appstore-screenshot .as-tabbar {
+    margin-top: auto;
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    border-top: 1px solid var(--as-divider);
+    padding: 16px 0 36px 0;
+    background: var(--as-bg);
+  }
+  .banner.tmpl-appstore-screenshot .as-tab {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    color: var(--as-tab-inactive);
+    font-size: 20px; font-weight: 500;
+  }
+  .banner.tmpl-appstore-screenshot .as-tab.is-active { color: var(--as-tab-active); }
+  .banner.tmpl-appstore-screenshot .as-tab svg { fill: currentColor; display: block; }
+
+  /* === Visibility toggles === */
+  .banner.tmpl-appstore-screenshot.hide-stats .as-stats { display: none; }
+  .banner.tmpl-appstore-screenshot.hide-tabbar .as-tabbar { display: none; }
+  .banner.tmpl-appstore-screenshot.hide-cta .as-cta-button { display: none; }
+  .banner.tmpl-appstore-screenshot.hide-iap .as-iap-label { display: none; }
+  .banner.tmpl-appstore-screenshot.hide-cta.hide-iap .as-cta-row { display: none; }
+
 </style>
 </head>
 <body>
@@ -664,6 +902,7 @@
       <select id="template-selector" class="template-selector">
         <option value="today-tap">Today Tap</option>
         <option value="app-badge">App Badge & Icon</option>
+        <option value="appstore-screenshot">App Store Screenshot</option>
       </select>
     </div>
     <div class="flex items-center gap-1">
@@ -776,8 +1015,79 @@
         </div>
       </div>
 
-      <!-- 공통: 고지 문구 -->
-      <div>
+      <!-- App Store Screenshot 전용 입력 (v1.5) — 9:16 픽셀 퍼펙트 모방 -->
+      <div class="space-y-3" data-tmpl="appstore-screenshot" style="display:none;">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="field-label">테마</div>
+            <select id="s-as-theme" class="input-base">
+              <option value="dark">다크 (검정 배경)</option>
+              <option value="light">라이트 (흰색 배경)</option>
+            </select>
+          </div>
+          <div>
+            <div class="field-label">규격 (고정)</div>
+            <input class="input-base" value="9:16 (1080×1920)" disabled style="opacity:0.5;cursor:not-allowed;" />
+          </div>
+        </div>
+
+        <div>
+          <div class="field-label">앱 타이틀 (현재 언어)</div>
+          <input id="s-as-title" class="input-base" placeholder="예: Underdark:Defense" />
+          <p class="text-[11px] text-gray-500 mt-1">언어 탭 전환 시 해당 언어 값이 표시됨</p>
+        </div>
+        <div>
+          <div class="field-label">카테고리 / 서브타이틀 (현재 언어)</div>
+          <input id="s-as-subtitle" class="input-base" placeholder="예: Strategy / 策略 / ストラテジー / 성큰 디펜스" />
+        </div>
+        <div>
+          <div class="field-label">설명 본문 (현재 언어)</div>
+          <textarea id="s-as-description" class="input-base" rows="3" placeholder="Defend the Flame from the dark! Level up, strategically place towers..."></textarea>
+          <p class="text-[11px] text-gray-500 mt-1">~4줄까지 표시 후 'more / 더 보기 / もっと見る / 更多' 자동 부착</p>
+        </div>
+
+        <div class="border border-[#262932] rounded-lg p-3 space-y-2">
+          <p class="text-xs font-semibold text-gray-300">통계 위젯 (현재 언어)</p>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <div class="text-[11px] text-gray-400 mb-1">평점 (0–5)</div>
+              <input id="s-as-rating" class="input-base text-sm" placeholder="4.8" />
+            </div>
+            <div>
+              <div class="text-[11px] text-gray-400 mb-1">리뷰수</div>
+              <input id="s-as-rating-count" class="input-base text-sm" placeholder="4467" />
+            </div>
+            <div>
+              <div class="text-[11px] text-gray-400 mb-1">랭킹</div>
+              <input id="s-as-ranking" class="input-base text-sm" placeholder="#7" />
+            </div>
+            <div>
+              <div class="text-[11px] text-gray-400 mb-1">개발자명</div>
+              <input id="s-as-developer" class="input-base text-sm" placeholder="SeungHo" />
+            </div>
+          </div>
+          <p class="text-[10px] text-gray-500">통계 영역 전체는 아래 토글로 일괄 숨김 가능</p>
+        </div>
+
+        <div class="border border-[#262932] rounded-lg p-3 space-y-2">
+          <p class="text-xs font-semibold text-gray-300">표시 / 숨김 (전체 공통)</p>
+          <label class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
+            <input id="s-as-show-stats" type="checkbox" checked /> 통계 영역 (평점·연령·랭킹·개발자)
+          </label>
+          <label class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
+            <input id="s-as-show-tabbar" type="checkbox" checked /> 하단 탭바 (Today/Games/...)
+          </label>
+          <label class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
+            <input id="s-as-show-cta" type="checkbox" checked /> Get 버튼
+          </label>
+          <label class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
+            <input id="s-as-show-iap" type="checkbox" checked /> IAP 라벨 (앱 내 구입)
+          </label>
+        </div>
+      </div>
+
+      <!-- 공통: 고지 문구 (Today Tap / App Badge 만 사용) -->
+      <div data-tmpl-hide="appstore-screenshot">
         <div class="field-label">고지 문구 (우상단, 비우면 미표시)</div>
         <input id="s-disclaimer" class="input-base" value="*확률형 아이템 포함" />
         <p class="text-[11px] text-gray-500 mt-1">언어 변경 시 자동으로 기본값이 채워집니다 (한국어만 기본값 존재)</p>
@@ -1106,6 +1416,35 @@
         </div>
       </div>
 
+      <!-- App Store Screenshot 전용: 공통 설정 (v1.5) -->
+      <div class="border border-[#262932] rounded-lg p-3 space-y-3" data-tmpl="appstore-screenshot" style="display:none;">
+        <p class="text-xs font-semibold text-gray-300">App Store Screenshot 공통 설정</p>
+        <div>
+          <div class="field-label">테마 (전 언어 공통)</div>
+          <select id="b-as-theme" class="input-base text-sm">
+            <option value="dark">다크 (검정 배경)</option>
+            <option value="light">라이트 (흰색 배경)</option>
+          </select>
+          <p class="text-[10px] text-gray-500 mt-1">선택한 테마로 4개 언어 PNG 모두 출력</p>
+        </div>
+        <div class="space-y-2">
+          <p class="text-[11px] text-gray-300 font-semibold">표시 / 숨김 (전 언어 공통)</p>
+          <label class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
+            <input id="b-as-show-stats" type="checkbox" checked /> 통계 영역 (평점·연령·랭킹·개발자)
+          </label>
+          <label class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
+            <input id="b-as-show-tabbar" type="checkbox" checked /> 하단 탭바 (Today/Games/...)
+          </label>
+          <label class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
+            <input id="b-as-show-cta" type="checkbox" checked /> Get 버튼
+          </label>
+          <label class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
+            <input id="b-as-show-iap" type="checkbox" checked /> IAP 라벨
+          </label>
+        </div>
+        <p class="text-[10px] text-gray-500">언어별 텍스트(타이틀·설명·통계 수치)는 위 "언어별 입력" 영역에서 4개 언어 각각 입력</p>
+      </div>
+
       <!-- Today Tap 전용: 오버플로우 위치 조정 -->
       <div class="border border-[#262932] rounded-lg p-3 space-y-2" data-tmpl="today-tap">
         <div class="flex items-center justify-between">
@@ -1236,10 +1575,20 @@ const LANG_PACK = {
   'zh-TW':{ header: 'Today', cta: '立即下載',             disclaimer: '',                    label: '繁體中文' },
 };
 
+// v1.5: App Store Screenshot 템플릿 고정 라벨 (4개 언어)
+// 사용자 입력 영역(타이틀·설명·통계 수치)은 가변, 이 LANG_PACK은 고정 라벨만
+const AS_LANG_PACK = {
+  'ko':    { search: '검색',  get: '받기',  iap: '앱 내 구입',     more: '더 보기',    statRatings: '평가',     statAge: '연령',  statRanking: '차트', statDeveloper: '개발자', ageSuffix: '세',    deviceLabel: 'iPhone, iPad', tabs: ['투데이','게임','앱','Arcade','검색'] },
+  'en':    { search: 'Search',get: 'Get',   iap: 'In-App\nPurchases', more: 'more',     statRatings: 'Ratings', statAge: 'Age',   statRanking: 'Chart', statDeveloper: 'Developer', ageSuffix: 'Years Old', deviceLabel: 'iPhone, iPad', tabs: ['Today','Games','Apps','Arcade','Search'] },
+  'ja':    { search: '検索',  get: '入手',  iap: 'アプリ内課金',   more: 'もっと見る', statRatings: '評価',     statAge: '年齢',  statRanking: 'ランキング', statDeveloper: '開発者', ageSuffix: '歳',     deviceLabel: 'iPhone、iPad',  tabs: ['Today','ゲーム','アプリ','Arcade','検索'] },
+  'zh-TW': { search: '搜尋',  get: '取得',  iap: 'App 內購買',     more: '更多',       statRatings: '評分',     statAge: '年齡',  statRanking: '排行榜', statDeveloper: '開發者', ageSuffix: '歲',     deviceLabel: 'iPhone、iPad',  tabs: ['Today','遊戲','App','Arcade','搜尋'] },
+};
+
 // ===========================================================================
 // v1.3: App Badge & Icon 템플릿 전용 상수
+// v1.5: + appstore-screenshot 추가 (App Store Connect 스크린샷 모방)
 // ===========================================================================
-const TEMPLATE_KEYS = ['today-tap', 'app-badge'];
+const TEMPLATE_KEYS = ['today-tap', 'app-badge', 'appstore-screenshot'];
 
 // 헤드라인 프리셋 (언어별 기본 문구) — 사용자 custom 선택 시 비활성
 // v1.3 r2 Gap G1: 기본값은 단일 라인 (레퍼런스 일치, 1:1 / 9:16)
@@ -1399,6 +1748,24 @@ const APP_BADGE_DEFAULT = {
   logoScale: 100,
   // v1.4 r7: 로고 Y축 오프셋 (px, -200 ~ +200, 기본 0, 양수 = 아래로)
   logoY: 0,
+};
+
+// v1.5: App Store Screenshot 기본 상태
+// - 공통(언어 무관): theme, 4개 표시 토글, keyart, icon (이미지는 state.single.keyart/icon 재사용)
+// - 언어별: title, subtitle, description, rating, ratingCount, ranking, developer
+const APPSTORE_SCREENSHOT_DEFAULT = {
+  theme: 'dark',          // 'dark' | 'light'
+  showStats: true,
+  showTabbar: true,
+  showCta: true,
+  showIap: true,
+  // 언어별 가변 텍스트 — 4개 언어 슬롯
+  langs: {
+    'ko':    { title: '', subtitle: '', description: '', rating: '4.8',  ratingCount: '3.8천', ranking: '#2',   developer: 'SeungHo' },
+    'en':    { title: '', subtitle: '', description: '', rating: '4.8',  ratingCount: '24',    ranking: '#7',   developer: 'SeungHo' },
+    'ja':    { title: '', subtitle: '', description: '', rating: '4.7',  ratingCount: '366',   ranking: '#145', developer: 'SeungHo' },
+    'zh-TW': { title: '', subtitle: '', description: '', rating: '4.8',  ratingCount: '4467',  ranking: '#7',   developer: 'SeungHo' },
+  },
 };
 
 const PRESETS = {
@@ -1616,6 +1983,8 @@ const state = {
     shadow: { ...SHADOW_DEFAULT },
     // v1.3: App Badge 전용 필드
     app_badge: { ...APP_BADGE_DEFAULT },
+    // v1.5: App Store Screenshot 전용 필드 (테마, 토글, 언어별 텍스트)
+    appstore: JSON.parse(JSON.stringify(APPSTORE_SCREENSHOT_DEFAULT)),
   },
   batch: {
     // r3 FR-18/19: 기본값 변경 (9:16→1200x628, 2개 언어→4개 언어)
@@ -1656,6 +2025,13 @@ const state = {
     ab_logoScale: 100,
     // v1.4 r7: 로고 Y축 오프셋
     ab_logoY: 0,
+    // v1.5: App Store Screenshot 공통 설정 (테마 + 4개 토글)
+    as_theme: 'dark',
+    as_showStats: true,
+    as_showTabbar: true,
+    as_showCta: true,
+    as_showIap: true,
+    // 언어별 가변 텍스트는 langOverrides에 통합 저장 (rating/ratingCount/ranking/developer/description 등)
   },
   ui: { previewScale: 0.45 },
 };
@@ -1832,12 +2208,168 @@ function buildAppBadgeBanner(cfg) {
 }
 
 // ===========================================================================
+// v1.5: App Store Screenshot — DOM 프리뷰 빌더
+// 픽셀 퍼펙트 iOS App Store 제품 페이지 모방, 9:16 (1080×1920) 전용
+// ===========================================================================
+const AS_SVG = {
+  // Status bar icons
+  signal:  '<svg width="46" height="28" viewBox="0 0 46 28"><rect x="0"  y="18" width="8" height="10" rx="2"/><rect x="11" y="13" width="8" height="15" rx="2"/><rect x="22" y="7"  width="8" height="21" rx="2"/><rect x="33" y="0"  width="8" height="28" rx="2"/></svg>',
+  wifi:    '<svg width="38" height="28" viewBox="0 0 38 28"><path d="M19 2C11 2 4 5 0 9l3 4c4-3 9-5 16-5s12 2 16 5l3-4c-4-4-11-7-19-7zm0 8c-5 0-10 2-13 5l3 4c2-2 6-3 10-3s8 1 10 3l3-4c-3-3-8-5-13-5zm0 8c-3 0-5 1-7 2l4 5c1-1 2-2 3-2s2 1 3 2l4-5c-2-1-4-2-7-2z"/></svg>',
+  battery: '<svg width="50" height="26" viewBox="0 0 50 26"><rect x="1" y="1" width="42" height="24" rx="6" fill="none" stroke="currentColor" stroke-width="2" opacity="0.55"/><rect x="44" y="9" width="3" height="8" rx="1.5"/><rect x="4" y="4" width="36" height="18" rx="3"/></svg>',
+  // Header back chevron
+  back: '<svg width="22" height="42" viewBox="0 0 22 42"><path d="M21 1L4 21l17 20" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  // Stars (filled, half, empty)
+  starF: '<svg width="22" height="22" viewBox="0 0 22 22"><polygon points="11,1 14,8 21,8.5 16,13.5 17.5,21 11,17 4.5,21 6,13.5 1,8.5 8,8" /></svg>',
+  starH: '<svg width="22" height="22" viewBox="0 0 22 22"><defs><linearGradient id="halfg"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="transparent"/></linearGradient></defs><polygon points="11,1 14,8 21,8.5 16,13.5 17.5,21 11,17 4.5,21 6,13.5 1,8.5 8,8" fill="url(#halfg)" stroke="currentColor" stroke-width="0.6"/></svg>',
+  starE: '<svg width="22" height="22" viewBox="0 0 22 22"><polygon points="11,1 14,8 21,8.5 16,13.5 17.5,21 11,17 4.5,21 6,13.5 1,8.5 8,8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>',
+  // Stat icons
+  ranking: '<svg width="42" height="42" viewBox="0 0 42 42"><path d="M8 21l5-5 4 4 7-9 5 5 5-6"  fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  developer: '<svg width="42" height="42" viewBox="0 0 42 42"><path d="M21 22a7 7 0 100-14 7 7 0 000 14zm0 3c-7 0-14 3-14 8v3h28v-3c0-5-7-8-14-8z"/></svg>',
+  // Device label
+  iphone: '<svg width="22" height="34" viewBox="0 0 22 34"><rect x="1" y="1" width="20" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="11" cy="29" r="1.6"/></svg>',
+  ipad:   '<svg width="28" height="34" viewBox="0 0 28 34"><rect x="1" y="1" width="26" height="32" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="14" cy="29" r="1.4"/></svg>',
+  chevronDown: '<svg width="28" height="20" viewBox="0 0 28 20"><path d="M2 4l12 12L26 4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  // Tab bar icons (Today, Games, Apps, Arcade, Search)
+  tabToday:  '<svg width="42" height="42" viewBox="0 0 42 42"><rect x="6"  y="8" width="30" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/><line x1="6" y1="14" x2="36" y2="14" stroke="currentColor" stroke-width="2.5"/><line x1="13" y1="4" x2="13" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><line x1="29" y1="4" x2="29" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>',
+  tabGames:  '<svg width="42" height="42" viewBox="0 0 42 42"><path d="M21 6l5 4-5 4-5-4z"/><path d="M11 24c0 6 4 10 10 10s10-4 10-10c0-3-2-5-5-5h-10c-3 0-5 2-5 5z" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>',
+  tabApps:   '<svg width="42" height="42" viewBox="0 0 42 42"><rect x="7"  y="7"  width="12" height="12" rx="2"/><rect x="23" y="7"  width="12" height="12" rx="2"/><rect x="7"  y="23" width="12" height="12" rx="2"/><rect x="23" y="23" width="12" height="12" rx="2"/></svg>',
+  tabArcade: '<svg width="42" height="42" viewBox="0 0 42 42"><circle cx="21" cy="21" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M21 9v6m0 12v6M9 21h6m12 0h6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>',
+  tabSearch: '<svg width="42" height="42" viewBox="0 0 42 42"><circle cx="18" cy="18" r="10" fill="none" stroke="currentColor" stroke-width="3"/><line x1="26" y1="26" x2="34" y2="34" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>',
+};
+
+function buildAppStoreScreenshotBanner(cfg) {
+  const lang = cfg.lang || 'en';
+  const pack = AS_LANG_PACK[lang] || AS_LANG_PACK['en'];
+  const theme = (cfg.theme === 'light') ? 'light' : 'dark';
+
+  const banner = document.createElement('div');
+  const hideStats  = cfg.showStats  === false ? 'hide-stats'  : '';
+  const hideTabbar = cfg.showTabbar === false ? 'hide-tabbar' : '';
+  const hideCta    = cfg.showCta    === false ? 'hide-cta'    : '';
+  const hideIap    = cfg.showIap    === false ? 'hide-iap'    : '';
+  banner.className = `banner tmpl-appstore-screenshot size-9x16 ${hideStats} ${hideTabbar} ${hideCta} ${hideIap}`.trim();
+  banner.setAttribute('data-lang', lang);
+  banner.setAttribute('data-theme', theme);
+
+  // Stars renderer (4.8 → 4 full + 1 partial; 5.0 → 5 full)
+  const ratingNum = parseFloat(cfg.rating || '0') || 0;
+  const fullStars = Math.floor(ratingNum);
+  const hasHalf   = (ratingNum - fullStars) >= 0.25 && (ratingNum - fullStars) < 0.75;
+  const fullStarsAdj = (ratingNum - fullStars) >= 0.75 ? fullStars + 1 : fullStars;
+  let starsHTML = '';
+  for (let i = 0; i < 5; i++) {
+    if (i < fullStarsAdj) starsHTML += AS_SVG.starF;
+    else if (i === fullStarsAdj && hasHalf) starsHTML += AS_SVG.starH;
+    else starsHTML += AS_SVG.starE;
+  }
+
+  banner.innerHTML = `
+    <!-- 1. Status bar -->
+    <div class="as-statusbar">
+      <span class="as-statusbar-time">9:41</span>
+      <div class="as-statusbar-icons">
+        ${AS_SVG.signal}
+        ${AS_SVG.wifi}
+        ${AS_SVG.battery}
+      </div>
+    </div>
+
+    <!-- 2. Header -->
+    <div class="as-header">
+      ${AS_SVG.back}
+      <span>${escapeHTML(pack.search)}</span>
+    </div>
+
+    <!-- 3. App info -->
+    <div class="as-app-info">
+      <div class="as-icon">
+        ${cfg.icon
+          ? `<img src="${cfg.icon}" alt="App Icon" crossorigin="anonymous" />`
+          : `<div class="as-icon-placeholder">App Icon</div>`}
+      </div>
+      <div class="as-app-info-text">
+        <div class="as-title">${escapeHTML(cfg.title || 'App Title')}</div>
+        <div class="as-subtitle">${escapeHTML(cfg.subtitle || 'Category')}</div>
+        <div class="as-cta-row">
+          <button class="as-cta-button" type="button">${escapeHTML(pack.get)}</button>
+          <div class="as-iap-label">${escapeHTML(pack.iap).replace(/\n/g, '<br/>')}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Stats (4 columns) -->
+    <div class="as-stats">
+      <div class="as-stat">
+        <div class="as-stat-top">${escapeHTML(cfg.ratingCount || '')}</div>
+        <div class="as-stat-mid">${escapeHTML(cfg.rating || '0.0')}</div>
+        <div class="as-stat-stars">${starsHTML}</div>
+      </div>
+      <div class="as-stat">
+        <div class="as-stat-top">${escapeHTML(pack.statAge)}</div>
+        <div class="as-stat-mid">4+</div>
+        <div class="as-stat-bot as-stat-age-suffix">${escapeHTML(pack.ageSuffix)}</div>
+      </div>
+      <div class="as-stat">
+        <div class="as-stat-top">${escapeHTML(pack.statRanking)}</div>
+        <div class="as-stat-icon">${AS_SVG.ranking}</div>
+        <div class="as-stat-bot">${escapeHTML(cfg.ranking || '')}</div>
+      </div>
+      <div class="as-stat">
+        <div class="as-stat-top">${escapeHTML(pack.statDeveloper)}</div>
+        <div class="as-stat-icon">${AS_SVG.developer}</div>
+        <div class="as-stat-bot">${escapeHTML(cfg.developer || '')}</div>
+      </div>
+    </div>
+
+    <!-- 5. Keyart card -->
+    <div class="as-keyart-wrap">
+      <div class="as-keyart">
+        ${cfg.keyart
+          ? `<img src="${cfg.keyart}" alt="Keyart" crossorigin="anonymous" />`
+          : `<div class="as-keyart-placeholder">Upload Keyart Image</div>`}
+      </div>
+    </div>
+
+    <!-- 6. Device label -->
+    <div class="as-device">
+      <div class="as-device-platforms">
+        ${AS_SVG.iphone}
+        ${AS_SVG.ipad}
+        <span>${escapeHTML(pack.deviceLabel)}</span>
+      </div>
+      <div class="as-device-chevron">${AS_SVG.chevronDown}</div>
+    </div>
+
+    <!-- 7. Description -->
+    <div class="as-description">
+      ${escapeHTML(cfg.description || 'App description...')}
+      <span class="as-description-more">${escapeHTML(pack.more)}</span>
+    </div>
+
+    <!-- 8. Tab bar -->
+    <div class="as-tabbar">
+      <div class="as-tab"><div>${AS_SVG.tabToday}</div><span>${escapeHTML(pack.tabs[0])}</span></div>
+      <div class="as-tab"><div>${AS_SVG.tabGames}</div><span>${escapeHTML(pack.tabs[1])}</span></div>
+      <div class="as-tab"><div>${AS_SVG.tabApps}</div><span>${escapeHTML(pack.tabs[2])}</span></div>
+      <div class="as-tab"><div>${AS_SVG.tabArcade}</div><span>${escapeHTML(pack.tabs[3])}</span></div>
+      <div class="as-tab is-active"><div>${AS_SVG.tabSearch}</div><span>${escapeHTML(pack.tabs[4])}</span></div>
+    </div>
+  `;
+
+  return banner;
+}
+
+// ===========================================================================
 // 3. 배너 렌더 함수
 // ===========================================================================
 function renderBanner(cfg) {
   // v1.3: 템플릿 분기
   if (cfg.template === 'app-badge') {
     return buildAppBadgeBanner(cfg);
+  }
+  // v1.5: App Store Screenshot 분기
+  if (cfg.template === 'appstore-screenshot') {
+    return buildAppStoreScreenshotBanner(cfg);
   }
   const banner = document.createElement('div');
   banner.className = `banner size-${cfg.size}`;
@@ -2398,11 +2930,426 @@ async function prepAppBadgeCfgImages(cfg) {
   return { ...cfg, _bgImg: bgImg, _logoImg: logoImg, _iconImg: iconImg, _googlePlayImg: gImg, _appStoreImg: aImg };
 }
 
+// ===========================================================================
+// v1.5: App Store Screenshot — Canvas 직접 합성
+// 픽셀 퍼펙트 iOS App Store 제품 페이지 모방, 9:16 (1080×1920) 전용
+// ===========================================================================
+
+// 테마 팔레트 (CSS --as-* 변수와 동일한 hex)
+const AS_THEMES = {
+  dark: {
+    bg: '#000000', textPrimary: '#ffffff', textSecondary: '#98989f',
+    textTertiary: '#6e6e73', divider: 'rgba(255,255,255,0.12)',
+    cardBg: '#1c1c1e', cardShadow: 'rgba(0,0,0,0.5)',
+    statusbarIcon: '#ffffff', ctaBg: '#0a84ff', ctaText: '#ffffff',
+    link: '#0a84ff', tabActive: '#0a84ff', tabInactive: '#98989f',
+    statValue: '#98989f',
+  },
+  light: {
+    bg: '#ffffff', textPrimary: '#000000', textSecondary: '#6e6e73',
+    textTertiary: '#8e8e93', divider: 'rgba(60,60,67,0.18)',
+    cardBg: '#f2f2f7', cardShadow: 'rgba(0,0,0,0.10)',
+    statusbarIcon: '#000000', ctaBg: '#007aff', ctaText: '#ffffff',
+    link: '#007aff', tabActive: '#007aff', tabInactive: '#8e8e93',
+    statValue: '#6e6e73',
+  },
+};
+
+// SVG 정의 (canvas용 fill/stroke 동적 주입 — __C__ 토큰 치환)
+const AS_ICON_DEFS = {
+  signal:    { w: 46, h: 28, body: '<rect x="0" y="18" width="8" height="10" rx="2"/><rect x="11" y="13" width="8" height="15" rx="2"/><rect x="22" y="7" width="8" height="21" rx="2"/><rect x="33" y="0" width="8" height="28" rx="2"/>' },
+  wifi:      { w: 38, h: 28, body: '<path d="M19 2C11 2 4 5 0 9l3 4c4-3 9-5 16-5s12 2 16 5l3-4c-4-4-11-7-19-7zm0 8c-5 0-10 2-13 5l3 4c2-2 6-3 10-3s8 1 10 3l3-4c-3-3-8-5-13-5zm0 8c-3 0-5 1-7 2l4 5c1-1 2-2 3-2s2 1 3 2l4-5c-2-1-4-2-7-2z"/>' },
+  battery:   { w: 50, h: 26, body: '<rect x="1" y="1" width="42" height="24" rx="6" fill="none" stroke="__C__" stroke-width="2" opacity="0.55"/><rect x="44" y="9" width="3" height="8" rx="1.5"/><rect x="4" y="4" width="36" height="18" rx="3"/>' },
+  back:      { w: 22, h: 42, body: '<path d="M21 1L4 21l17 20" fill="none" stroke="__C__" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' },
+  starF:     { w: 22, h: 22, body: '<polygon points="11,1 14,8 21,8.5 16,13.5 17.5,21 11,17 4.5,21 6,13.5 1,8.5 8,8"/>' },
+  starH:     { w: 22, h: 22, body: '<defs><linearGradient id="hg"><stop offset="50%" stop-color="__C__"/><stop offset="50%" stop-color="transparent"/></linearGradient></defs><polygon points="11,1 14,8 21,8.5 16,13.5 17.5,21 11,17 4.5,21 6,13.5 1,8.5 8,8" fill="url(#hg)" stroke="__C__" stroke-width="0.6"/>' },
+  starE:     { w: 22, h: 22, body: '<polygon points="11,1 14,8 21,8.5 16,13.5 17.5,21 11,17 4.5,21 6,13.5 1,8.5 8,8" fill="none" stroke="__C__" stroke-width="1.2"/>' },
+  ranking:   { w: 42, h: 42, body: '<path d="M8 21l5-5 4 4 7-9 5 5 5-6" fill="none" stroke="__C__" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' },
+  developer: { w: 42, h: 42, body: '<path d="M21 22a7 7 0 100-14 7 7 0 000 14zm0 3c-7 0-14 3-14 8v3h28v-3c0-5-7-8-14-8z"/>' },
+  iphone:    { w: 22, h: 34, body: '<rect x="1" y="1" width="20" height="32" rx="4" fill="none" stroke="__C__" stroke-width="2"/><circle cx="11" cy="29" r="1.6"/>' },
+  ipad:      { w: 28, h: 34, body: '<rect x="1" y="1" width="26" height="32" rx="3" fill="none" stroke="__C__" stroke-width="2"/><circle cx="14" cy="29" r="1.4"/>' },
+  chevronDown:{ w: 28, h: 20, body: '<path d="M2 4l12 12L26 4" fill="none" stroke="__C__" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' },
+  tabToday:  { w: 42, h: 42, body: '<rect x="6" y="8" width="30" height="26" rx="3" fill="none" stroke="__C__" stroke-width="2.5"/><line x1="6" y1="14" x2="36" y2="14" stroke="__C__" stroke-width="2.5"/><line x1="13" y1="4" x2="13" y2="11" stroke="__C__" stroke-width="2.5" stroke-linecap="round"/><line x1="29" y1="4" x2="29" y2="11" stroke="__C__" stroke-width="2.5" stroke-linecap="round"/>' },
+  tabGames:  { w: 42, h: 42, body: '<path d="M21 6l5 4-5 4-5-4z"/><path d="M11 24c0 6 4 10 10 10s10-4 10-10c0-3-2-5-5-5h-10c-3 0-5 2-5 5z" fill="none" stroke="__C__" stroke-width="2.5"/>' },
+  tabApps:   { w: 42, h: 42, body: '<rect x="7" y="7" width="12" height="12" rx="2"/><rect x="23" y="7" width="12" height="12" rx="2"/><rect x="7" y="23" width="12" height="12" rx="2"/><rect x="23" y="23" width="12" height="12" rx="2"/>' },
+  tabArcade: { w: 42, h: 42, body: '<circle cx="21" cy="21" r="14" fill="none" stroke="__C__" stroke-width="2.5"/><path d="M21 9v6m0 12v6M9 21h6m12 0h6" stroke="__C__" stroke-width="2.5" stroke-linecap="round"/>' },
+  tabSearch: { w: 42, h: 42, body: '<circle cx="18" cy="18" r="10" fill="none" stroke="__C__" stroke-width="3"/><line x1="26" y1="26" x2="34" y2="34" stroke="__C__" stroke-width="3" stroke-linecap="round"/>' },
+};
+
+function buildAsIconUrl(key, color) {
+  const def = AS_ICON_DEFS[key];
+  if (!def) return '';
+  const body = def.body.replace(/__C__/g, color);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${def.w}" height="${def.h}" viewBox="0 0 ${def.w} ${def.h}" fill="${color}">${body}</svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+function asFontFamily(lang) {
+  if (lang === 'ja')    return "'Noto Sans JP', -apple-system, sans-serif";
+  if (lang === 'zh-TW') return "'Noto Sans TC', -apple-system, sans-serif";
+  if (lang === 'ko')    return "'Pretendard', -apple-system, sans-serif";
+  return "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Pretendard', sans-serif";
+}
+
+// 텍스트 줄바꿈 — 단어 단위 wrap, 최대 maxLines 줄. CJK 문자도 단어처럼 처리.
+function asWrapText(ctx, text, maxWidth, maxLines) {
+  const lines = [];
+  const paragraphs = (text || '').split('\n');
+  for (const para of paragraphs) {
+    if (lines.length >= maxLines) break;
+    // CJK 친화: 공백 또는 빈문자(개별 문자) 분할 — measure 단위 정밀도 향상
+    const tokens = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]/.test(para)
+      ? para.split('') : para.split(/(\s+)/);
+    let cur = '';
+    for (const w of tokens) {
+      const test = cur + w;
+      if (ctx.measureText(test).width > maxWidth && cur.length > 0) {
+        lines.push(cur);
+        if (lines.length >= maxLines) break;
+        cur = w;
+      } else {
+        cur = test;
+      }
+    }
+    if (cur.length > 0 && lines.length < maxLines) lines.push(cur);
+  }
+  return lines;
+}
+
+async function prepAppStoreCfgImages(cfg) {
+  const theme = AS_THEMES[cfg.theme === 'light' ? 'light' : 'dark'];
+  const colorByKey = {
+    signal: theme.statusbarIcon, wifi: theme.statusbarIcon, battery: theme.statusbarIcon,
+    back: theme.link,
+    starF: theme.statValue, starH: theme.statValue, starE: theme.statValue,
+    ranking: theme.statValue, developer: theme.statValue,
+    iphone: theme.textSecondary, ipad: theme.textSecondary, chevronDown: theme.textSecondary,
+    tabToday: theme.tabInactive, tabGames: theme.tabInactive, tabApps: theme.tabInactive,
+    tabArcade: theme.tabInactive, tabSearch: theme.tabActive,
+  };
+  const svgImgs = {};
+  await Promise.all(Object.keys(colorByKey).map(async k => {
+    const url = buildAsIconUrl(k, colorByKey[k]);
+    svgImgs[k] = await loadCachedImage(url);
+  }));
+  const [iconImg, keyartImg] = await Promise.all([
+    cfg.icon   ? loadCachedImage(cfg.icon)   : Promise.resolve(null),
+    cfg.keyart ? loadCachedImage(cfg.keyart) : Promise.resolve(null),
+  ]);
+  return { ...cfg, _theme: theme, _svgImgs: svgImgs, _iconImg: iconImg, _keyartImg: keyartImg };
+}
+
+async function buildAppStoreScreenshotCanvas(cfg) {
+  const W = 1080, H = 1920;
+  const theme = cfg._theme || AS_THEMES[cfg.theme === 'light' ? 'light' : 'dark'];
+  const lang = cfg.lang || 'en';
+  const pack = AS_LANG_PACK[lang] || AS_LANG_PACK['en'];
+  const family = asFontFamily(lang);
+  const svg = cfg._svgImgs || {};
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // [0] Background
+  ctx.fillStyle = theme.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  let y = 0;
+
+  // [1] Status bar (height 80, content in 28..80)
+  ctx.fillStyle = theme.statusbarIcon;
+  ctx.font = `600 36px ${family}`;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  ctx.fillText('9:41', 56, 28 + 26);
+  let xR = W - 56;
+  if (svg.battery) { ctx.drawImage(svg.battery, xR - 50, 28 + (52 - 26) / 2, 50, 26); xR -= 50 + 12; }
+  if (svg.wifi)    { ctx.drawImage(svg.wifi,    xR - 38, 28 + (52 - 28) / 2, 38, 28); xR -= 38 + 12; }
+  if (svg.signal)  { ctx.drawImage(svg.signal,  xR - 46, 28 + (52 - 28) / 2, 46, 28); }
+  y = 80;
+
+  // [2] Header (back + search) — padding 18 36
+  if (svg.back) ctx.drawImage(svg.back, 36, y + 18, 22, 42);
+  ctx.fillStyle = theme.link;
+  ctx.font = `400 38px ${family}`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(pack.search, 36 + 22 + 12, y + 18 + 21);
+  y = y + 18 + 42 + 18;
+
+  // [3] App info — padding 12 50 24 50, icon 220, gap 32
+  const aiTop = y + 12;
+  const iconSize = 220;
+  const iconX = 50, iconY = aiTop;
+  // Icon card with shadow
+  ctx.save();
+  ctx.shadowColor = theme.cardShadow;
+  ctx.shadowBlur = 12; ctx.shadowOffsetY = 4;
+  ctx.fillStyle = theme.cardBg;
+  ctx.beginPath();
+  ctx.roundRect(iconX, iconY, iconSize, iconSize, 50);
+  ctx.fill();
+  ctx.restore();
+  if (cfg._iconImg) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(iconX, iconY, iconSize, iconSize, 50);
+    ctx.clip();
+    drawImageCover(ctx, cfg._iconImg, iconX, iconY, iconSize, iconSize);
+    ctx.restore();
+  } else {
+    ctx.fillStyle = theme.textTertiary;
+    ctx.font = `400 24px ${family}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('App Icon', iconX + iconSize / 2, iconY + iconSize / 2);
+  }
+
+  const txX = iconX + iconSize + 32;
+  const txMaxW = W - txX - 50;
+  const titleH = 54, subH = 28, ctaH = 60;
+  const blockH = titleH + 4 + subH + 18 + ctaH;
+  const blockTop = iconY + (iconSize - blockH) / 2;
+
+  // Title (single line, ellipsis)
+  ctx.fillStyle = theme.textPrimary;
+  ctx.font = `700 54px ${family}`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  let dt = cfg.title || 'App Title';
+  if (ctx.measureText(dt).width > txMaxW) {
+    while (ctx.measureText(dt + '…').width > txMaxW && dt.length > 0) dt = dt.slice(0, -1);
+    dt = dt + '…';
+  }
+  ctx.fillText(dt, txX, blockTop);
+
+  // Subtitle
+  ctx.fillStyle = theme.textSecondary;
+  ctx.font = `400 28px ${family}`;
+  ctx.fillText(cfg.subtitle || 'Category', txX, blockTop + titleH + 4);
+
+  // CTA row
+  const ctaRowY = blockTop + titleH + 4 + subH + 18;
+  let ctaEndX = txX;
+  if (cfg.showCta !== false) {
+    ctx.font = `700 32px ${family}`;
+    const getText = pack.get;
+    const tw = ctx.measureText(getText).width;
+    const btnPad = 56;
+    const btnW = Math.max(tw + btnPad * 2, 160);
+    ctx.fillStyle = theme.ctaBg;
+    ctx.beginPath();
+    ctx.roundRect(txX, ctaRowY, btnW, ctaH, ctaH / 2);
+    ctx.fill();
+    ctx.fillStyle = theme.ctaText;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(getText, txX + btnW / 2, ctaRowY + ctaH / 2);
+    ctaEndX = txX + btnW;
+  }
+  if (cfg.showIap !== false) {
+    ctx.fillStyle = theme.textSecondary;
+    ctx.font = `400 22px ${family}`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    const iapX = (cfg.showCta !== false) ? ctaEndX + 22 : txX;
+    const iapLines = pack.iap.split('\n');
+    iapLines.forEach((line, i) => {
+      ctx.fillText(line, iapX, ctaRowY + 6 + i * 26);
+    });
+  }
+  y = aiTop + iconSize + 24;
+
+  // [4] Stats (4 columns)
+  if (cfg.showStats !== false) {
+    const statsTopMargin = 4;
+    const statsPadTop = 22, statsPadBot = 26;
+    const statsContentH = 100;
+    const statsTotalH = statsPadTop + statsContentH + statsPadBot;
+    const statsY = y + statsTopMargin;
+
+    ctx.fillStyle = theme.divider;
+    ctx.fillRect(0, statsY, W, 1);
+    ctx.fillRect(0, statsY + statsTotalH, W, 1);
+    const colW = W / 4;
+    for (let i = 1; i < 4; i++) ctx.fillRect(i * colW, statsY + 14, 1, statsTotalH - 28);
+
+    const labelTop = statsY + statsPadTop;
+    const valueTop = labelTop + 22 + 6;
+
+    const drawLabel = (text, cx, cy) => {
+      ctx.fillStyle = theme.textSecondary;
+      ctx.font = `400 22px ${family}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText((text || '').toUpperCase(), cx, cy);
+    };
+    const drawValue = (text, cx, cy, fs = 38) => {
+      ctx.fillStyle = theme.statValue;
+      ctx.font = `700 ${fs}px ${family}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(text || '', cx, cy);
+    };
+    const drawBot = (text, cx, cy, fs = 22) => {
+      ctx.fillStyle = theme.textSecondary;
+      ctx.font = `400 ${fs}px ${family}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(text || '', cx, cy);
+    };
+
+    // Col 1: ratingCount + rating + stars
+    const c1x = colW * 0.5;
+    drawLabel(cfg.ratingCount || '', c1x, labelTop);
+    drawValue(cfg.rating || '0.0', c1x, valueTop);
+    const ratingNum = parseFloat(cfg.rating || '0') || 0;
+    const fs = Math.floor(ratingNum);
+    const hasHalf = (ratingNum - fs) >= 0.25 && (ratingNum - fs) < 0.75;
+    const fsAdj = (ratingNum - fs) >= 0.75 ? fs + 1 : fs;
+    const sw = 22, sg = 3;
+    const stTotal = 5 * sw + 4 * sg;
+    const stX = c1x - stTotal / 2;
+    const stY = valueTop + 38 + 6;
+    for (let i = 0; i < 5; i++) {
+      let img;
+      if (i < fsAdj) img = svg.starF;
+      else if (i === fsAdj && hasHalf) img = svg.starH;
+      else img = svg.starE;
+      if (img) ctx.drawImage(img, stX + i * (sw + sg), stY, sw, sw);
+    }
+
+    // Col 2: AGE / 4+ / suffix
+    const c2x = colW * 1.5;
+    drawLabel(pack.statAge, c2x, labelTop);
+    drawValue('4+', c2x, valueTop);
+    drawBot(pack.ageSuffix, c2x, valueTop + 38 + 6, 18);
+
+    // Col 3: ranking icon + #N
+    const c3x = colW * 2.5;
+    drawLabel(pack.statRanking, c3x, labelTop);
+    if (svg.ranking) ctx.drawImage(svg.ranking, c3x - 21, valueTop, 42, 42);
+    drawBot(cfg.ranking || '', c3x, valueTop + 42 + 6);
+
+    // Col 4: developer icon + name
+    const c4x = colW * 3.5;
+    drawLabel(pack.statDeveloper, c4x, labelTop);
+    if (svg.developer) ctx.drawImage(svg.developer, c4x - 21, valueTop, 42, 42);
+    drawBot(cfg.developer || '', c4x, valueTop + 42 + 6);
+
+    y = statsY + statsTotalH;
+  }
+
+  // [5] Keyart card (16:9)
+  const keyartTopPad = 28;
+  const keyartX = 50;
+  const keyartW = W - 100;
+  const keyartH = Math.round(keyartW * 9 / 16);
+  const keyartY = y + keyartTopPad;
+  ctx.save();
+  ctx.shadowColor = theme.cardShadow;
+  ctx.shadowBlur = 36; ctx.shadowOffsetY = 12;
+  ctx.fillStyle = theme.cardBg;
+  ctx.beginPath();
+  ctx.roundRect(keyartX, keyartY, keyartW, keyartH, 28);
+  ctx.fill();
+  ctx.restore();
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(keyartX, keyartY, keyartW, keyartH, 28);
+  ctx.clip();
+  if (cfg._keyartImg) {
+    drawImageCover(ctx, cfg._keyartImg, keyartX, keyartY, keyartW, keyartH);
+  } else {
+    ctx.fillStyle = theme.textTertiary;
+    ctx.font = `400 24px ${family}`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Upload Keyart Image', keyartX + keyartW / 2, keyartY + keyartH / 2);
+  }
+  ctx.restore();
+  y = keyartY + keyartH;
+
+  // [6] Device label
+  const devTop = 16, devPad = 18;
+  const devY = y + devTop;
+  const devContentY = devY + devPad;
+  if (svg.iphone) ctx.drawImage(svg.iphone, 50, devContentY, 22, 34);
+  if (svg.ipad)   ctx.drawImage(svg.ipad,   50 + 22 + 14, devContentY, 28, 34);
+  ctx.fillStyle = theme.textSecondary;
+  ctx.font = `400 28px ${family}`;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(pack.deviceLabel, 50 + 22 + 14 + 28 + 14, devContentY + 17);
+  if (svg.chevronDown) ctx.drawImage(svg.chevronDown, W - 50 - 28, devContentY + 7, 28, 20);
+  const devEnd = devY + devPad + 34 + devPad;
+  ctx.fillStyle = theme.divider;
+  ctx.fillRect(50, devEnd, W - 100, 1);
+  y = devEnd;
+
+  // [7] Description (~4 lines clamp + "more")
+  const descTop = 20;
+  const descX = 50;
+  const descMaxW = W - 100;
+  const descLineH = 30 * 1.4;
+  const descMaxLines = 4;
+  ctx.fillStyle = theme.textPrimary;
+  ctx.font = `400 30px ${family}`;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  const descLines = asWrapText(ctx, cfg.description || '', descMaxW, descMaxLines);
+  const moreText = pack.more;
+  ctx.font = `400 30px ${family}`;
+  const moreW = ctx.measureText('  ' + moreText).width;
+  if (descLines.length === descMaxLines) {
+    let last = descLines[descLines.length - 1];
+    let lastTrunc = last;
+    while (ctx.measureText(lastTrunc + '… ').width + moreW > descMaxW && lastTrunc.length > 0) {
+      lastTrunc = lastTrunc.slice(0, -1);
+    }
+    if (lastTrunc !== last) descLines[descLines.length - 1] = lastTrunc + '…';
+  }
+  const descTopY = y + descTop;
+  descLines.forEach((line, i) => {
+    ctx.fillStyle = theme.textPrimary;
+    ctx.font = `400 30px ${family}`;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText(line, descX, descTopY + i * descLineH);
+    if (i === descLines.length - 1) {
+      const ww = ctx.measureText(line + '  ').width;
+      ctx.fillStyle = theme.link;
+      ctx.fillText(moreText, descX + ww, descTopY + i * descLineH);
+    }
+  });
+
+  // [8] Tab bar (bottom-anchored)
+  if (cfg.showTabbar !== false) {
+    const tabPadTop = 16, tabPadBot = 36;
+    const iconSize2 = 42, labelGap = 6, labelH = 28;
+    const tabH = tabPadTop + iconSize2 + labelGap + labelH + tabPadBot;
+    const tabY = H - tabH;
+    ctx.fillStyle = theme.divider;
+    ctx.fillRect(0, tabY, W, 1);
+    const tabKeys = ['tabToday', 'tabGames', 'tabApps', 'tabArcade', 'tabSearch'];
+    const tabColW = W / 5;
+    tabKeys.forEach((k, i) => {
+      const cx = i * tabColW + tabColW / 2;
+      const img = svg[k];
+      if (img) ctx.drawImage(img, cx - iconSize2 / 2, tabY + tabPadTop, iconSize2, iconSize2);
+      ctx.fillStyle = (i === 4) ? theme.tabActive : theme.tabInactive;
+      ctx.font = `500 20px ${family}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(pack.tabs[i], cx, tabY + tabPadTop + iconSize2 + labelGap);
+    });
+  }
+
+  return canvas;
+}
+
 // bugfix Plan FR-01/02/05: Canvas 직접 합성 핵심
 async function buildBannerCanvas(cfg) {
   // v1.3: 템플릿 분기
   if (cfg.template === 'app-badge') {
     return buildAppBadgeCanvas(cfg);
+  }
+  // v1.5: App Store Screenshot 분기
+  if (cfg.template === 'appstore-screenshot') {
+    return buildAppStoreScreenshotCanvas(cfg);
   }
   const spec = CANVAS_SPECS[cfg.size];
   const pixelRatio = Math.max(1, cfg.scale || 1);
@@ -2705,8 +3652,26 @@ function bindSingleMode() {
     const pack = LANG_PACK[lang];
     document.getElementById('s-cta').value = pack.cta;
     document.getElementById('s-disclaimer').value = pack.disclaimer;
+    // v1.5: App Store Screenshot 입력 필드를 해당 언어 슬롯에서 복원
+    if (state.single.template === 'appstore-screenshot') {
+      loadAppStoreSlotToUI(lang);
+    }
+    state.single.lang = lang;
     syncSingleStateFromUI();
     refreshSinglePreview();
+  });
+
+  // v1.5: App Store Screenshot 컨트롤 — 입력 변경 시 sync + 미리보기 갱신
+  const asInputIds = [
+    's-as-theme', 's-as-title', 's-as-subtitle', 's-as-description',
+    's-as-rating', 's-as-rating-count', 's-as-ranking', 's-as-developer',
+    's-as-show-stats', 's-as-show-tabbar', 's-as-show-cta', 's-as-show-iap',
+  ];
+  asInputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const ev = (el.type === 'checkbox' || el.tagName === 'SELECT') ? 'change' : 'input';
+    el.addEventListener(ev, () => { syncSingleAppStoreFromUI(); refreshSinglePreview(); });
   });
 
   document.getElementById('s-size').addEventListener('change', (e) => {
@@ -2934,6 +3899,43 @@ function applyTemplateSwitch(newTemplate) {
     const belongs = el.getAttribute('data-tmpl');
     el.style.display = (belongs === newTemplate) ? '' : 'none';
   });
+  // v1.5: data-tmpl-hide 속성 처리 — 지정된 템플릿일 때만 숨김 (역방향 토글)
+  document.querySelectorAll('[data-tmpl-hide]').forEach(el => {
+    const hideOn = el.getAttribute('data-tmpl-hide');
+    el.style.display = (hideOn === newTemplate) ? 'none' : '';
+  });
+  // v1.5: App Store Screenshot은 9:16 전용 — 사이즈 셀렉터 자동 잠금
+  const sizeSel = document.getElementById('s-size');
+  if (sizeSel) {
+    if (newTemplate === 'appstore-screenshot') {
+      sizeSel.value = '9x16';
+      sizeSel.disabled = true;
+      state.single.size = '9x16';
+    } else {
+      sizeSel.disabled = false;
+    }
+  }
+  // v1.5: 배치 모드 사이즈 체크박스도 9:16 강제 (appstore일 때만 9:16 체크 + 나머지 비활성)
+  const bSizeBoxes = document.querySelectorAll('.b-size');
+  if (bSizeBoxes.length) {
+    if (newTemplate === 'appstore-screenshot') {
+      bSizeBoxes.forEach(cb => {
+        cb.checked = (cb.value === '9x16');
+        cb.disabled = (cb.value !== '9x16');
+        const pill = cb.closest('.check-pill');
+        if (pill) {
+          pill.classList.toggle('selected', cb.checked);
+          pill.style.opacity = cb.disabled ? '0.4' : '1';
+        }
+      });
+    } else {
+      bSizeBoxes.forEach(cb => {
+        cb.disabled = false;
+        const pill = cb.closest('.check-pill');
+        if (pill) pill.style.opacity = '1';
+      });
+    }
+  }
   // 배치 언어별 입력도 템플릿에 맞게 재렌더
   if (typeof renderBatchLangFields === 'function' && document.getElementById('b-lang-fields')) {
     renderBatchLangFields();
@@ -2979,6 +3981,62 @@ function syncSingleStateFromUI() {
   state.single.overflowX = parseInt(document.getElementById('s-overflow-x').value, 10);
   state.single.overflowY = parseInt(document.getElementById('s-overflow-y').value, 10);
   state.single.overflowScale = parseInt(document.getElementById('s-overflow-scale').value, 10);
+
+  // v1.5: App Store Screenshot 동기화 — 현재 언어 슬롯에 가변 텍스트 저장 + 공통 설정
+  syncSingleAppStoreFromUI();
+}
+
+// v1.5: App Store Screenshot 단건 모드 sync (DOM → state.single.appstore)
+function syncSingleAppStoreFromUI() {
+  const as = state.single.appstore;
+  if (!as) return;
+  const themeEl = document.getElementById('s-as-theme');
+  if (themeEl) as.theme = themeEl.value;
+  const showStats  = document.getElementById('s-as-show-stats');
+  const showTabbar = document.getElementById('s-as-show-tabbar');
+  const showCta    = document.getElementById('s-as-show-cta');
+  const showIap    = document.getElementById('s-as-show-iap');
+  if (showStats)  as.showStats  = showStats.checked;
+  if (showTabbar) as.showTabbar = showTabbar.checked;
+  if (showCta)    as.showCta    = showCta.checked;
+  if (showIap)    as.showIap    = showIap.checked;
+  const lang = state.single.lang;
+  as.langs[lang] = as.langs[lang] || {};
+  const slot = as.langs[lang];
+  const titleEl    = document.getElementById('s-as-title');
+  const subEl      = document.getElementById('s-as-subtitle');
+  const descEl     = document.getElementById('s-as-description');
+  const ratingEl   = document.getElementById('s-as-rating');
+  const rcountEl   = document.getElementById('s-as-rating-count');
+  const rankEl     = document.getElementById('s-as-ranking');
+  const devEl      = document.getElementById('s-as-developer');
+  if (titleEl)  slot.title        = titleEl.value;
+  if (subEl)    slot.subtitle     = subEl.value;
+  if (descEl)   slot.description  = descEl.value;
+  if (ratingEl) slot.rating       = ratingEl.value;
+  if (rcountEl) slot.ratingCount  = rcountEl.value;
+  if (rankEl)   slot.ranking      = rankEl.value;
+  if (devEl)    slot.developer    = devEl.value;
+}
+
+// v1.5: 언어 전환 시 App Store Screenshot 입력 필드를 해당 언어 슬롯에서 복원
+function loadAppStoreSlotToUI(lang) {
+  const as = state.single.appstore;
+  if (!as) return;
+  const slot = (as.langs && as.langs[lang]) || {};
+  const map = {
+    's-as-title':        slot.title        || '',
+    's-as-subtitle':     slot.subtitle     || '',
+    's-as-description':  slot.description  || '',
+    's-as-rating':       slot.rating       || '',
+    's-as-rating-count': slot.ratingCount  || '',
+    's-as-ranking':      slot.ranking      || '',
+    's-as-developer':    slot.developer    || '',
+  };
+  Object.keys(map).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = map[id];
+  });
 }
 
 function applySingleOverflowPreset(size) {
@@ -3036,18 +4094,50 @@ function updateSingleHints(size) {
   if (subtitleHint) subtitleHint.textContent = `권장 글자수: ~${s}자 (한글 기준, ${sizeLabel})`;
 }
 
+// v1.5: App Store Screenshot — state.single → cfg 변환 (현재 언어 슬롯 평탄화)
+function buildAppStoreScreenshotCfg(stateObj) {
+  const as = stateObj.appstore || APPSTORE_SCREENSHOT_DEFAULT;
+  const lang = stateObj.lang || 'en';
+  const langSlot = (as.langs && as.langs[lang]) || {};
+  return {
+    template: 'appstore-screenshot',
+    size: '9x16',
+    lang,
+    theme: as.theme || 'dark',
+    showStats:  as.showStats  !== false,
+    showTabbar: as.showTabbar !== false,
+    showCta:    as.showCta    !== false,
+    showIap:    as.showIap    !== false,
+    icon:    stateObj.icon    || null,
+    keyart:  stateObj.keyart  || null,
+    title:        langSlot.title        || '',
+    subtitle:     langSlot.subtitle     || '',
+    description:  langSlot.description  || '',
+    rating:       langSlot.rating       || '',
+    ratingCount:  langSlot.ratingCount  || '',
+    ranking:      langSlot.ranking      || '',
+    developer:    langSlot.developer    || '',
+  };
+}
+
 function refreshSinglePreview() {
   const container = document.getElementById('s-preview-container');
   container.innerHTML = '';
-  // v1.3: 템플릿 분기 — app-badge는 buildAppBadgeCfgForCanvas와 동일 규칙으로 cfg 구성
-  const cfg = state.single.template === 'app-badge'
-    ? buildAppBadgeCfgForCanvas(state.single)
-    : state.single;
+  // v1.3/v1.5: 템플릿별 cfg 빌드
+  let cfg;
+  if (state.single.template === 'app-badge') {
+    cfg = buildAppBadgeCfgForCanvas(state.single);
+  } else if (state.single.template === 'appstore-screenshot') {
+    cfg = buildAppStoreScreenshotCfg(state.single);
+  } else {
+    cfg = state.single;
+  }
   const banner = renderBanner(cfg);
   container.appendChild(banner);
   applyPreviewScale();
   const size = SIZE_PACK[state.single.size];
-  const tmplLabel = state.single.template === 'app-badge' ? 'App Badge' : 'Today Tap';
+  const tmplLabelMap = { 'app-badge': 'App Badge', 'appstore-screenshot': 'App Store Screenshot', 'today-tap': 'Today Tap' };
+  const tmplLabel = tmplLabelMap[state.single.template] || 'Today Tap';
   document.getElementById('s-preview-meta').textContent =
     `${tmplLabel} · ${size.label} · ${size.w}×${size.h}px · ${LANG_PACK[state.single.lang].label}`;
 }
@@ -3069,14 +4159,17 @@ async function handleSingleDownload() {
   const startT = performance.now();
   try {
     const ext = state.single.format === 'jpg' ? 'jpg' : 'png';
-    // v1.3: 템플릿별 cfg 조립 + 파일명 패턴
+    // v1.3/v1.5: 템플릿별 cfg 조립 + 파일명 패턴
     const isAppBadge = state.single.template === 'app-badge';
+    const isAppStore = state.single.template === 'appstore-screenshot';
     const filename = isAppBadge
       ? buildAppBadgeFilename(state.single)
-      : buildFilename({
-          prefix: slugify(state.single.title) || 'banner',
-          size: state.single.size, lang: state.single.lang, ext,
-        });
+      : isAppStore
+        ? buildAppStoreFilename(state.single)
+        : buildFilename({
+            prefix: slugify(state.single.title) || 'banner',
+            size: state.single.size, lang: state.single.lang, ext,
+          });
 
     let dataURL;
     if (isAppBadge) {
@@ -3084,6 +4177,13 @@ async function handleSingleDownload() {
       const cfg = buildAppBadgeCfgForCanvas(state.single);
       const cfgWithImgs = await prepAppBadgeCfgImages(cfg);
       const canvas = await buildAppBadgeCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
+    } else if (isAppStore) {
+      // v1.5: App Store Screenshot 경로
+      await ensureFontsLoaded();
+      const cfg = buildAppStoreScreenshotCfg(state.single);
+      const cfgWithImgs = await prepAppStoreCfgImages(cfg);
+      const canvas = await buildAppStoreScreenshotCanvas(cfgWithImgs);
       dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
     } else if (USE_CANVAS_EXPORT) {
       await ensureFontsLoaded();
@@ -3152,6 +4252,16 @@ function buildAppBadgeFilename(s) {
   const first = (ab.headline || '').split('\n')[0] || '';
   const prefix = slugify(first) || 'banner';
   return `${prefix}_app-badge_${s.size}_${s.lang}.${ext}`;
+}
+
+// v1.5: App Store Screenshot 파일명 — prefix_appstore_lang_theme_1080x1920.png
+function buildAppStoreFilename(s) {
+  const ext = s.format === 'jpg' ? 'jpg' : 'png';
+  const as = s.appstore || APPSTORE_SCREENSHOT_DEFAULT;
+  const slot = (as.langs && as.langs[s.lang]) || {};
+  const prefix = slugify(slot.title || '') || 'banner';
+  const theme = (as.theme === 'light') ? 'light' : 'dark';
+  return `${prefix}_appstore_${s.lang}_${theme}_1080x1920.${ext}`;
 }
 
 // Plan FR-09: img.decode() 기반 대기 (setTimeout 제거). 미지원 브라우저는 onload 폴백
@@ -3271,6 +4381,15 @@ function bindBatchMode() {
     const lb = document.getElementById('b-ab-logo-y-label');
     if (lb) lb.textContent = v + 'px';
     syncBatchStateFromUI();
+  });
+
+  // v1.5: 배치 App Store Screenshot 공통 설정 (테마 + 4개 토글)
+  const asInputIds = ['b-as-theme', 'b-as-show-stats', 'b-as-show-tabbar', 'b-as-show-cta', 'b-as-show-iap'];
+  asInputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const ev = (el.type === 'checkbox' || el.tagName === 'SELECT') ? 'change' : 'input';
+    el.addEventListener(ev, syncBatchStateFromUI);
   });
 
   // Plan FR-07/08: 2단계 분리 - 프리뷰 (이미지 변환 없음) / ZIP export (변환 + 다운로드)
@@ -3416,12 +4535,28 @@ function syncBatchStateFromUI() {
     const ctaEl = document.getElementById(`b-cta-${lang}`);
     const discEl = document.getElementById(`b-disc-${lang}`);
     const headlineEl = document.getElementById(`b-headline-${lang}`);  // v1.3
+    // v1.5: App Store Screenshot 언어별 입력
+    const asTitleEl   = document.getElementById(`b-as-title-${lang}`);
+    const asSubEl     = document.getElementById(`b-as-subtitle-${lang}`);
+    const asDescEl    = document.getElementById(`b-as-description-${lang}`);
+    const asRatingEl  = document.getElementById(`b-as-rating-${lang}`);
+    const asRCountEl  = document.getElementById(`b-as-rating-count-${lang}`);
+    const asRankEl    = document.getElementById(`b-as-ranking-${lang}`);
+    const asDevEl     = document.getElementById(`b-as-developer-${lang}`);
     state.batch.langOverrides[lang] = {
       title: titleEl ? titleEl.value : '',
       subtitle: subtitleEl ? subtitleEl.value : '',
       cta: ctaEl ? ctaEl.value : LANG_PACK[lang].cta,
       disclaimer: discEl ? discEl.value : LANG_PACK[lang].disclaimer,
       headline: headlineEl ? headlineEl.value : (HEADLINE_PRESETS.download[lang] || ''),
+      // v1.5: App Store Screenshot 언어별 가변 텍스트
+      as_title:       asTitleEl  ? asTitleEl.value  : '',
+      as_subtitle:    asSubEl    ? asSubEl.value    : '',
+      as_description: asDescEl   ? asDescEl.value   : '',
+      as_rating:      asRatingEl ? asRatingEl.value : '',
+      as_ratingCount: asRCountEl ? asRCountEl.value : '',
+      as_ranking:     asRankEl   ? asRankEl.value   : '',
+      as_developer:   asDevEl    ? asDevEl.value    : '',
     };
   });
 
@@ -3432,6 +4567,18 @@ function syncBatchStateFromUI() {
   if (abFx) state.batch.ab_headlineFx = abFx.value;
   const abOp = document.getElementById('b-ab-bgopacity');
   if (abOp) state.batch.ab_bgOpacity = parseInt(abOp.value, 10);
+
+  // v1.5: App Store Screenshot 공통 설정 (테마 + 4개 토글)
+  const asTheme    = document.getElementById('b-as-theme');
+  const asShowSt   = document.getElementById('b-as-show-stats');
+  const asShowTab  = document.getElementById('b-as-show-tabbar');
+  const asShowCta  = document.getElementById('b-as-show-cta');
+  const asShowIap  = document.getElementById('b-as-show-iap');
+  if (asTheme)   state.batch.as_theme      = asTheme.value;
+  if (asShowSt)  state.batch.as_showStats  = asShowSt.checked;
+  if (asShowTab) state.batch.as_showTabbar = asShowTab.checked;
+  if (asShowCta) state.batch.as_showCta    = asShowCta.checked;
+  if (asShowIap) state.batch.as_showIap    = asShowIap.checked;
 }
 
 function renderBatchLangFields() {
@@ -3444,9 +4591,10 @@ function renderBatchLangFields() {
     container.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">위에서 언어를 1개 이상 선택하세요</p>';
     return;
   }
-  // v1.3 r2: 현재 배치 템플릿에 따라 필드 분기 (A안)
+  // v1.3 r2 / v1.5: 현재 배치 템플릿에 따라 필드 분기 (A안)
   const tmpl = state.batch.template || 'today-tap';
   const isAB = tmpl === 'app-badge';
+  const isAS = tmpl === 'appstore-screenshot';
 
   langs.forEach((lang, idx) => {
     const pack = LANG_PACK[lang];
@@ -3454,7 +4602,34 @@ function renderBatchLangFields() {
     group.className = 'space-y-2 pb-4' + (idx < langs.length - 1 ? ' border-b border-[#1f2127]' : '');
     const discVal = existing[`b-disc-${lang}`] !== undefined ? existing[`b-disc-${lang}`] : pack.disclaimer;
 
-    if (isAB) {
+    if (isAS) {
+      // v1.5: App Store Screenshot — 타이틀/카테고리/설명 + 통계 4종 (현재 언어)
+      const asDefault = (APPSTORE_SCREENSHOT_DEFAULT.langs && APPSTORE_SCREENSHOT_DEFAULT.langs[lang]) || {};
+      const stOverride = (state.batch.langOverrides && state.batch.langOverrides[lang]) || {};
+      const getVal = (id, fallback) => existing[id] !== undefined ? existing[id] : (fallback || '');
+      const titleVal      = getVal(`b-as-title-${lang}`,       stOverride.as_title       || '');
+      const subtitleVal   = getVal(`b-as-subtitle-${lang}`,    stOverride.as_subtitle    || '');
+      const descVal       = getVal(`b-as-description-${lang}`, stOverride.as_description || '');
+      const ratingVal     = getVal(`b-as-rating-${lang}`,      stOverride.as_rating      || asDefault.rating      || '');
+      const rcountVal     = getVal(`b-as-rating-count-${lang}`,stOverride.as_ratingCount || asDefault.ratingCount || '');
+      const rankVal       = getVal(`b-as-ranking-${lang}`,     stOverride.as_ranking     || asDefault.ranking     || '');
+      const devVal        = getVal(`b-as-developer-${lang}`,   stOverride.as_developer   || asDefault.developer   || '');
+      group.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-200 font-semibold">${pack.label}</span>
+          <button type="button" class="text-[10px] text-indigo-400 hover:underline" data-copy-from="${lang}" title="이 언어의 입력값을 다른 선택 언어에 복사">다른 언어에 복사</button>
+        </div>
+        <input id="b-as-title-${lang}"    class="input-base text-sm" placeholder="앱 타이틀 (${pack.label})"     value="${escapeHTML(titleVal)}" />
+        <input id="b-as-subtitle-${lang}" class="input-base text-sm" placeholder="카테고리 / 서브타이틀"          value="${escapeHTML(subtitleVal)}" />
+        <textarea id="b-as-description-${lang}" class="input-base text-sm" rows="2" placeholder="설명 본문 (4줄까지 표시)">${escapeHTML(descVal)}</textarea>
+        <div class="grid grid-cols-2 gap-2">
+          <input id="b-as-rating-${lang}"        class="input-base text-sm" placeholder="평점 (4.8)"   value="${escapeHTML(ratingVal)}" />
+          <input id="b-as-rating-count-${lang}"  class="input-base text-sm" placeholder="리뷰수"         value="${escapeHTML(rcountVal)}" />
+          <input id="b-as-ranking-${lang}"       class="input-base text-sm" placeholder="랭킹 (#7)"     value="${escapeHTML(rankVal)}" />
+          <input id="b-as-developer-${lang}"     class="input-base text-sm" placeholder="개발자"         value="${escapeHTML(devVal)}" />
+        </div>
+      `;
+    } else if (isAB) {
       // App Badge: 헤드라인 textarea + 고지문구만
       const presetKey = state.batch.ab_headlinePreset || 'download';
       const defaultHeadline = (HEADLINE_PRESETS[presetKey] && HEADLINE_PRESETS[presetKey][lang]) || '';
@@ -3567,6 +4742,29 @@ function buildBatchCfgs() {
   return combos.map(combo => {
     const tmpl = batchTmpl || 'today-tap';
     const langOverride = state.batch.langOverrides[combo.lang] || {};
+    // v1.5: App Store Screenshot 분기 — 9:16 1080×1920 전용 (사이즈는 항상 9x16)
+    if (tmpl === 'appstore-screenshot') {
+      return {
+        _combo: combo,
+        template: 'appstore-screenshot',
+        size: '9x16',
+        lang: combo.lang,
+        theme:      state.batch.as_theme      || 'dark',
+        showStats:  state.batch.as_showStats  !== false,
+        showTabbar: state.batch.as_showTabbar !== false,
+        showCta:    state.batch.as_showCta    !== false,
+        showIap:    state.batch.as_showIap    !== false,
+        icon:   state.batch.icon,
+        keyart: state.batch.keyart,
+        title:        langOverride.as_title       || '',
+        subtitle:     langOverride.as_subtitle    || '',
+        description:  langOverride.as_description || '',
+        rating:       langOverride.as_rating      || '',
+        ratingCount:  langOverride.as_ratingCount || '',
+        ranking:      langOverride.as_ranking     || '',
+        developer:    langOverride.as_developer   || '',
+      };
+    }
     if (tmpl === 'app-badge') {
       return {
         _combo: combo,
@@ -3680,14 +4878,23 @@ async function downloadBatchItem(idx) {
   try {
     const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
     const isAB = cfg.template === 'app-badge';
+    const isAS = cfg.template === 'appstore-screenshot';
     const filename = isAB
       ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
-      : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+      : isAS
+        ? `${state.batch.prefix}_appstore_${cfg.lang}_${cfg.theme || 'dark'}_1080x1920.${ext}`
+        : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
     let dataURL;
     if (isAB) {
       await ensureFontsLoaded();
       const cfgWithImgs = await prepAppBadgeCfgImages({ ...cfg, scale: state.batch.scale });
       const canvas = await buildAppBadgeCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
+    } else if (isAS) {
+      // v1.5: App Store Screenshot 단일 다운로드
+      await ensureFontsLoaded();
+      const cfgWithImgs = await prepAppStoreCfgImages({ ...cfg, scale: state.batch.scale });
+      const canvas = await buildAppStoreScreenshotCanvas(cfgWithImgs);
       dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
     } else if (USE_CANVAS_EXPORT) {
       await ensureFontsLoaded();
@@ -3752,10 +4959,12 @@ async function handleBatchExportZip() {
     }
     await Promise.all([...abUris].filter(Boolean).map(u => loadCachedImage(u)));
 
+    // v1.5: App Store Screenshot의 SVG 아이콘은 cfg마다 prepAppStoreCfgImages가 캐시에 적재하므로 별도 사전 적재 불필요
     statusEl.textContent = `0 / ${total} 변환 중...`;
     for (let i = 0; i < cfgs.length; i++) {
       const cfg = cfgs[i];
       const isAB = cfg.template === 'app-badge';
+      const isAS = cfg.template === 'appstore-screenshot';
       try {
         let canvas;
         if (isAB) {
@@ -3771,6 +4980,11 @@ async function handleBatchExportZip() {
             _googlePlayImg: gpImg,
             _appStoreImg: asImg,
           });
+        } else if (isAS) {
+          // v1.5: App Store Screenshot — 공유 keyart/icon 재사용 + SVG 아이콘 매번 캐시 hit
+          const cfgWithImgs = await prepAppStoreCfgImages({ ...cfg, scale: state.batch.scale });
+          // _iconImg/_keyartImg는 prepAppStoreCfgImages가 이미 채움 (loadCachedImage가 hit)
+          canvas = await buildAppStoreScreenshotCanvas(cfgWithImgs);
         } else {
           canvas = await buildBannerCanvas({
             ...cfg,
@@ -3784,7 +4998,9 @@ async function handleBatchExportZip() {
         const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
         const filename = isAB
           ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
-          : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+          : isAS
+            ? `${state.batch.prefix}_appstore_${cfg.lang}_${cfg.theme || 'dark'}_1080x1920.${ext}`
+            : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
         zip.file(filename, dataURL.split(',')[1], { base64: true });
       } catch (err) {
         console.error(err);
