@@ -329,6 +329,9 @@
   .dropzone:hover { border-color: var(--accent); color: var(--text); }
   .dropzone.has-image { padding: 0; border-style: solid; overflow: hidden; }
   .dropzone img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  /* v1.6: SD Showcase 6 슬롯 그리드용 소형 변종 */
+  .dropzone-sm { padding: 8px; }
+  .dropzone-sm img { height: 72px; object-fit: contain; background: #fff; }
   .dropzone-remove {
     position: absolute;
     top: 6px; right: 6px;
@@ -903,6 +906,7 @@
         <option value="today-tap">Today Tap</option>
         <option value="app-badge">App Badge & Icon</option>
         <option value="appstore-screenshot">App Store Screenshot</option>
+        <option value="sd-showcase">SD Showcase</option>
       </select>
     </div>
     <div class="flex items-center gap-1">
@@ -1086,14 +1090,106 @@
         </div>
       </div>
 
+      <!-- v1.6: SD Showcase 단건 모드 패널 (Plan FR-07) -->
+      <div class="space-y-3" data-tmpl="sd-showcase" style="display:none;">
+        <div>
+          <div class="field-label">타이틀 (현재 언어, \n으로 줄바꿈)</div>
+          <textarea id="s-sds-title" class="input-base" rows="3" placeholder="조류 타워&#10;디펜스"></textarea>
+          <p class="text-[11px] text-gray-500 mt-1">언어 탭 전환 시 해당 언어 값이 표시됨 · 1080×1080은 1줄 권장, 1200×628은 2줄 권장</p>
+        </div>
+
+        <div class="border border-[#262932] rounded-lg p-3 space-y-2">
+          <p class="text-xs font-semibold text-gray-300">브랜드 픽 라벨 (현재 언어)</p>
+          <div class="flex items-center gap-2">
+            <input id="s-sds-pill" class="input-base flex-1" placeholder="Underdark : Defense" />
+            <label class="flex items-center gap-1 text-[11px] text-gray-300 cursor-pointer whitespace-nowrap">
+              <input id="s-sds-showpill" type="checkbox" checked /> 표시
+            </label>
+          </div>
+          <p class="text-[10px] text-gray-500">픽 텍스트 비우거나 "표시" 토글 OFF 시 픽 영역 미출력 (레이아웃 reflow 없음)</p>
+        </div>
+
+        <div>
+          <div class="field-label">SD 캐릭터 6장 (3×2 그리드, 4언어×2사이즈 공유)</div>
+          <div class="grid grid-cols-3 gap-2">
+            <div id="s-sds-slot-1" class="dropzone dropzone-sm" data-target="sds-slot-1">
+              <p class="text-[11px] font-semibold text-gray-300">SD #1</p>
+              <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div id="s-sds-slot-2" class="dropzone dropzone-sm" data-target="sds-slot-2">
+              <p class="text-[11px] font-semibold text-gray-300">SD #2</p>
+              <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div id="s-sds-slot-3" class="dropzone dropzone-sm" data-target="sds-slot-3">
+              <p class="text-[11px] font-semibold text-gray-300">SD #3</p>
+              <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div id="s-sds-slot-4" class="dropzone dropzone-sm" data-target="sds-slot-4">
+              <p class="text-[11px] font-semibold text-gray-300">SD #4</p>
+              <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div id="s-sds-slot-5" class="dropzone dropzone-sm" data-target="sds-slot-5">
+              <p class="text-[11px] font-semibold text-gray-300">SD #5</p>
+              <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div id="s-sds-slot-6" class="dropzone dropzone-sm" data-target="sds-slot-6">
+              <p class="text-[11px] font-semibold text-gray-300">SD #6</p>
+              <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+          </div>
+          <p class="text-[11px] text-gray-500 mt-1">정사각 PNG 권장 · 빈 슬롯은 자동 투명 처리 (reflow 없음)</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="field-label">배경 색상</div>
+            <input id="s-sds-bgcolor" type="color" value="#FFFFFF" class="w-full h-10 rounded border border-[#262932] cursor-pointer" />
+            <p class="text-[10px] text-gray-500 mt-1">어두운 배경 → 외곽선/타이틀 자동 흰색 반전</p>
+          </div>
+          <div>
+            <div class="field-label">타이틀 글자 외곽선 두께 (<span id="s-sds-stroke-label">8</span>px)</div>
+            <input id="s-sds-stroke" type="range" min="4" max="14" step="1" value="8" class="w-full mt-2" />
+            <p class="text-[10px] text-gray-500 mt-1">타이틀 텍스트의 외곽선/그림자만 조절 · 검정 배너 테두리(선 10px / 여백 9px)는 고정</p>
+          </div>
+        </div>
+
+        <!-- r1 G2: SD 셀 크기 슬라이더 -->
+        <div>
+          <div class="field-label">SD 캐릭터 크기 (<span id="s-sds-cellscale-label">100</span>%)</div>
+          <input id="s-sds-cellscale" type="range" min="50" max="150" step="5" value="100" class="w-full mt-2" />
+          <p class="text-[10px] text-gray-500 mt-1">50~150% · 위치는 그대로 두고 SD만 크기 조정 (중앙 정렬)</p>
+        </div>
+
+        <!-- r2: SD 사이 간격 슬라이더 -->
+        <div>
+          <div class="field-label">SD 사이 간격 (<span id="s-sds-spacing-label">20</span>px)</div>
+          <input id="s-sds-spacing" type="range" min="0" max="80" step="5" value="20" class="w-full mt-2" />
+          <p class="text-[10px] text-gray-500 mt-1">0~80px · 1080은 그리드 행/열 간격, 1200은 좌·우 컬럼 세로 간격</p>
+        </div>
+
+        <p class="text-[11px] text-gray-500">* 한국어(KO)일 때 우하단에 "확률형 아이템 포함" 자동 표시 · 검정 배너 테두리 고정 (선 10px / 가장자리에서 선 중심까지 9px) · 1200×628 우측 SD는 자동 좌우반전</p>
+      </div>
+
       <!-- 공통: 고지 문구 (Today Tap / App Badge 만 사용) -->
-      <div data-tmpl-hide="appstore-screenshot">
+      <div data-tmpl-hide="appstore-screenshot,sd-showcase">
         <div class="field-label">고지 문구 (우상단, 비우면 미표시)</div>
         <input id="s-disclaimer" class="input-base" value="*확률형 아이템 포함" />
         <p class="text-[11px] text-gray-500 mt-1">언어 변경 시 자동으로 기본값이 채워집니다 (한국어만 기본값 존재)</p>
       </div>
 
-      <div class="space-y-3">
+      <div class="space-y-3" data-tmpl-hide="sd-showcase">
         <!-- App Badge 전용: 게임 로고(BI) 업로드 -->
         <div data-tmpl="app-badge" style="display:none;">
           <div class="field-label">게임 로고 / BI (투명 PNG 권장)</div>
@@ -1335,7 +1431,7 @@
             <input id="b-ab-logo-y" type="range" min="-200" max="200" step="1" value="0" class="w-full" />
           </div>
         </div>
-        <div>
+        <div data-tmpl-hide="sd-showcase">
           <div class="field-label" id="b-keyart-label">키아트 / 배경 이미지</div>
           <div id="b-drop-keyart" class="dropzone" data-target="b-keyart">
             <p class="text-sm">클릭 또는 드롭</p>
@@ -1354,7 +1450,7 @@
             <button class="dropzone-remove" title="제거">×</button>
           </div>
         </div>
-        <div>
+        <div data-tmpl-hide="sd-showcase">
           <div class="field-label">앱 아이콘</div>
           <div id="b-drop-icon" class="dropzone" data-target="b-icon">
             <p class="text-sm">클릭 또는 드롭</p>
@@ -1443,6 +1539,76 @@
           </label>
         </div>
         <p class="text-[10px] text-gray-500">언어별 텍스트(타이틀·설명·통계 수치)는 위 "언어별 입력" 영역에서 4개 언어 각각 입력</p>
+      </div>
+
+      <!-- v1.6: SD Showcase 전용 배치 모드 패널 -->
+      <div class="border border-[#262932] rounded-lg p-3 space-y-3" data-tmpl="sd-showcase" style="display:none;">
+        <p class="text-xs font-semibold text-gray-300">SD Showcase 공통 설정</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <div class="field-label">배경 색상</div>
+            <input id="b-sds-bgcolor" type="color" value="#FFFFFF" class="w-full h-10 rounded border border-[#262932] cursor-pointer" />
+          </div>
+          <div>
+            <div class="field-label">타이틀 글자 외곽선 두께 (<span id="b-sds-stroke-label">8</span>px)</div>
+            <input id="b-sds-stroke" type="range" min="4" max="14" step="1" value="8" class="w-full mt-2" />
+          </div>
+        </div>
+        <!-- r1 G2: SD 셀 크기 슬라이더 (배치) -->
+        <div>
+          <div class="field-label">SD 캐릭터 크기 (<span id="b-sds-cellscale-label">100</span>%)</div>
+          <input id="b-sds-cellscale" type="range" min="50" max="150" step="5" value="100" class="w-full mt-2" />
+        </div>
+        <!-- r2: SD 사이 간격 슬라이더 (배치) -->
+        <div>
+          <div class="field-label">SD 사이 간격 (<span id="b-sds-spacing-label">20</span>px)</div>
+          <input id="b-sds-spacing" type="range" min="0" max="80" step="5" value="20" class="w-full mt-2" />
+        </div>
+        <label class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
+          <input id="b-sds-showpill" type="checkbox" checked /> 브랜드 픽 라벨 표시
+        </label>
+        <div>
+          <div class="field-label">SD 캐릭터 6장 (4언어 × 2사이즈 공유)</div>
+          <div class="grid grid-cols-3 gap-2">
+            <div id="b-sds-slot-1" class="dropzone dropzone-sm" data-target="b-sds-slot-1">
+              <p class="text-[11px] font-semibold text-gray-300">SD #1</p>
+              <p class="text-[10px] text-gray-500">클릭/드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div id="b-sds-slot-2" class="dropzone dropzone-sm" data-target="b-sds-slot-2">
+              <p class="text-[11px] font-semibold text-gray-300">SD #2</p>
+              <p class="text-[10px] text-gray-500">클릭/드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div id="b-sds-slot-3" class="dropzone dropzone-sm" data-target="b-sds-slot-3">
+              <p class="text-[11px] font-semibold text-gray-300">SD #3</p>
+              <p class="text-[10px] text-gray-500">클릭/드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div id="b-sds-slot-4" class="dropzone dropzone-sm" data-target="b-sds-slot-4">
+              <p class="text-[11px] font-semibold text-gray-300">SD #4</p>
+              <p class="text-[10px] text-gray-500">클릭/드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div id="b-sds-slot-5" class="dropzone dropzone-sm" data-target="b-sds-slot-5">
+              <p class="text-[11px] font-semibold text-gray-300">SD #5</p>
+              <p class="text-[10px] text-gray-500">클릭/드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div id="b-sds-slot-6" class="dropzone dropzone-sm" data-target="b-sds-slot-6">
+              <p class="text-[11px] font-semibold text-gray-300">SD #6</p>
+              <p class="text-[10px] text-gray-500">클릭/드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+          </div>
+        </div>
+        <p class="text-[10px] text-gray-500">언어별 타이틀/픽 텍스트는 위 "언어별 입력" 영역에서 4개 언어 각각 입력 · KO 출력만 자동 고지문구 첨부 · 9:16 사이즈는 자동 비활성</p>
       </div>
 
       <!-- Today Tap 전용: 오버플로우 위치 조정 -->
@@ -1587,8 +1753,9 @@ const AS_LANG_PACK = {
 // ===========================================================================
 // v1.3: App Badge & Icon 템플릿 전용 상수
 // v1.5: + appstore-screenshot 추가 (App Store Connect 스크린샷 모방)
+// v1.6: + sd-showcase 추가 (SD 캐릭터 6장 쇼케이스 배너, 1200×628 + 1080×1080)
 // ===========================================================================
-const TEMPLATE_KEYS = ['today-tap', 'app-badge', 'appstore-screenshot'];
+const TEMPLATE_KEYS = ['today-tap', 'app-badge', 'appstore-screenshot', 'sd-showcase'];
 
 // 헤드라인 프리셋 (언어별 기본 문구) — 사용자 custom 선택 시 비활성
 // v1.3 r2 Gap G1: 기본값은 단일 라인 (레퍼런스 일치, 1:1 / 9:16)
@@ -1766,6 +1933,71 @@ const APPSTORE_SCREENSHOT_DEFAULT = {
     'ja':    { title: '', subtitle: '', description: '', rating: '4.7',  ratingCount: '366',   ranking: '#145', developer: 'SeungHo' },
     'zh-TW': { title: '', subtitle: '', description: '', rating: '4.8',  ratingCount: '4467',  ranking: '#7',   developer: 'SeungHo' },
   },
+};
+
+// ===========================================================================
+// v1.6: SD Showcase 템플릿 전용 상수
+// - 사이즈: 1200×628 (좌3+우3 SD 컬럼, 중앙 타이틀+픽) / 1080×1080 (3×2 SD 그리드, 상단 타이틀, 하단 픽)
+// - Plan Ref: docs/01-plan/features/sd-showcase.plan.md §FR-03
+// ===========================================================================
+// r4 redesign: 검정 테두리 고정 (강정아 스펙) — 선 굵기 10px, 선 중심 기준 9px 여백
+// - border.outerMargin=4, thickness=10 → strokeRect 시작점 = 4 + 10/2 = 9 (선 중심이 가장자리에서 9px)
+// - 사이즈 무관 동일 적용
+// - 콘텐츠 영역 인셋: outerMargin + thickness = 14px (1080 → 1052×1052, 1200 → 1172×600)
+// - title: maxFontSize/minFontSize로 자동 축소
+// - pill: 직각 + 흰 stroke 4px + drop shadow + 대형 사이즈 (206%×185%) + TOP 앵커
+const SDS_CANVAS_SPECS = {
+  '1200x628': {
+    w: 1200, h: 628,
+    border: { outerMargin: 4, thickness: 10 },
+    // 콘텐츠 영역: x=14..1186(1172), y=14..614(600). 좌·우 사이드 컬럼 각 20%(234), 중앙 60%(704)
+    sideCol:   { width: 234, padTop: 30, padBottom: 30, imgScale: 0.9 },
+    centerCol: { x: 248, w: 704 },  // x = 14(인셋) + 234(좌col)
+    title: {
+      maxW: 644,                    // 704 - 좌우 30px 인셋
+      verticalReserve: 60,
+      maxFontSize: 140,
+      minFontSize: 50,
+      weight: 900,
+      lineHeight: 1.05,
+    },
+    pill: { paddingX: 66, paddingY: 26, fontSize: 59, gapAboveTitle: 24 },
+    disclaimer: { fontSize: 16, bottom: 18, right: 24, weight: 400 },
+  },
+  '1x1': {  // = 1080×1080
+    w: 1080, h: 1080,
+    border: { outerMargin: 4, thickness: 10 },
+    // 콘텐츠 영역(1052×1052) 내 3단 세로 분할 (260:560:260 → 253:546:253 비례)
+    // y=14(인셋) → titleSection(14~267) → gridSection(267~813) → pillSection(813~1066)
+    titleSection: { x: 14, y: 14,  w: 1052, h: 253, padX: 60, padY: 25 },
+    gridSection:  { x: 14, y: 267, w: 1052, h: 546, padX: 60, gapX: 20, gapY: 20, cols: 3, rows: 2 },
+    pillSection:  { x: 14, y: 813, w: 1052, h: 253 },
+    title: {
+      maxFontSize: 140,
+      minFontSize: 60,
+      weight: 900,
+      lineHeight: 1.05,
+    },
+    pill: { paddingX: 74, paddingY: 33, fontSize: 67 },
+    disclaimer: { fontSize: 18, bottom: 22, right: 28, weight: 400 },
+  },
+};
+
+// SD Showcase 기본 상태 — 4언어 타이틀/픽, SD 슬롯 6개, 배경 흰색, 외곽선 8px, 픽 ON
+// 1080×1080은 1줄 기본, 1200×628은 2줄 기본 (R4.Q14 결정), EN은 3줄 균등 (R4.Q13 결정)
+const SD_SHOWCASE_DEFAULT = {
+  bgColor: '#FFFFFF',
+  strokeWidth: 8,           // 4..14 슬라이더
+  cellScale: 100,           // r1 G2: SD 셀 크기 50~150% 슬라이더 (기본 100%)
+  spacing: 20,              // r2: SD 사이 간격 슬라이더 (0~80px, 기본 20)
+  showPill: true,
+  langs: {
+    'ko':    { title: '조류 타워 디펜스',                          pill: 'Underdark : Defense' },
+    'en':    { title: 'Tower Defense\nwith Feathered\nFriends', pill: 'Underdark : Defense' },
+    'ja':    { title: '鳥類タワー\nディフェンス',                  pill: 'Underdark : Defense' },
+    'zh-TW': { title: '鳥類\n塔防',                              pill: 'Underdark : Defense' },
+  },
+  slots: [null, null, null, null, null, null],  // 6 SD 이미지 (data URL)
 };
 
 const PRESETS = {
@@ -1985,6 +2217,8 @@ const state = {
     app_badge: { ...APP_BADGE_DEFAULT },
     // v1.5: App Store Screenshot 전용 필드 (테마, 토글, 언어별 텍스트)
     appstore: JSON.parse(JSON.stringify(APPSTORE_SCREENSHOT_DEFAULT)),
+    // v1.6: SD Showcase 전용 필드 (배경색, 외곽선, 픽 토글, 언어별 텍스트, SD 6슬롯)
+    sdshowcase: JSON.parse(JSON.stringify(SD_SHOWCASE_DEFAULT)),
   },
   batch: {
     // r3 FR-18/19: 기본값 변경 (9:16→1200x628, 2개 언어→4개 언어)
@@ -2032,6 +2266,14 @@ const state = {
     as_showCta: true,
     as_showIap: true,
     // 언어별 가변 텍스트는 langOverrides에 통합 저장 (rating/ratingCount/ranking/developer/description 등)
+    // v1.6: SD Showcase 공통 설정 (배경색, 외곽선 두께, 픽 토글, 4언어×2사이즈 공유 SD 6슬롯)
+    sd_bgColor: '#FFFFFF',
+    sd_strokeWidth: 8,
+    sd_cellScale: 100,        // r1 G2: SD 셀 크기 50~150% 슬라이더
+    sd_spacing:    20,        // r2: SD 사이 간격 슬라이더 (0~80)
+    sd_showPill: true,
+    sd_slots: [null, null, null, null, null, null],
+    // 언어별 SD Showcase 텍스트 (sds_title, sds_pill)도 langOverrides[lang]에 통합 저장
   },
   ui: { previewScale: 0.45 },
 };
@@ -2371,6 +2613,10 @@ function renderBanner(cfg) {
   if (cfg.template === 'appstore-screenshot') {
     return buildAppStoreScreenshotBanner(cfg);
   }
+  // v1.6: SD Showcase 분기
+  if (cfg.template === 'sd-showcase') {
+    return buildSdShowcaseBanner(cfg);
+  }
   const banner = document.createElement('div');
   banner.className = `banner size-${cfg.size}`;
   banner.setAttribute('data-lang', cfg.lang);
@@ -2673,6 +2919,48 @@ function drawImageContain(ctx, img, x, y, w, h) {
   const dx = x + (w - dw) / 2;
   const dy = y + (h - dh) / 2;
   ctx.drawImage(img, dx, dy, dw, dh);
+}
+
+// ===========================================================================
+// v1.6: SD Showcase 자동 대비 헬퍼 (Plan FR-11)
+// - getLuminance: WCAG sRGB 상대 휘도 (0..1) — Plan §F
+// - getContrastPalette: 휘도 이진 + 0.46~0.54 hysteresis (Plan NFR-05)
+// ===========================================================================
+function getLuminance(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+  if (!m) return 1;  // 잘못된 입력은 light로 fallback (검정 테두리 유지)
+  const n = parseInt(m[1], 16);
+  const ch = [(n>>16)&255, (n>>8)&255, n&255].map(v => {
+    const s = v / 255;
+    return s <= 0.03928 ? s/12.92 : Math.pow((s+0.055)/1.055, 2.4);
+  });
+  return 0.2126*ch[0] + 0.7152*ch[1] + 0.0722*ch[2];
+}
+
+// _lastContrastMode: hysteresis 직전 상태 보존 ('light'|'dark'|null)
+let _lastContrastMode = null;
+function getContrastPalette(bgHex) {
+  const lum = getLuminance(bgHex);
+  // Plan NFR-05: 0.46~0.54 hysteresis 밴드에서 직전 상태 유지 (경계 깜빡임 방지)
+  let isLight;
+  if (lum > 0.54) isLight = true;
+  else if (lum < 0.46) isLight = false;
+  else isLight = (_lastContrastMode === 'light');  // 중간 영역은 직전 모드 유지 (null이면 dark)
+  _lastContrastMode = isLight ? 'light' : 'dark';
+  return isLight
+    ? { borderColor:'#000', titleFill:'#000', titleStroke:'#fff', pillBg:'#000', pillFg:'#fff', disclaimerColor:'#222' }
+    : { borderColor:'#fff', titleFill:'#fff', titleStroke:'#000', pillBg:'#fff', pillFg:'#000', disclaimerColor:'#ddd' };
+}
+
+// M-2 패턴 확장: 슬롯 배열의 인덱스 위치에 안전하게 이미지 교체 (이전 dataURL의 _imgCache 정리)
+// SD Showcase의 6 슬롯 (`state.single.sdshowcase.slots[i]`, `state.batch.sd_slots[i]`)에 사용.
+function updateStateImageAt(arr, idx, newDataURL) {
+  if (!arr || idx < 0 || idx >= arr.length) return;
+  const prev = arr[idx];
+  if (prev && prev !== newDataURL) {
+    _imgCache.delete(prev);
+  }
+  arr[idx] = newDataURL;
 }
 
 // ===========================================================================
@@ -3341,6 +3629,421 @@ async function buildAppStoreScreenshotCanvas(cfg) {
   return canvas;
 }
 
+// ===========================================================================
+// v1.6: SD Showcase 렌더링 파이프라인 (Plan FR-12~16)
+// - buildSdShowcaseCfg: state → render-ready cfg flatten
+// - prepSdShowcaseCfgImages: 6 슬롯 사전 디코드
+// - buildSdShowcaseCanvas: 메인 7단계 합성 (배경/팔레트/테두리/SD/타이틀/픽/고지문구)
+// - buildSdShowcaseBanner: DOM 프리뷰 wrapper (canvas embed)
+// - buildSdShowcaseFilename: {prefix}_sdshowcase_{lang}_{size}.{ext}
+// ===========================================================================
+function buildSdShowcaseCfg(stateNode, lang, size) {
+  // 단건/배치 양쪽에서 호출 — stateNode는 state.single.sdshowcase 또는 batch에서 합성한 obj
+  const langSlot = (stateNode.langs && stateNode.langs[lang]) || { title: '', pill: '' };
+  return {
+    template: 'sd-showcase',
+    size: size,
+    lang: lang,
+    bgColor: stateNode.bgColor || '#FFFFFF',
+    strokeWidth: typeof stateNode.strokeWidth === 'number' ? stateNode.strokeWidth : 8,
+    cellScale: typeof stateNode.cellScale === 'number' ? stateNode.cellScale : 100,
+    spacing: typeof stateNode.spacing === 'number' ? stateNode.spacing : 20,
+    showPill: stateNode.showPill !== false,
+    title: langSlot.title || '',
+    pill: langSlot.pill || '',
+    slots: stateNode.slots || [null,null,null,null,null,null],
+    scale: 1,
+    format: 'png',
+  };
+}
+
+async function prepSdShowcaseCfgImages(cfg) {
+  const slotImgs = await Promise.all((cfg.slots || []).map(s => loadCachedImage(s)));
+  return { ...cfg, _slotImgs: slotImgs };
+}
+
+// r2 helpers: 타이틀 자동 축소 + 줄바꿈 + 픽 그리기 (직각 + 흰 stroke + drop shadow)
+
+// 줄바꿈: \n 우선, ko/en은 공백 단위, ja/zh-TW는 문자 단위.
+// ctx.font이 미리 설정된 상태에서 호출되어야 함.
+function sdsWrapText(ctx, text, maxWidth, lang) {
+  const out = [];
+  const isCJK = (lang === 'ja' || lang === 'zh-TW');
+  const paragraphs = String(text || '').split('\n');
+  paragraphs.forEach(p => {
+    if (!p.trim()) return;
+    if (isCJK) {
+      // 문자 단위 줄바꿈
+      let cur = '';
+      for (const ch of p) {
+        const test = cur + ch;
+        if (ctx.measureText(test).width <= maxWidth) {
+          cur = test;
+        } else {
+          if (cur) out.push(cur);
+          cur = ch;
+        }
+      }
+      if (cur) out.push(cur);
+    } else {
+      // 공백 단위 줄바꿈
+      const tokens = p.split(/\s+/).filter(Boolean);
+      let cur = '';
+      tokens.forEach(w => {
+        const test = cur ? cur + ' ' + w : w;
+        if (ctx.measureText(test).width <= maxWidth) {
+          cur = test;
+        } else {
+          if (cur) out.push(cur);
+          cur = w;
+        }
+      });
+      if (cur) out.push(cur);
+    }
+  });
+  return out;
+}
+
+// 타이틀 자동 축소: maxFontSize에서 -2px씩 줄여가며 (W, H) 모두 만족하는 fs 채택.
+// minFontSize 도달 시에도 안 맞으면 최소값으로 강제 사용.
+function fitSdsTitle(ctx, text, maxW, maxH, opts) {
+  const { weight, lineHeight, maxFontSize, minFontSize, fontFamily, lang } = opts;
+  for (let fs = maxFontSize; fs >= minFontSize; fs -= 2) {
+    ctx.font = `${weight} ${fs}px ${fontFamily}`;
+    const lines = sdsWrapText(ctx, text, maxW, lang);
+    if (!lines.length) return { lines: [], fontSize: fs, blockH: 0 };
+    const widest = Math.max.apply(null, lines.map(l => ctx.measureText(l).width));
+    const blockH = lines.length * fs * lineHeight;
+    if (widest <= maxW && blockH <= maxH) {
+      return { lines, fontSize: fs, blockH };
+    }
+  }
+  // 하한값 강제
+  ctx.font = `${weight} ${minFontSize}px ${fontFamily}`;
+  const lines = sdsWrapText(ctx, text, maxW, lang);
+  return { lines, fontSize: minFontSize, blockH: lines.length * minFontSize * lineHeight };
+}
+
+// 타이틀 멀티라인 렌더 (drop shadow + stroke + fill double-pass)
+// shadow: stroke·fill 모두에 적용되어 텍스트 전체에 그림자가 깔림.
+// shadow 강도는 strokeWidth 슬라이더와 비례 → 슬라이더가 시각적으로 항상 효과를 가짐.
+function drawSdsTitleLines(ctx, lines, cx, startY, lineGap, opts) {
+  const { fontSize, weight, fontFamily, strokeWidth, palette, isLight } = opts;
+  ctx.font = `${weight} ${fontSize}px ${fontFamily}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+
+  // Drop shadow — 슬라이더(4~14)와 비례. blur는 1.6배, offsetY는 0.5배.
+  // light bg → 검정 그림자, dark bg → 흰색 그림자
+  ctx.shadowColor = isLight ? 'rgba(0, 0, 0, 0.45)' : 'rgba(255, 255, 255, 0.45)';
+  ctx.shadowBlur = Math.max(6, strokeWidth * 1.6);
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = Math.max(2, strokeWidth * 0.5);
+
+  // 1차: stroke (그림자 깔림 + 외곽선)
+  ctx.lineWidth = strokeWidth;
+  ctx.strokeStyle = palette.titleStroke;
+  lines.forEach((line, i) => {
+    ctx.strokeText(line, cx, startY + i * lineGap);
+  });
+
+  // 2차: fill (그림자는 위에서 이미 한 번 깔렸으니 여기선 끄고 채움만)
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+  ctx.fillStyle = palette.titleFill;
+  lines.forEach((line, i) => {
+    ctx.fillText(line, cx, startY + i * lineGap);
+  });
+}
+
+// 픽 박스 + 텍스트 그리기 (직각 사각형, 흰 stroke 4px, drop shadow)
+// cx = 픽 박스 가로 중앙, cy = anchor에 따라 가로 중앙 / 상단
+// anchor: 'center' (default) → cy=박스 가로중앙
+//          'top'              → cy=박스 상단(위쪽 가장자리)
+function drawSdsPill(ctx, text, cx, cy, pillSpec, palette, fontFamily, anchor) {
+  ctx.font = `700 ${pillSpec.fontSize}px ${fontFamily}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const textW = ctx.measureText(text).width;
+  const pillW = textW + pillSpec.paddingX * 2;
+  const pillH = pillSpec.fontSize + pillSpec.paddingY * 2;
+  const pillX = cx - pillW / 2;
+  const pillY = (anchor === 'top') ? cy : (cy - pillH / 2);
+  const textCy = pillY + pillH / 2;
+
+  // shadow는 fill 전에 설정, stroke 완료 후 리셋 (사용자 요청 그대로)
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+  ctx.shadowBlur = 12;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 4;
+
+  // 직각 fill (radius 0)
+  ctx.fillStyle = palette.pillBg;
+  ctx.fillRect(pillX, pillY, pillW, pillH);
+
+  // 흰 외곽선 stroke (palette.pillFg = light bg 시 흰색, dark bg 시 검정 → 자연 대비)
+  ctx.strokeStyle = palette.pillFg;
+  ctx.lineWidth = 4;
+  ctx.strokeRect(pillX, pillY, pillW, pillH);
+
+  // shadow 리셋 (텍스트에 그림자 적용 방지)
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+
+  // 텍스트 (박스 가로/세로 중앙)
+  ctx.fillStyle = palette.pillFg;
+  ctx.fillText(text, cx, textCy);
+}
+
+// 메인 렌더러 — r2 redesign (사이즈별 분기 + 타이틀 자동 축소 + 직각 픽)
+async function buildSdShowcaseCanvas(cfg) {
+  await ensureFontsLoaded();
+  const spec = SDS_CANVAS_SPECS[cfg.size];
+  if (!spec) throw new Error('Unsupported size for SD Showcase: ' + cfg.size);
+  const pixelRatio = Math.max(1, cfg.scale || 1);
+  const canvas = document.createElement('canvas');
+  canvas.width  = spec.w * pixelRatio;
+  canvas.height = spec.h * pixelRatio;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(pixelRatio, pixelRatio);
+  const fontFamily = getFontFamilyForLang(cfg.lang);
+
+  // [1] 배경
+  ctx.fillStyle = cfg.bgColor;
+  ctx.fillRect(0, 0, spec.w, spec.h);
+
+  // [2] 자동 대비 팔레트
+  const palette = getContrastPalette(cfg.bgColor);
+  const cellScale = (typeof cfg.cellScale === 'number' ? cfg.cellScale : 100) / 100;
+  // r2: SD 사이 간격 슬라이더 (0~80) — 1080은 grid gap, 1200은 사이드 컬럼 vertical gap
+  const spacing = Math.max(0, Math.min(80,
+    typeof cfg.spacing === 'number' ? cfg.spacing : 20
+  ));
+  // strokeWidth ≥ 12 시 line-height 1.10으로 자동 보정
+  const lineHeight = (cfg.strokeWidth >= 12) ? 1.10 : spec.title.lineHeight;
+
+  // [3] 사이즈별 콘텐츠 렌더링 분기
+  if (cfg.size === '1x1') {
+    // ── 1080×1080: 3단 세로 분할 ──────────────────────────────
+    const ts = spec.titleSection;
+    const gs = spec.gridSection;
+    const ps = spec.pillSection;
+
+    // 그리드 (6셀, 3×2). gap = cfg.spacing 슬라이더로 동적 결정
+    const gapX = spacing;
+    const gapY = spacing;
+    const innerW = gs.w - gs.padX * 2;
+    const cellW = (innerW - gapX * (gs.cols - 1)) / gs.cols;
+    const cellH = (gs.h - gapY * (gs.rows - 1)) / gs.rows;
+    const gridX0 = gs.x + gs.padX;
+    const gridY0 = gs.y;
+    const drawW = cellW * cellScale;
+    const drawH = cellH * cellScale;
+    for (let i = 0; i < 6; i++) {
+      const img = cfg._slotImgs && cfg._slotImgs[i];
+      if (!img) continue;
+      const r = Math.floor(i / gs.cols);
+      const c = i % gs.cols;
+      const cellX = gridX0 + c * (cellW + gapX);
+      const cellY = gridY0 + r * (cellH + gapY);
+      const dx = cellX + (cellW - drawW) / 2;
+      const dy = cellY + (cellH - drawH) / 2;
+      drawImageContain(ctx, img, dx, dy, drawW, drawH);
+    }
+
+    // 타이틀 (titleSection 안에서 자동 축소 + 중앙 정렬)
+    const titleMaxW = ts.w - ts.padX * 2;
+    const titleMaxH = ts.h - ts.padY * 2;
+    const fit = fitSdsTitle(ctx, cfg.title || '', titleMaxW, titleMaxH, {
+      weight: spec.title.weight,
+      lineHeight,
+      maxFontSize: spec.title.maxFontSize,
+      minFontSize: spec.title.minFontSize,
+      fontFamily,
+      lang: cfg.lang,
+    });
+    if (fit.lines.length) {
+      const lineGap = fit.fontSize * lineHeight;
+      const startY = ts.y + ts.h / 2 - fit.blockH / 2 + lineGap / 2;
+      const cx = ts.x + ts.w / 2;
+      drawSdsTitleLines(ctx, fit.lines, cx, startY, lineGap, {
+        fontSize: fit.fontSize,
+        weight: spec.title.weight,
+        fontFamily,
+        strokeWidth: cfg.strokeWidth,
+        palette,
+        isLight: getLuminance(cfg.bgColor) > 0.5,
+      });
+    }
+
+    // 픽 (pillSection 상단 — TOP 앵커)
+    if (cfg.showPill && cfg.pill && cfg.pill.trim()) {
+      drawSdsPill(ctx, cfg.pill, ps.x + ps.w / 2, ps.y, spec.pill, palette, fontFamily, 'top');
+    }
+  } else if (cfg.size === '1200x628') {
+    // ── 1200×628: 3컬럼 가로 분할 ─────────────────────────────
+    const sc = spec.sideCol;
+    const cc = spec.centerCol;
+
+    // 콘텐츠 영역 = 캔버스 - outerMargin - thickness 인셋
+    const inset = (spec.border.outerMargin || 0) + spec.border.thickness;
+    const contentY0 = inset;
+    const contentH = spec.h - inset * 2;
+    // 좌/우 사이드 컬럼은 콘텐츠 영역의 좌·우 끝에 배치 (margin 안쪽)
+    const leftColX  = inset;
+    const rightColX = spec.w - inset - sc.width;
+
+    // 좌/우 사이드 컬럼: 3장 세로 균등 + 사이 간격 = cfg.spacing
+    const sideInnerH = contentH - sc.padTop - sc.padBottom;
+    // 3 cells + 2 gaps = sideInnerH → cellH 계산
+    const sideCellH = (sideInnerH - spacing * 2) / 3;
+    const baseSideW = sc.width * sc.imgScale;
+    const baseSideH = sideCellH;
+    const sideDrawW = baseSideW * cellScale;
+    const sideDrawH = baseSideH * cellScale;
+    const drawSideCol = (xStart, indices, mirror) => {
+      indices.forEach((slotIdx, i) => {
+        const img = cfg._slotImgs && cfg._slotImgs[slotIdx];
+        if (!img) return;
+        const cellY = contentY0 + sc.padTop + i * (sideCellH + spacing);
+        const dx = xStart + (sc.width - sideDrawW) / 2;
+        const dy = cellY + (sideCellH - sideDrawH) / 2;
+        if (mirror) {
+          // 우측 컬럼: 좌우반전 — 박스 중심 기준으로 X축 뒤집기
+          ctx.save();
+          ctx.translate(2 * dx + sideDrawW, 0);
+          ctx.scale(-1, 1);
+          drawImageContain(ctx, img, dx, dy, sideDrawW, sideDrawH);
+          ctx.restore();
+        } else {
+          drawImageContain(ctx, img, dx, dy, sideDrawW, sideDrawH);
+        }
+      });
+    };
+    drawSideCol(leftColX,  [0, 1, 2], false);  // 좌측 (slots 1~3, 원본)
+    drawSideCol(rightColX, [3, 4, 5], true);   // 우측 (slots 4~6, 좌우반전)
+
+    // 중앙 컬럼: 타이틀 + 픽 블록 수직 중앙 정렬 (콘텐츠 영역 기준)
+    const centerCx = cc.x + cc.w / 2;
+
+    // 픽 H 사전 측정 (그려지는 경우만)
+    let pillH = 0;
+    let showPillEffective = !!(cfg.showPill && cfg.pill && cfg.pill.trim());
+    if (showPillEffective) {
+      pillH = spec.pill.fontSize + spec.pill.paddingY * 2;
+    }
+    const gap = showPillEffective ? spec.pill.gapAboveTitle : 0;
+
+    // 타이틀 maxH = (콘텐츠H - verticalReserve) - pillH - gap
+    const titleMaxH = (contentH - spec.title.verticalReserve) - pillH - gap;
+    const fit = fitSdsTitle(ctx, cfg.title || '', spec.title.maxW, titleMaxH, {
+      weight: spec.title.weight,
+      lineHeight,
+      maxFontSize: spec.title.maxFontSize,
+      minFontSize: spec.title.minFontSize,
+      fontFamily,
+      lang: cfg.lang,
+    });
+
+    // 블록 전체 H + 시작 Y (콘텐츠 영역 중앙)
+    const totalBlockH = fit.blockH + (showPillEffective ? gap + pillH : 0);
+    const blockTop = contentY0 + (contentH - totalBlockH) / 2;
+
+    // 타이틀 그리기
+    if (fit.lines.length) {
+      const lineGap = fit.fontSize * lineHeight;
+      const titleStartY = blockTop + lineGap / 2;
+      drawSdsTitleLines(ctx, fit.lines, centerCx, titleStartY, lineGap, {
+        fontSize: fit.fontSize,
+        weight: spec.title.weight,
+        fontFamily,
+        strokeWidth: cfg.strokeWidth,
+        palette,
+        isLight: getLuminance(cfg.bgColor) > 0.5,
+      });
+    }
+
+    // 픽 그리기 (타이틀 블록 아래 24px gap, TOP 앵커)
+    if (showPillEffective) {
+      const pillTop = blockTop + fit.blockH + gap;
+      drawSdsPill(ctx, cfg.pill, centerCx, pillTop, spec.pill, palette, fontFamily, 'top');
+    }
+  }
+
+  // [4] 외곽 프레임 — outerMargin 안쪽에 thickness 두께로 단일 직사각형
+  // 캔버스 가장자리에서 outerMargin만큼 흰 여백을 두고, 그 안쪽에 검정 프레임을 그림.
+  // 콘텐츠보다 위에 그려서 절대 가려지지 않도록 마지막 단계에 호출.
+  const bt = spec.border.thickness;
+  const om = spec.border.outerMargin || 0;
+  ctx.strokeStyle = palette.borderColor;
+  ctx.lineWidth = bt;
+  // strokeRect는 중심선 기준 → outer edge가 outerMargin에 정렬되도록 om + bt/2 시작
+  ctx.strokeRect(om + bt / 2, om + bt / 2, spec.w - 2 * om - bt, spec.h - 2 * om - bt);
+
+  // [5] KO 고지문구 (Plan FR-07, SC-04) — KO일 때만 자동 표시
+  if (cfg.lang === 'ko') {
+    const discSpec = spec.disclaimer;
+    const raw = (LANG_PACK.ko && LANG_PACK.ko.disclaimer) || '*확률형 아이템 포함';
+    const discText = raw.replace(/^\*/, '');
+    ctx.font = `${discSpec.weight} ${discSpec.fontSize}px ${fontFamily}`;
+    ctx.fillStyle = palette.disclaimerColor;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(discText, spec.w - discSpec.right, spec.h - discSpec.bottom);
+  }
+
+  return canvas;
+}
+
+// DOM 프리뷰 wrapper — Canvas embed 형태 (DOM/Canvas 이중 구현 회피)
+// renderBanner는 sync로 DOM을 즉시 반환해야 하므로 placeholder 후 async 채우기 패턴 사용
+function buildSdShowcaseBanner(cfg) {
+  const wrap = document.createElement('div');
+  wrap.className = `banner tmpl-sd-showcase size-${cfg.size}`;
+  wrap.setAttribute('data-lang', cfg.lang);
+  const spec = SDS_CANVAS_SPECS[cfg.size];
+  if (spec) {
+    wrap.style.width = spec.w + 'px';
+    wrap.style.height = spec.h + 'px';
+    wrap.style.position = 'relative';
+    wrap.style.background = cfg.bgColor || '#FFFFFF';
+    // r2: .banner.size-XXX CSS의 padding(60px/30px 등) 무력화 — 캔버스가 outerMargin을 포함하므로
+    // 미리보기 wrapper에 padding이 있으면 다운로드와 시각이 어긋남.
+    wrap.style.padding = '0';
+    wrap.style.boxSizing = 'border-box';
+  }
+  // 비동기 캔버스 빌드 + 임베드
+  (async () => {
+    try {
+      const prepped = await prepSdShowcaseCfgImages(cfg);
+      const canvas = await buildSdShowcaseCanvas(prepped);
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.display = 'block';
+      wrap.appendChild(canvas);
+    } catch (err) {
+      console.error('[SD Showcase] preview render failed:', err);
+    }
+  })();
+  return wrap;
+}
+
+// 파일명 — Plan FR-15: {prefix}_sdshowcase_{lang}_{size}.{ext}, slug 빈 문자열 시 'banner' fallback (M-3 mitigation)
+function buildSdShowcaseFilename(s) {
+  const prefix = (s.prefix && String(s.prefix).trim()) || 'banner';
+  const lang = s.lang || 'ko';
+  // 사이즈 키 매핑: '1x1' → '1080x1080', '1200x628' → '1200x628'
+  const sizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
+  const sizeStr = sizeMap[s.size] || s.size || '1080x1080';
+  const ext = (s.format === 'jpg' || s.format === 'jpeg') ? 'jpg' : 'png';
+  return `${prefix}_sdshowcase_${lang}_${sizeStr}.${ext}`;
+}
+
 // bugfix Plan FR-01/02/05: Canvas 직접 합성 핵심
 async function buildBannerCanvas(cfg) {
   // v1.3: 템플릿 분기
@@ -3350,6 +4053,10 @@ async function buildBannerCanvas(cfg) {
   // v1.5: App Store Screenshot 분기
   if (cfg.template === 'appstore-screenshot') {
     return buildAppStoreScreenshotCanvas(cfg);
+  }
+  // v1.6: SD Showcase 분기
+  if (cfg.template === 'sd-showcase') {
+    return buildSdShowcaseCanvas(cfg);
   }
   const spec = CANVAS_SPECS[cfg.size];
   const pixelRatio = Math.max(1, cfg.scale || 1);
@@ -3656,6 +4363,10 @@ function bindSingleMode() {
     if (state.single.template === 'appstore-screenshot') {
       loadAppStoreSlotToUI(lang);
     }
+    // v1.6: SD Showcase 입력 필드를 해당 언어 슬롯에서 복원
+    if (state.single.template === 'sd-showcase') {
+      loadSdShowcaseSlotToUI(lang);
+    }
     state.single.lang = lang;
     syncSingleStateFromUI();
     refreshSinglePreview();
@@ -3748,6 +4459,116 @@ function bindSingleMode() {
 
   // v1.3: App Badge 전용 UI 바인딩
   bindAppBadgeSingleUI();
+
+  // v1.6: SD Showcase 전용 UI 바인딩
+  bindSdShowcaseSingleUI();
+}
+
+// v1.6: SD Showcase 단건 모드 이벤트 바인딩 (Plan FR-07)
+function bindSdShowcaseSingleUI() {
+  // 6 SD 드롭존 (M-2 패턴 확장: updateStateImageAt이 _imgCache 누수 방지)
+  for (let i = 0; i < 6; i++) {
+    const idx = i;
+    setupDropzone(`s-sds-slot-${i+1}`, (dataURL) => {
+      updateStateImageAt(state.single.sdshowcase.slots, idx, dataURL);
+      refreshSinglePreview();
+    });
+  }
+  // 타이틀 textarea (현재 언어 슬롯에 저장)
+  const titleEl = document.getElementById('s-sds-title');
+  if (titleEl) titleEl.addEventListener('input', () => {
+    const lang = state.single.lang;
+    const sds = state.single.sdshowcase;
+    sds.langs[lang] = sds.langs[lang] || { title: '', pill: '' };
+    sds.langs[lang].title = titleEl.value;
+    refreshSinglePreview();
+  });
+  // 픽 텍스트 input (현재 언어 슬롯에 저장)
+  const pillEl = document.getElementById('s-sds-pill');
+  if (pillEl) pillEl.addEventListener('input', () => {
+    const lang = state.single.lang;
+    const sds = state.single.sdshowcase;
+    sds.langs[lang] = sds.langs[lang] || { title: '', pill: '' };
+    sds.langs[lang].pill = pillEl.value;
+    refreshSinglePreview();
+  });
+  // 픽 ON/OFF 토글
+  const showPillEl = document.getElementById('s-sds-showpill');
+  if (showPillEl) showPillEl.addEventListener('change', () => {
+    state.single.sdshowcase.showPill = showPillEl.checked;
+    refreshSinglePreview();
+  });
+  // 배경 컬러피커
+  const bgEl = document.getElementById('s-sds-bgcolor');
+  if (bgEl) bgEl.addEventListener('input', () => {
+    state.single.sdshowcase.bgColor = bgEl.value;
+    refreshSinglePreview();
+  });
+  // 외곽선 두께 슬라이더
+  const strokeEl = document.getElementById('s-sds-stroke');
+  const strokeLabel = document.getElementById('s-sds-stroke-label');
+  if (strokeEl) strokeEl.addEventListener('input', () => {
+    state.single.sdshowcase.strokeWidth = parseInt(strokeEl.value, 10);
+    if (strokeLabel) strokeLabel.textContent = strokeEl.value;
+    refreshSinglePreview();
+  });
+  // r1 G2: SD 셀 크기 슬라이더 (50~150%)
+  const cellEl = document.getElementById('s-sds-cellscale');
+  const cellLabel = document.getElementById('s-sds-cellscale-label');
+  if (cellEl) cellEl.addEventListener('input', () => {
+    state.single.sdshowcase.cellScale = parseInt(cellEl.value, 10) || 100;
+    if (cellLabel) cellLabel.textContent = cellEl.value;
+    refreshSinglePreview();
+  });
+  // r2: SD 사이 간격 슬라이더 (0~80)
+  const spEl = document.getElementById('s-sds-spacing');
+  const spLabel = document.getElementById('s-sds-spacing-label');
+  if (spEl) spEl.addEventListener('input', () => {
+    const v = parseInt(spEl.value, 10);
+    state.single.sdshowcase.spacing = isNaN(v) ? 20 : v;
+    if (spLabel) spLabel.textContent = spEl.value;
+    refreshSinglePreview();
+  });
+}
+
+// v1.6: 언어 전환 시 SD Showcase 입력 필드 + 공통 설정을 state에서 복원
+function loadSdShowcaseSlotToUI(lang) {
+  const sds = state.single.sdshowcase;
+  if (!sds) return;
+  const slot = (sds.langs && sds.langs[lang]) || { title: '', pill: '' };
+  // 언어별
+  const titleEl = document.getElementById('s-sds-title');
+  const pillEl = document.getElementById('s-sds-pill');
+  if (titleEl) titleEl.value = slot.title || '';
+  if (pillEl) pillEl.value = slot.pill || '';
+  // 공통 설정 (매 호출마다 reload — 무해, 토글/색상/두께 일관성 유지)
+  const showPillEl = document.getElementById('s-sds-showpill');
+  const bgEl = document.getElementById('s-sds-bgcolor');
+  const strokeEl = document.getElementById('s-sds-stroke');
+  const strokeLabel = document.getElementById('s-sds-stroke-label');
+  if (showPillEl) showPillEl.checked = sds.showPill !== false;
+  if (bgEl) bgEl.value = sds.bgColor || '#FFFFFF';
+  if (strokeEl) {
+    const sw = sds.strokeWidth || 8;
+    strokeEl.value = sw;
+    if (strokeLabel) strokeLabel.textContent = String(sw);
+  }
+  // r1 G2: cellScale 복원
+  const cellEl = document.getElementById('s-sds-cellscale');
+  const cellLabel = document.getElementById('s-sds-cellscale-label');
+  if (cellEl) {
+    const cs = sds.cellScale || 100;
+    cellEl.value = cs;
+    if (cellLabel) cellLabel.textContent = String(cs);
+  }
+  // r2: spacing 복원
+  const spEl = document.getElementById('s-sds-spacing');
+  const spLabel = document.getElementById('s-sds-spacing-label');
+  if (spEl) {
+    const sp = (typeof sds.spacing === 'number') ? sds.spacing : 20;
+    spEl.value = sp;
+    if (spLabel) spLabel.textContent = String(sp);
+  }
 }
 
 // v1.3: App Badge 단건 모드 이벤트 바인딩
@@ -3900,28 +4721,56 @@ function applyTemplateSwitch(newTemplate) {
     el.style.display = (belongs === newTemplate) ? '' : 'none';
   });
   // v1.5: data-tmpl-hide 속성 처리 — 지정된 템플릿일 때만 숨김 (역방향 토글)
+  // v1.6: 콤마 구분 다중 값 지원 (예: "appstore-screenshot,sd-showcase")
   document.querySelectorAll('[data-tmpl-hide]').forEach(el => {
     const hideOn = el.getAttribute('data-tmpl-hide');
-    el.style.display = (hideOn === newTemplate) ? 'none' : '';
+    const hideList = hideOn.split(',').map(s => s.trim());
+    el.style.display = hideList.includes(newTemplate) ? 'none' : '';
   });
   // v1.5: App Store Screenshot은 9:16 전용 — 사이즈 셀렉터 자동 잠금
+  // v1.6: SD Showcase는 1x1 + 1200x628 전용 — 9:16 차단
   const sizeSel = document.getElementById('s-size');
   if (sizeSel) {
     if (newTemplate === 'appstore-screenshot') {
       sizeSel.value = '9x16';
       sizeSel.disabled = true;
       state.single.size = '9x16';
+    } else if (newTemplate === 'sd-showcase') {
+      // 9:16 → 1x1 fallback, 1x1/1200x628은 그대로
+      if (state.single.size === '9x16') {
+        sizeSel.value = '1x1';
+        state.single.size = '1x1';
+      }
+      sizeSel.disabled = false;
+      // 9:16 옵션 비활성화 (option 단위)
+      Array.from(sizeSel.options).forEach(opt => {
+        opt.disabled = (opt.value === '9x16');
+      });
     } else {
       sizeSel.disabled = false;
+      // 다른 템플릿 복귀 시 모든 option 활성화
+      Array.from(sizeSel.options).forEach(opt => { opt.disabled = false; });
     }
   }
   // v1.5: 배치 모드 사이즈 체크박스도 9:16 강제 (appstore일 때만 9:16 체크 + 나머지 비활성)
+  // v1.6: SD Showcase는 1x1 + 1200x628 체크 + 9:16 비활성
   const bSizeBoxes = document.querySelectorAll('.b-size');
   if (bSizeBoxes.length) {
     if (newTemplate === 'appstore-screenshot') {
       bSizeBoxes.forEach(cb => {
         cb.checked = (cb.value === '9x16');
         cb.disabled = (cb.value !== '9x16');
+        const pill = cb.closest('.check-pill');
+        if (pill) {
+          pill.classList.toggle('selected', cb.checked);
+          pill.style.opacity = cb.disabled ? '0.4' : '1';
+        }
+      });
+    } else if (newTemplate === 'sd-showcase') {
+      bSizeBoxes.forEach(cb => {
+        const isAllowed = (cb.value === '1x1' || cb.value === '1200x628');
+        cb.checked = isAllowed;
+        cb.disabled = !isAllowed;
         const pill = cb.closest('.check-pill');
         if (pill) {
           pill.classList.toggle('selected', cb.checked);
@@ -3939,6 +4788,10 @@ function applyTemplateSwitch(newTemplate) {
   // 배치 언어별 입력도 템플릿에 맞게 재렌더
   if (typeof renderBatchLangFields === 'function' && document.getElementById('b-lang-fields')) {
     renderBatchLangFields();
+  }
+  // v1.6: SD Showcase로 전환 시 현재 언어 슬롯과 공통 설정을 UI에 반영
+  if (newTemplate === 'sd-showcase' && typeof loadSdShowcaseSlotToUI === 'function') {
+    loadSdShowcaseSlotToUI(state.single.lang);
   }
   // App Badge로 전환이고, 헤드라인이 비어있으면 기본 프리셋 주입 (Q22)
   if (newTemplate === 'app-badge') {
@@ -4123,12 +4976,14 @@ function buildAppStoreScreenshotCfg(stateObj) {
 function refreshSinglePreview() {
   const container = document.getElementById('s-preview-container');
   container.innerHTML = '';
-  // v1.3/v1.5: 템플릿별 cfg 빌드
+  // v1.3/v1.5/v1.6: 템플릿별 cfg 빌드
   let cfg;
   if (state.single.template === 'app-badge') {
     cfg = buildAppBadgeCfgForCanvas(state.single);
   } else if (state.single.template === 'appstore-screenshot') {
     cfg = buildAppStoreScreenshotCfg(state.single);
+  } else if (state.single.template === 'sd-showcase') {
+    cfg = buildSdShowcaseCfg(state.single.sdshowcase, state.single.lang, state.single.size);
   } else {
     cfg = state.single;
   }
@@ -4136,7 +4991,7 @@ function refreshSinglePreview() {
   container.appendChild(banner);
   applyPreviewScale();
   const size = SIZE_PACK[state.single.size];
-  const tmplLabelMap = { 'app-badge': 'App Badge', 'appstore-screenshot': 'App Store Screenshot', 'today-tap': 'Today Tap' };
+  const tmplLabelMap = { 'app-badge': 'App Badge', 'appstore-screenshot': 'App Store Screenshot', 'today-tap': 'Today Tap', 'sd-showcase': 'SD Showcase' };
   const tmplLabel = tmplLabelMap[state.single.template] || 'Today Tap';
   document.getElementById('s-preview-meta').textContent =
     `${tmplLabel} · ${size.label} · ${size.w}×${size.h}px · ${LANG_PACK[state.single.lang].label}`;
@@ -4159,17 +5014,28 @@ async function handleSingleDownload() {
   const startT = performance.now();
   try {
     const ext = state.single.format === 'jpg' ? 'jpg' : 'png';
-    // v1.3/v1.5: 템플릿별 cfg 조립 + 파일명 패턴
+    // v1.3/v1.5/v1.6: 템플릿별 cfg 조립 + 파일명 패턴
     const isAppBadge = state.single.template === 'app-badge';
     const isAppStore = state.single.template === 'appstore-screenshot';
-    const filename = isAppBadge
-      ? buildAppBadgeFilename(state.single)
-      : isAppStore
-        ? buildAppStoreFilename(state.single)
-        : buildFilename({
-            prefix: slugify(state.single.title) || 'banner',
-            size: state.single.size, lang: state.single.lang, ext,
-          });
+    const isSDS = state.single.template === 'sd-showcase';
+    let filename;
+    if (isAppBadge) filename = buildAppBadgeFilename(state.single);
+    else if (isAppStore) filename = buildAppStoreFilename(state.single);
+    else if (isSDS) {
+      // SDS prefix: 현재 언어 타이틀 첫 줄 slug, 빈 문자열 시 'banner' fallback (M-3 mitigation)
+      const sdsLang = state.single.sdshowcase.langs[state.single.lang] || {};
+      const firstLine = (sdsLang.title || '').split('\n')[0] || '';
+      filename = buildSdShowcaseFilename({
+        prefix: slugify(firstLine) || 'banner',
+        lang: state.single.lang,
+        size: state.single.size,
+        format: state.single.format,
+      });
+    }
+    else filename = buildFilename({
+      prefix: slugify(state.single.title) || 'banner',
+      size: state.single.size, lang: state.single.lang, ext,
+    });
 
     let dataURL;
     if (isAppBadge) {
@@ -4184,6 +5050,13 @@ async function handleSingleDownload() {
       const cfg = buildAppStoreScreenshotCfg(state.single);
       const cfgWithImgs = await prepAppStoreCfgImages(cfg);
       const canvas = await buildAppStoreScreenshotCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
+    } else if (isSDS) {
+      // v1.6: SD Showcase 경로
+      await ensureFontsLoaded();
+      const cfg = buildSdShowcaseCfg(state.single.sdshowcase, state.single.lang, state.single.size);
+      const cfgWithImgs = await prepSdShowcaseCfgImages(cfg);
+      const canvas = await buildSdShowcaseCanvas(cfgWithImgs);
       dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
     } else if (USE_CANVAS_EXPORT) {
       await ensureFontsLoaded();
@@ -4392,6 +5265,49 @@ function bindBatchMode() {
     el.addEventListener(ev, syncBatchStateFromUI);
   });
 
+  // v1.6: 배치 SD Showcase 6 SD 드롭존 (M-2 패턴 확장)
+  for (let i = 0; i < 6; i++) {
+    const idx = i;
+    setupDropzone(`b-sds-slot-${i+1}`, (dataURL) => {
+      updateStateImageAt(state.batch.sd_slots, idx, dataURL);
+    });
+  }
+  // v1.6: 배치 SD Showcase 글로벌 (배경색, 외곽선, 픽 토글)
+  const sdsBgEl = document.getElementById('b-sds-bgcolor');
+  if (sdsBgEl) sdsBgEl.addEventListener('input', () => {
+    state.batch.sd_bgColor = sdsBgEl.value;
+    syncBatchStateFromUI();
+  });
+  const sdsStrokeEl = document.getElementById('b-sds-stroke');
+  const sdsStrokeLabel = document.getElementById('b-sds-stroke-label');
+  if (sdsStrokeEl) sdsStrokeEl.addEventListener('input', () => {
+    state.batch.sd_strokeWidth = parseInt(sdsStrokeEl.value, 10) || 8;
+    if (sdsStrokeLabel) sdsStrokeLabel.textContent = sdsStrokeEl.value;
+    syncBatchStateFromUI();
+  });
+  // r1 G2: 배치 SD 셀 크기 슬라이더
+  const sdsCellEl = document.getElementById('b-sds-cellscale');
+  const sdsCellLabel = document.getElementById('b-sds-cellscale-label');
+  if (sdsCellEl) sdsCellEl.addEventListener('input', () => {
+    state.batch.sd_cellScale = parseInt(sdsCellEl.value, 10) || 100;
+    if (sdsCellLabel) sdsCellLabel.textContent = sdsCellEl.value;
+    syncBatchStateFromUI();
+  });
+  // r2: 배치 SD 사이 간격 슬라이더
+  const sdsSpEl = document.getElementById('b-sds-spacing');
+  const sdsSpLabel = document.getElementById('b-sds-spacing-label');
+  if (sdsSpEl) sdsSpEl.addEventListener('input', () => {
+    const v = parseInt(sdsSpEl.value, 10);
+    state.batch.sd_spacing = isNaN(v) ? 20 : v;
+    if (sdsSpLabel) sdsSpLabel.textContent = sdsSpEl.value;
+    syncBatchStateFromUI();
+  });
+  const sdsShowEl = document.getElementById('b-sds-showpill');
+  if (sdsShowEl) sdsShowEl.addEventListener('change', () => {
+    state.batch.sd_showPill = sdsShowEl.checked;
+    syncBatchStateFromUI();
+  });
+
   // Plan FR-07/08: 2단계 분리 - 프리뷰 (이미지 변환 없음) / ZIP export (변환 + 다운로드)
   document.getElementById('b-preview').addEventListener('click', handleBatchPreview);
   document.getElementById('b-export-zip').addEventListener('click', handleBatchExportZip);
@@ -4543,6 +5459,9 @@ function syncBatchStateFromUI() {
     const asRCountEl  = document.getElementById(`b-as-rating-count-${lang}`);
     const asRankEl    = document.getElementById(`b-as-ranking-${lang}`);
     const asDevEl     = document.getElementById(`b-as-developer-${lang}`);
+    // v1.6: SD Showcase 언어별 입력
+    const sdsTitleEl = document.getElementById(`b-sds-title-${lang}`);
+    const sdsPillEl  = document.getElementById(`b-sds-pill-${lang}`);
     state.batch.langOverrides[lang] = {
       title: titleEl ? titleEl.value : '',
       subtitle: subtitleEl ? subtitleEl.value : '',
@@ -4557,6 +5476,9 @@ function syncBatchStateFromUI() {
       as_ratingCount: asRCountEl ? asRCountEl.value : '',
       as_ranking:     asRankEl   ? asRankEl.value   : '',
       as_developer:   asDevEl    ? asDevEl.value    : '',
+      // v1.6: SD Showcase 언어별 가변 텍스트 (titleEl이 textarea라 \n 보존됨)
+      sds_title: sdsTitleEl ? sdsTitleEl.value : ((SD_SHOWCASE_DEFAULT.langs[lang] || {}).title || ''),
+      sds_pill:  sdsPillEl  ? sdsPillEl.value  : ((SD_SHOWCASE_DEFAULT.langs[lang] || {}).pill  || ''),
     };
   });
 
@@ -4579,6 +5501,21 @@ function syncBatchStateFromUI() {
   if (asShowTab) state.batch.as_showTabbar = asShowTab.checked;
   if (asShowCta) state.batch.as_showCta    = asShowCta.checked;
   if (asShowIap) state.batch.as_showIap    = asShowIap.checked;
+
+  // v1.6: SD Showcase 공통 설정 (배경색, 외곽선 두께, 픽 토글, 셀 크기, r2 spacing)
+  const sdsBg     = document.getElementById('b-sds-bgcolor');
+  const sdsStroke = document.getElementById('b-sds-stroke');
+  const sdsCell   = document.getElementById('b-sds-cellscale');
+  const sdsSp     = document.getElementById('b-sds-spacing');
+  const sdsShow   = document.getElementById('b-sds-showpill');
+  if (sdsBg)     state.batch.sd_bgColor    = sdsBg.value;
+  if (sdsStroke) state.batch.sd_strokeWidth = parseInt(sdsStroke.value, 10) || 8;
+  if (sdsCell)   state.batch.sd_cellScale  = parseInt(sdsCell.value, 10) || 100;
+  if (sdsSp) {
+    const v = parseInt(sdsSp.value, 10);
+    state.batch.sd_spacing = isNaN(v) ? 20 : v;
+  }
+  if (sdsShow)   state.batch.sd_showPill   = sdsShow.checked;
 }
 
 function renderBatchLangFields() {
@@ -4591,10 +5528,11 @@ function renderBatchLangFields() {
     container.innerHTML = '<p class="text-xs text-gray-500 text-center py-4">위에서 언어를 1개 이상 선택하세요</p>';
     return;
   }
-  // v1.3 r2 / v1.5: 현재 배치 템플릿에 따라 필드 분기 (A안)
+  // v1.3 r2 / v1.5 / v1.6: 현재 배치 템플릿에 따라 필드 분기 (A안)
   const tmpl = state.batch.template || 'today-tap';
   const isAB = tmpl === 'app-badge';
   const isAS = tmpl === 'appstore-screenshot';
+  const isSDS = tmpl === 'sd-showcase';
 
   langs.forEach((lang, idx) => {
     const pack = LANG_PACK[lang];
@@ -4602,7 +5540,25 @@ function renderBatchLangFields() {
     group.className = 'space-y-2 pb-4' + (idx < langs.length - 1 ? ' border-b border-[#1f2127]' : '');
     const discVal = existing[`b-disc-${lang}`] !== undefined ? existing[`b-disc-${lang}`] : pack.disclaimer;
 
-    if (isAS) {
+    if (isSDS) {
+      // v1.6: SD Showcase — 타이틀(textarea) + 픽 텍스트 (현재 언어)
+      const sdsDefault = (SD_SHOWCASE_DEFAULT.langs && SD_SHOWCASE_DEFAULT.langs[lang]) || { title: '', pill: '' };
+      const stOverride = (state.batch.langOverrides && state.batch.langOverrides[lang]) || {};
+      const titleVal = existing[`b-sds-title-${lang}`] !== undefined
+        ? existing[`b-sds-title-${lang}`]
+        : (stOverride.sds_title !== undefined ? stOverride.sds_title : (sdsDefault.title || ''));
+      const pillVal = existing[`b-sds-pill-${lang}`] !== undefined
+        ? existing[`b-sds-pill-${lang}`]
+        : (stOverride.sds_pill !== undefined ? stOverride.sds_pill : (sdsDefault.pill || ''));
+      group.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-200 font-semibold">${pack.label}</span>
+          <button type="button" class="text-[10px] text-indigo-400 hover:underline" data-copy-from="${lang}" title="이 언어의 타이틀/픽을 다른 선택 언어에 복사">다른 언어에 복사</button>
+        </div>
+        <textarea id="b-sds-title-${lang}" class="input-base text-sm" rows="3" placeholder="타이틀 (${pack.label}, \\n으로 줄바꿈)">${escapeHTML(titleVal)}</textarea>
+        <input id="b-sds-pill-${lang}" class="input-base text-sm" placeholder="브랜드 픽 (${pack.label})" value="${escapeHTML(pillVal)}" />
+      `;
+    } else if (isAS) {
       // v1.5: App Store Screenshot — 타이틀/카테고리/설명 + 통계 4종 (현재 언어)
       const asDefault = (APPSTORE_SCREENSHOT_DEFAULT.langs && APPSTORE_SCREENSHOT_DEFAULT.langs[lang]) || {};
       const stOverride = (state.batch.langOverrides && state.batch.langOverrides[lang]) || {};
@@ -4672,7 +5628,7 @@ function renderBatchLangFields() {
   syncBatchStateFromUI();
 }
 
-// v1.3 r2: 언어간 필드 복사 — 현재 템플릿에 따라 복사 대상 다름
+// v1.3 r2 / v1.6: 언어간 필드 복사 — 현재 템플릿에 따라 복사 대상 다름
 function copyLangFieldsToOthers(srcLang) {
   const tmpl = state.batch.template || 'today-tap';
   const langs = [...document.querySelectorAll('.b-lang:checked')].map(cb => cb.value);
@@ -4683,6 +5639,17 @@ function copyLangFieldsToOthers(srcLang) {
       if (lang === srcLang) return;
       const h = document.getElementById(`b-headline-${lang}`);
       if (h) { h.value = srcHeadline; copied++; }
+    });
+  } else if (tmpl === 'sd-showcase') {
+    // v1.6: SD Showcase — 타이틀 + 픽 복사
+    const srcTitle = document.getElementById(`b-sds-title-${srcLang}`)?.value || '';
+    const srcPill  = document.getElementById(`b-sds-pill-${srcLang}`)?.value  || '';
+    langs.forEach(lang => {
+      if (lang === srcLang) return;
+      const t = document.getElementById(`b-sds-title-${lang}`);
+      const p = document.getElementById(`b-sds-pill-${lang}`);
+      if (t) { t.value = srcTitle; copied++; }
+      if (p) { p.value = srcPill; }
     });
   } else {
     const srcTitle    = document.getElementById(`b-title-${srcLang}`)?.value    || '';
@@ -4742,6 +5709,23 @@ function buildBatchCfgs() {
   return combos.map(combo => {
     const tmpl = batchTmpl || 'today-tap';
     const langOverride = state.batch.langOverrides[combo.lang] || {};
+    // v1.6: SD Showcase 분기 — 1x1 + 1200×628 (combo.size 그대로 사용)
+    if (tmpl === 'sd-showcase') {
+      return {
+        _combo: combo,
+        template: 'sd-showcase',
+        size: combo.size,
+        lang: combo.lang,
+        bgColor: state.batch.sd_bgColor || '#FFFFFF',
+        strokeWidth: typeof state.batch.sd_strokeWidth === 'number' ? state.batch.sd_strokeWidth : 8,
+        cellScale: typeof state.batch.sd_cellScale === 'number' ? state.batch.sd_cellScale : 100,  // r1 G2
+        spacing: typeof state.batch.sd_spacing === 'number' ? state.batch.sd_spacing : 20,        // r2
+        showPill: state.batch.sd_showPill !== false,
+        title: langOverride.sds_title !== undefined ? langOverride.sds_title : ((SD_SHOWCASE_DEFAULT.langs[combo.lang] || {}).title || ''),
+        pill:  langOverride.sds_pill  !== undefined ? langOverride.sds_pill  : ((SD_SHOWCASE_DEFAULT.langs[combo.lang] || {}).pill  || ''),
+        slots: state.batch.sd_slots || [null,null,null,null,null,null],
+      };
+    }
     // v1.5: App Store Screenshot 분기 — 9:16 1080×1920 전용 (사이즈는 항상 9x16)
     if (tmpl === 'appstore-screenshot') {
       return {
@@ -4879,11 +5863,15 @@ async function downloadBatchItem(idx) {
     const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
     const isAB = cfg.template === 'app-badge';
     const isAS = cfg.template === 'appstore-screenshot';
+    const isSDS = cfg.template === 'sd-showcase';
+    const sdsSizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
     const filename = isAB
       ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
       : isAS
         ? `${state.batch.prefix}_appstore_${cfg.lang}_${cfg.theme || 'dark'}_1080x1920.${ext}`
-        : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+        : isSDS
+          ? `${state.batch.prefix}_sdshowcase_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
+          : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
     let dataURL;
     if (isAB) {
       await ensureFontsLoaded();
@@ -4895,6 +5883,12 @@ async function downloadBatchItem(idx) {
       await ensureFontsLoaded();
       const cfgWithImgs = await prepAppStoreCfgImages({ ...cfg, scale: state.batch.scale });
       const canvas = await buildAppStoreScreenshotCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
+    } else if (isSDS) {
+      // v1.6: SD Showcase 단일 다운로드
+      await ensureFontsLoaded();
+      const cfgWithImgs = await prepSdShowcaseCfgImages({ ...cfg, scale: state.batch.scale, format: state.batch.format });
+      const canvas = await buildSdShowcaseCanvas(cfgWithImgs);
       dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
     } else if (USE_CANVAS_EXPORT) {
       await ensureFontsLoaded();
@@ -4960,11 +5954,15 @@ async function handleBatchExportZip() {
     await Promise.all([...abUris].filter(Boolean).map(u => loadCachedImage(u)));
 
     // v1.5: App Store Screenshot의 SVG 아이콘은 cfg마다 prepAppStoreCfgImages가 캐시에 적재하므로 별도 사전 적재 불필요
+    // v1.6: SD Showcase 6 슬롯 사전 디코드 (4언어×2사이즈 모두 공유 — 1회만 decode)
+    const sdsSlotImgs = await Promise.all((state.batch.sd_slots || []).map(s => loadCachedImage(s)));
+
     statusEl.textContent = `0 / ${total} 변환 중...`;
     for (let i = 0; i < cfgs.length; i++) {
       const cfg = cfgs[i];
       const isAB = cfg.template === 'app-badge';
       const isAS = cfg.template === 'appstore-screenshot';
+      const isSDS = cfg.template === 'sd-showcase';
       try {
         let canvas;
         if (isAB) {
@@ -4985,6 +5983,13 @@ async function handleBatchExportZip() {
           const cfgWithImgs = await prepAppStoreCfgImages({ ...cfg, scale: state.batch.scale });
           // _iconImg/_keyartImg는 prepAppStoreCfgImages가 이미 채움 (loadCachedImage가 hit)
           canvas = await buildAppStoreScreenshotCanvas(cfgWithImgs);
+        } else if (isSDS) {
+          // v1.6: SD Showcase — 6 슬롯 이미지 공유 (1회 decode)
+          canvas = await buildSdShowcaseCanvas({
+            ...cfg,
+            scale: state.batch.scale,
+            _slotImgs: sdsSlotImgs,
+          });
         } else {
           canvas = await buildBannerCanvas({
             ...cfg,
@@ -4996,11 +6001,14 @@ async function handleBatchExportZip() {
         }
         const dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
         const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
+        const sdsSizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
         const filename = isAB
           ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
           : isAS
             ? `${state.batch.prefix}_appstore_${cfg.lang}_${cfg.theme || 'dark'}_1080x1920.${ext}`
-            : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+            : isSDS
+              ? `${state.batch.prefix}_sdshowcase_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
+              : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
         zip.file(filename, dataURL.split(',')[1], { base64: true });
       } catch (err) {
         console.error(err);

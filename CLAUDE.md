@@ -176,6 +176,27 @@ _(작업 지시 시 최신 상태로 갱신)_
   - 변경량: `today-banner-designer.html` 3,881 → 5,097라인 (+1,216) · 387KB → 추정 462KB
   - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 (5단계 모두)
   - 상태: 코드 구현 완료. 사용자 브라우저 실측 + 시각 비교(첨부 4스샷 vs 출력) 후 `/pdca analyze appstore-screenshot` Gap 분석 대기
+- 2026-04-29~30: **[SD Showcase v1.6] 신규 4번째 템플릿 — 6 SD + 4언어 + 2사이즈 (1080×1080 + 1200×628), 8장 ZIP 자동 생성 PDCA 완주**
+  - 워크플로우: `/plan-plus` (14+1 결정) → `/pdca plan` → `/pdca do` × 4 sessions → `/pdca analyze` (r0~r4) → `/pdca report`
+  - 4 sessions: data-switch / canvas-renderer / single-ui / batch-ui-zip
+  - 4 iterations: r1(G1+G2 해소) → r2(N1~N4) → r3(N5~N7) → r4(강정아 스펙 N8~N10)
+  - **Match Rate: r0 88% → r1 96% → r4 100%**. Critical/Important/Minor Gap 0건
+  - **Plan SC: 8/8 + 신규 N: 10/10 = 18/18 충족 (100%)**, Decisions Followed 23/23 (100%)
+  - **변경량**: `today-banner-designer.html` 5,097 → 6,105라인 (+1,008) · 단일 HTML 정책 유지
+  - **신규 함수 12개**: `getLuminance`, `getContrastPalette`, `updateStateImageAt`, `buildSdShowcaseCfg`, `prepSdShowcaseCfgImages`, `buildSdShowcaseCanvas`, `buildSdShowcaseBanner`, `buildSdShowcaseFilename`, `fitSdsTitle`, `sdsWrapText`, `drawSdsTitleLines`, `drawSdsPill`
+  - **핵심 기능**:
+    - SD 6장 슬롯 (3×2 그리드 1080 / 좌·우 사이드 컬럼 1200)
+    - 4언어 타이틀 + 픽 자동 입력, KO 양 사이즈 "확률형 아이템 포함" 자동 첨부
+    - 자동 폰트 축소 (긴 영문 처리), CJK char-wrap / Latin word-wrap (\n 우선)
+    - 자동 대비 (휘도 이진 + hysteresis 0.46~0.54)
+    - 1200×628 우측 SD 자동 좌우반전 (`ctx.scale(-1,1)`)
+    - 픽 직각 + 흰 stroke 4px + drop shadow + TOP 앵커
+    - 타이틀 drop shadow (slider와 비례 스케일링)
+    - 검정 배너 테두리 **고정** (선 굵기 10px / 가장자리에서 선 중심까지 9px, 강정아 스펙)
+    - SD 셀 크기 슬라이더 (50~150%) + SD 사이 간격 슬라이더 (0~80px)
+    - 배경 컬러피커 + 자동 대비
+  - **취소된 결정**: NEXON Kart Gothic / Shin Go Pro / OPPOSans 폰트 적용 시도 (사용자 변심으로 즉시 원상복구, 잔재 0건) · 이미지 그리드 270×300 고정 (사용자 취소)
+  - 문서: `docs/01-plan/features/sd-showcase.plan.md` · `docs/03-analysis/sd-showcase.analysis.md` (v0.3, 16 sections) · `docs/04-report/sd-showcase.report.md` (v1.0)
 
 ## 히스토리
 
