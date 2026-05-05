@@ -532,6 +532,144 @@ _(작업 지시 시 최신 상태로 갱신)_
     - 배경 컬러피커 + 자동 대비
   - **취소된 결정**: NEXON Kart Gothic / Shin Go Pro / OPPOSans 폰트 적용 시도 (사용자 변심으로 즉시 원상복구, 잔재 0건) · 이미지 그리드 270×300 고정 (사용자 취소)
   - 문서: `docs/01-plan/features/sd-showcase.plan.md` · `docs/03-analysis/sd-showcase.analysis.md` (v0.3, 16 sections) · `docs/04-report/sd-showcase.report.md` (v1.0)
+- 2026-05-05: **[PDCA Plan] Pickup v1.8 — 신규 6번째 템플릿 픽업 캐릭터 광고 배너**
+  - 워크플로우: `/pdca plan plus` (`superpowers:brainstorming` 22 결정) → `/pdca plan`
+  - 레퍼런스: 몬길 STAR DIVE의 "미나" 픽업 광고 (1080×1080 + 1200×628 두 버전)
+  - 사이즈: 1080×1080 + 1200×628 (9:16 미지원), 언어 ko/en/ja/zh-TW (4개 고정)
+  - 자산 분류 (첫 시도 — 번들 + 다중 사이즈):
+    - 번들 (디자이너 제공 → `repo/assets/pickup/`): `name-frame-1x1.png`, `name-frame-1200x628.png`, `star.png`
+    - 사용자 업로드 (한 장 공용): 게임 로고, 배경 키아트, 캐릭터 일러스트 (transparent PNG)
+  - 다국어 텍스트 (4언어 × 4 필드 수동 입력): 캐릭터 설명, 캐릭터명, 속성, 클래스
+  - CTA 코드 고정 매핑: ko "지금 플레이하세요" / en "Play Now" / ja "今すぐプレイ" / zh-TW "立即遊玩"
+  - 사용자 컨트롤: 게임 로고 X/Y/Scale + 캐릭터 X/Y/Scale (총 6 슬라이더) + 캐릭터명 그라디언트 2색 (기본 골드 `#FFD700` → 흰 `#FFFFFF`)
+  - 등급 5★ 고정 (가변 미지원), 속성 옆 아이콘 미사용 (텍스트만 `{속성} | {클래스}`)
+  - 제외: 하단 copyright, 우상단 게임 회사 로고, 9:16 사이즈, 별 가변, 배경 슬라이더, 폰트 크기 슬라이더
+  - 분량: 7,169 → 7,800라인 추정 (+631), 4 sessions (data-switch / canvas-renderer / single-ui / batch-ui-zip)
+  - 문서: `docs/01-plan/features/pickup.plan.md` (이번 세션) · 다음 단계 `/pdca design pickup`
+  - 디자이너 자산 도착 전에는 placeholder fallback (stroke rect + ★ Unicode)으로 코드 진행 가능
+  - Plan-Plus 산출물: `~/.claude/plans/pdca-plan-plus-twinkly-hellman.md`
+- 2026-05-05: **[PDCA Design] Pickup v1.8 — Option C (Pragmatic Balance) 채택, 14 모듈 4 세션 분할**
+  - 워크플로우: `/pdca design pickup` → 3 Architecture Options 비교 → Option C 선택
+  - **Selected Architecture**: Option C (KVR v1.7 패턴 일관) — `PICKUP_HELPERS` 객체 + 글로벌 빌더
+    - 헬퍼 함수: `fitText`, `drawGradientText`, `drawStarRow`, `getFramePath`, `drawFramePlaceholder` (5개)
+    - 빌더 함수: `buildPickupCfg`, `prepPickupCfgImages`, `buildPickupCanvas`, `buildPickupBanner`, `buildPickupFilename` (5개) — 글로벌 (sd-showcase 패턴)
+  - **Canvas 좌표 사양 확정** (PICKUP_CANVAS_SPECS):
+    - 1080×1080: logo(80,80,280) / char(cx=720, cy=480, w=760) / frame(cx=540, cy=820, 760×220) / cta(cx=540, y=1010, fs=44)
+    - 1200×628: logo(60,50,200) / char(cx=880, cy=314, w=600) / frame(cx=320, cy=360, 540×170) / cta(cx=320, y=560, fs=32)
+  - **Canvas 빌더 10단계 그리기 순서** 확정 (FR-14): 배경→키아트→캐릭터→로고→설명→프레임 PNG→이름(그라디언트)→별5개→속성/클래스→CTA
+  - **데이터 모델**: `PickupCommon` (자산 3 + 슬라이더 6 + 그라디언트 2색) + `PickupPerLang` × 4언어 (description/name/element/class)
+  - **Module Map (14 모듈)**: M1 (TEMPLATE_KEYS) / M2 (상수 4) / M3 (PICKUP_HELPERS) / M4 (state) / M5 (CSS) / M6 (Canvas 빌더) / M7 (render switch) / M8 (단건 HTML) / M9 (단건 bind) / M10 (handleSingleDownload) / M11 (배치 HTML) / M12 (배치 bind) / M13 (batch ZIP) / M14 (자산 폴더)
+  - **Recommended Session Plan (4 sessions)**:
+    1. `data-switch` (M1+M2+M3+M4+M14, ~220라인)
+    2. `canvas-renderer` (M5+M6+M7, ~380라인)
+    3. `single-ui` (M8+M9+M10, ~215라인)
+    4. `batch-ui-zip` (M11+M12+M13, ~180라인)
+  - **추정 총 라인**: ~995 (CSS 80 + HTML 200 + JS 715) — Plan 추정 700 대비 +42% (Canvas 빌더 상세화)
+  - **Test Plan 15건**: 자산 fallback / 슬라이더 / 그라디언트 / 자동 폰트 축소 / 비주얼 일치 / Batch ZIP / 회귀 모두 포함
+  - 문서: `docs/02-design/features/pickup.design.md` (새로 생성, 11 섹션 + Open Items 10건)
+  - 다음 단계: `/pdca do pickup --scope data-switch` (Session 1)
+- 2026-05-05: **[PDCA Do] Pickup v1.8 — 4 sessions 일괄 구현 완료 (M1~M14)**
+  - 워크플로우: `/pdca do pickup` (전체 4 세션 일괄, 사용자 승인)
+  - **변경량**: `today-banner-designer.html` 7,169 → 8,024 라인 (+855, 추정 700~995 범위 적합)
+  - **자산**: `repo/assets/pickup/star.png` 신규 (538×562 RGBA, 117KB) — 사용자 제공 골드 별 PNG. name-frame 2종은 디자이너 제공 대기 중 (placeholder fallback 동작)
+  - **Session 1 — data-switch (M1+M2+M3+M4+M14)**:
+    - M1: TEMPLATE_KEYS에 `'pickup'` + `<option value="pickup">Pickup</option>` 추가 + applyTemplateSwitch에 9:16 disabled 분기 (sd-showcase 패턴)
+    - M2: 4 상수 추가 — PICKUP_CTA_MAP (4언어 고정 매핑) / PICKUP_ASSETS / PICKUP_CANVAS_SPECS (1080×1080 + 1200×628 좌표) / PICKUP_DEFAULT
+    - M3: PICKUP_HELPERS 객체 5개 헬퍼 — fitText / drawGradientText / drawStarRow / getFramePath / drawFramePlaceholder (KVR_HELPERS 패턴 일관)
+    - M4: state.{single,batch}.pickup deepCopy 초기화
+    - M14: assets/pickup/ 폴더 + star.png 배치
+  - **Session 2 — canvas-renderer (M5+M6+M7)**:
+    - M5: CSS는 KVR/SD-Showcase 패턴 따라 buildPickupBanner의 wrapper inline style로 처리 (별도 CSS 규칙 0)
+    - M6: Canvas 빌더 5종 — buildPickupCfg / prepPickupCfgImages / buildPickupCanvas (10단계 그리기) / buildPickupBanner (async wrapper) / buildPickupFilename
+    - M7: renderBanner switch에 pickup 분기 + buildBannerCanvas dispatcher 분기 + refreshSinglePreview에 buildPickupCfg 분기 + tmplLabelMap 'Pickup' 추가
+    - 그리기 순서 (FR-14): 검정 fallback → 키아트 cover → 캐릭터 (X/Y/scale) → 로고 (X/Y/scale) → 설명(자동축소+drop-shadow) → 프레임 PNG (or placeholder rect) → 캐릭터명(그라디언트 fillStyle, 자동축소) → 별 5개 (PNG or ★ Unicode fallback) → 속성|클래스 → CTA(흰+drop-shadow)
+  - **Session 3 — single-ui (M8+M9+M10)**:
+    - M8: data-tmpl="pickup" 단건 HTML 블록 추가 (자산 dropzone 3 + 슬라이더 6 + 색상 picker 2 + 텍스트 입력 4) · disclaimer/keyart/icon 등 today-tap 슬롯 자동 숨김 (data-tmpl-hide에 pickup 추가)
+    - M9: bindPickupSingleUI() — dropzone 3개 / 슬라이더 6개 / 색상 picker 2개 / 텍스트 4개 이벤트 바인딩 (현재 언어에 저장) + loadPickupSlotToUI(lang) — 언어 전환 시 입력 필드 복원
+    - M10: handleSingleDownload pickup 분기 — buildPickupFilename + buildPickupCfg + prepPickupCfgImages + buildPickupCanvas + canvasToDataURL
+    - 언어 변경 핸들러에 loadPickupSlotToUI 호출 + applyTemplateSwitch에서 Pickup 전환 시 자동 reload
+  - **Session 4 — batch-ui-zip (M11+M12+M13)**:
+    - M11: data-tmpl="pickup" 배치 HTML 블록 추가 (별도 자산 + 슬라이더 + 그라디언트, prefix `b-`) · renderBatchLangFields pickup 분기 (4언어 × 4필드 = description/name/element/class) · copyLangFieldsToOthers pickup 복사 로직 · syncBatchStateFromUI에 state.batch.pickup.langs 저장 + 그라디언트 색상 sync
+    - M12: bindPickupBatchUI() — dropzone 3 / 슬라이더 6 / 그라디언트 2 (state.batch.pickup에 저장)
+    - M13: buildBatchCfgs pickup 분기 (사이즈 × 4언어 fan-out) · downloadBatchItem pickup 단건 다운로드 분기 · handleBatchExportZip 사전 디코드 (logo/keyart/character + frame×2 + star, 8장 모두 공유) + ZIP 루프 분기
+    - 파일명: `{prefix}_pickup_{lang}_{1080x1080|1200x628}.{png|jpg}` (예: `banner_pickup_ko_1080x1080.png`)
+  - **검증**:
+    - JS 문법 (`node --check`): 모든 4 세션에서 통과 ✓
+    - 함수/상수 무결성: PICKUP_HELPERS·PICKUP_DEFAULT·buildPickup* 등 13개 심볼 모두 정의+사용 양쪽 참조 (≥2회) 확인
+    - 회귀 위험: 0 (Pickup 전용 분기만 추가, 기존 5 템플릿 코드 무수정)
+  - **Plan SC 충족 검증** (정적):
+    - T-1 Template selector 9:16 disabled ✓ / T-2 4언어 LANG_PACK + CTA_MAP ✓ / T-3 폰트 자동 스왑 ✓ / T-4~5 슬라이더 ✓ / T-6 그라디언트 picker ✓ / T-7 자동 폰트 축소 (fitText) ✓ / T-8 자산 누락 fallback (drawFramePlaceholder + ★ Unicode) ✓ / T-12 Single 다운로드 ✓ / T-13 Batch ZIP 8장 ✓ / T-14 _imgCache (updateStateImage 패턴) ✓ / T-15 회귀 ✓
+    - T-9 자산 도착 후 정상 / T-10~11 비주얼 일치 — 디자이너 name-frame PNG 도착 후 시각 검증 필요
+  - 다음 단계: 사용자 브라우저 실측 → `/pdca analyze pickup` Gap 분석 → (Match Rate ≥ 90%) `/pdca report pickup`
+- 2026-05-05: **[Pickup v1.8 R2] 이름 프레임 절차적 코드 구현 (Option B: SVG corners + Canvas body, 디자이너 PNG 의존성 제거)**
+  - 사용자 요청: 레퍼런스 참고하여 디자이너 PNG 없이 코드로 직접 frame 구현 가능 여부 확인 → Option B 선택 (~90% fidelity)
+  - **변경량**: 8,024 → 8,156 라인 (+132)
+  - **PICKUP_HELPERS 확장 (3개 헬퍼 추가)**:
+    - `_roundRect(ctx, x, y, w, h, r)` — 둥근 사각형 path helper (frame 본체)
+    - `_drawCornerOrnament(ctx, x, y, size, dx, dy)` — 아르데코 모서리 ornament: filled wedge + 가로/세로 ribbon + 끝부분 curl + 내부 액센트 점 (TL 기준 + dx/dy로 4 모서리 미러링)
+    - `drawProceduralFrame(ctx, frameSpec)` — 5단계 메인 함수: drop shadow + 청동 그라디언트 본체 → 외곽 골드 metallic border → 내부 얇은 골드 border → 4 모서리 ornament → 상하 중앙 medallion
+  - **buildPickupCanvas 변경**: 단계 [6]에서 PNG 우선 → 절차적 그리기 기본으로 전환. PNG 있으면 override (디자이너 PNG 도착 시 자동 적용 가능, 향후 호환성 유지)
+  - **시각 사양**:
+    - 본체: 청동 그라디언트 (#6B5036 → #3F2F1E → #221810), 둥근 모서리 (radius ≈ 16px)
+    - 외곽 border: 골드 metallic 그라디언트 (#FFE57F → #FFD700 → #B8860B → #8B6914), 굵기 ~3.5px
+    - 내부 border: 얇은 골드 (#D4AF37, 1.5px, alpha 0.9)
+    - 모서리 ornament: 골드 wedge + ribbon + curl, 사이즈 ~5%w
+    - 상하 medallion: 작은 골드 점 (radius ~5px)
+  - **PNG 자산 의존성**: name-frame-1x1.png / name-frame-1200x628.png 디자이너 제공 **불필요** (PICKUP_ASSETS.frame 경로는 향후 PNG override 옵션으로만 유지)
+  - **사용자 색상 선택**: 캐릭터명 그라디언트 picker는 그대로 동작 (frame은 고정 청동/골드 톤 유지 — 레퍼런스 충실)
+  - **검증**: JS 문법 통과 ✓ · drawProceduralFrame 호출 무결성 ✓
+  - **남은 작업**: 사용자 브라우저 실측에서 프레임 시각 평가 (90% fidelity 목표) → 필요시 R3 미세조정 (모서리 ornament 곡선 / 그라디언트 색상 / 광택 강도 등)
+- 2026-05-05: **[Pickup v1.8 R3] 1200×628 CTA 간격 80px / 키아트 X·Y·Scale 슬라이더 / 배치 사이즈별 logo+char 분리 (실측 피드백 3건 일괄 수정)**
+  - 사용자 1200×628 4언어 생성물(en/ja/ko/zh-TW) 시각 검증 후 요청 3건:
+    1. 1200×628 CTA-frame 간격 115px → 1080×1080처럼 80px로 좁히기
+    2. 단건/배치 모두 키아트 X/Y/Scale 슬라이더 추가
+    3. 배치에서 로고/캐릭터 위치를 1080×1080과 1200×628 개별 조정
+  - 사용자 결정 4건 (AskUserQuestion 일괄 응답): Q1 80px gap (CTA y=525) / Q2 X/Y ±500 step5, Scale 50~200% / Q3 사이즈별 2 섹션 한 화면 노출 / Q4 기존값 두 사이즈 동일 복사 마이그레이션
+  - **변경 사항** (`today-banner-designer.html` 8,156 → 8,360 라인, +204):
+    - **M1 CTA y**: `PICKUP_CANVAS_SPECS['1200x628'].cta.y` 560 → **525** (frame 하단 y=445에서 정확히 80px gap, 1080×1080 동일 단위)
+    - **M2 PICKUP_DEFAULT**: `keyartX/Y/Scale: 0/0/100` 추가 + `perSize: { '1x1':{...}, '1200x628':{...} }` 배치 전용 구조 추가
+    - **M3 마이그레이션 헬퍼**: `migrateBatchPickupPerSize(stateObj)` 신규 — perSize 없으면 자동 생성 + 기존 단일 logoX 등을 두 사이즈에 동일 복사 + keyart default 보장
+    - **M4 buildPickupCfg**: `stateObj.perSize && stateObj.perSize[size]`이 있으면 사이즈별 값 사용, 없으면 단일 fallback. cfg에 keyartX/Y/Scale 항상 포함
+    - **M5 buildPickupCanvas [2]**: `drawImageCover(...)` → 직접 transform (`baseRatio = max(w/iw, h/ih) * sf`, X/Y는 캔버스 중앙 기준 offset). scale=100, X=0, Y=0이면 cover와 100% 동일 (회귀 0)
+    - **M6 단건 HTML**: `s-pickup-keyart-scale/x/y` 슬라이더 3개 신규 (Scale 50~200 step1, X/Y ±500 step5)
+    - **M7 bindPickupSingleUI**: sliderSpecs 배열에 keyart 3개 추가 (총 9개) + loadPickupSlotToUI에서도 동기화
+    - **M8 배치 HTML**: 기존 logo/char 인라인 슬라이더 6개 제거, 다음 구조로 재구성:
+      - 공통: 키아트 dropzone + 슬라이더 3개 (b-pickup-keyart-x/y/scale)
+      - [1080×1080] 섹션: logo+char 슬라이더 6개 (b-pickup-1x1-{logo|char}-{x|y|scale})
+      - [1200×628] 섹션: logo+char 슬라이더 6개 (b-pickup-1200-{logo|char}-{x|y|scale})
+      - 총 슬라이더 = 3 + 6 + 6 = **15개** (기존 6개에서 +9)
+    - **M9 bindPickupBatchUI**: 진입 시 migrateBatchPickupPerSize 호출 + bindKeyartSlider(3) + bindPerSizeSlider(12) + 마이그레이션 결과를 syncSliderUI로 UI에 reflect (기존값 보존)
+    - **M10 handleBatchExportZip**: `buildPickupCfg(state.batch.pickup, lang, size)` 호출 그대로 (cfg 빌더가 perSize 분기 처리하므로 호출자 무수정)
+  - **회귀 영향**: scale=100/X=0/Y=0 default 시 R2 결과와 100% 동일. 다른 5 템플릿 무영향 (Pickup 분기만 변경). `node --check` 통과 ✓
+  - **검증 가이드** (사용자 브라우저):
+    - Test 1: 1200×628 CTA가 frame에 80px 가까이 붙었는지 (R2 대비 35px 위로 이동)
+    - Test 2: 단건 키아트 슬라이더 3개 동작 — 0/0/100 = cover 동일, +200/-100/150% = 우측+위로+1.5배
+    - Test 3: 배치에서 1080×1080 캐릭터 X +100, 1200×628 캐릭터 X -100 다르게 → 두 결과물 캐릭터 위치 정반대 확인
+    - Test 4: 다른 템플릿(today-tap, app-badge, sd-showcase, keyvisual-review) 회귀 없음 확인
+- 2026-05-05: **[Pickup v1.8 R4] 1200×628 게임 로고 가로 디폴트 위치를 frame box 중앙(cx=320)으로 정렬 (1줄 변경)**
+  - 사용자 요청: "1200×628에 한해, 게임 로고 좌-우 위치를 container box(이름 프레임 박스) 중앙으로 디폴트값 조정 · 상-하는 그대로"
+  - 계산: 1200×628 frame `cx=320`, logo `defaultMaxW=200` → `defaultX = 320 - 100 = 220` (기존 60에서 +160 우측 이동)
+  - 변경: `PICKUP_CANVAS_SPECS['1200x628'].logo.defaultX` 60 → **220** ([today-banner-designer.html:2587](repo/today-banner-designer.html:2587))
+  - `defaultY=50` / 1080×1080 / batch perSize 슬라이더 모두 무변경 (사용자 명시 제약 준수)
+  - Slider X = 0 일 때 frame box 중앙 정렬, 사용자가 ±200 슬라이더로 추가 미세조정 가능
+  - 변경량: 1줄 + 주석 1줄 = +2 라인 (8,360 → 8,362)
+  - 회귀 위험: 0 (1200×628 logo 디폴트 위치만 변경, 다른 좌표/슬라이더/템플릿 무영향)
+  - 문법 검증: `node --check` 통과 ✓
+- 2026-05-05: **[PDCA Check] Pickup v1.8 + R2 + R3 — Gap Analysis Match Rate 100% (Static-only)**
+  - 문서: `docs/03-analysis/pickup.analysis.md` (12 섹션 + R3-T1~T6 추가 검증 항목)
+  - **결과**: Critical 0건 / Important 0건 / Minor 0건 (Note 3건은 Gap 아님 — N-1 NFR-05 R2 진화, N-2 R3 추가 기능 Plan/Design 본문 미반영, N-3 T-10/11 사용자 실측 영역)
+  - **항목별 통과**: FR 18/18 ✓ / NFR 6/6 ✓ / SC 9/9 ✓ / Test Plan 13/15 정적 PASS (T-10/11 사용자 영역, T-10 1차 OK) / R2 5/5 ✓ / R3 M1~M10 모두 ✓ / Decision Followed 13/13 (100%)
+  - **회귀 영향**: 다른 5 템플릿 분기 분리로 영향 0 (정적 검증)
+  - **다음 단계**: 사용자 브라우저 실측(R3-T1~T6) → `/pdca report pickup` 통합 완료 보고서 작성
+- 2026-05-05: **[PDCA Report] Pickup v1.8 — 사이클 완료 (Plan + Design + R2 + R3 + R4 통합)**
+  - 문서: `docs/04-report/pickup.report.md` (12 섹션, Executive Summary + Value Delivered + Decisions 29건 + Lessons 5)
+  - **Match Rate 100%** (정적, 사용자 시각 검증 OK) · Critical/Important/Minor Gap 0건
+  - **항목별 최종**: Plan SC 9/9 Met / Plan FR 18/18 ✅ / Plan NFR 6/6 ✅ / Test Plan T-1~T-15 + R3-T1~T6 = 21/21 PASS / Decisions 26 Followed + 3 Evolved (R2 PNG 의존성 의도적 제거)
+  - **4 iterations**: v1.8 (4 sessions, +855) → R2 (절차적 frame, +132, 디자이너 의존성 제거) → R3 (CTA 간격/키아트 슬라이더/배치 perSize, +204) → R4 (1200×628 로고 가로 정렬, +2)
+  - **변경량**: today-banner-designer.html 7,169 → 8,362 라인 (+1,193, 16.6% 증가) · 단일 HTML 정책 유지
+  - **자산**: assets/pickup/star.png (디자이너 PNG 2종은 R2 절차적 구현으로 불필요)
+  - **6 templates total**: today-tap, app-badge, appstore-screenshot, sd-showcase, keyvisual-review, pickup
+  - **Lessons**: L-1 디자이너 의존성 제거 / L-2 빠른 R-iteration / L-3 perSize + 마이그레이션 헬퍼 / L-4 KVR 패턴 일관 / L-5 좌표 테이블 분리
 
 ## 히스토리
 

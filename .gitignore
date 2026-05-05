@@ -1,6 +1,9 @@
 # PDCA runtime artifacts (도구 산출물, 코드 아님)
 .bkit/
 
+# Local sync backup folders (timestamp 포함, 동기화 작업 시 자동 생성)
+.backup-pre-sync-*/
+
 # Claude Code per-user 설정 (권한 캐시, 로컬 절대경로 포함)
 .claude/settings.local.json
 
@@ -17,6 +20,9 @@ Thumbs.db
 desktop.ini
 *.swp
 *~
+
+# In-place edit backup files (e.g. *.bak-r7 from sed safety)
+*.bak*
 
 # IDE
 .idea/
