@@ -670,6 +670,24 @@ _(작업 지시 시 최신 상태로 갱신)_
   - **자산**: assets/pickup/star.png (디자이너 PNG 2종은 R2 절차적 구현으로 불필요)
   - **6 templates total**: today-tap, app-badge, appstore-screenshot, sd-showcase, keyvisual-review, pickup
   - **Lessons**: L-1 디자이너 의존성 제거 / L-2 빠른 R-iteration / L-3 perSize + 마이그레이션 헬퍼 / L-4 KVR 패턴 일관 / L-5 좌표 테이블 분리
+- 2026-05-07: **[Pickup 복원] collaborator KVR R14 collateral deletion으로 사라진 Pickup 템플릿 1:1 복원**
+  - 사고: collaborator 강정아 push 커밋 `3bf5e20`/`ead94e4` (KVR R14 1.8x 확대)이 KVR 영역 외 **Pickup 템플릿 v1.8 전체(약 1,200줄)도 함께 삭제**. GitHub Pages 라이브 사이트에서 Pickup 드롭다운 옵션 사라짐 확인.
+  - 사용자 결정: Option 1 (Pickup 1:1 그대로 복원, v1.8 + R2 절차적 frame + R3 키아트 슬라이더·배치 perSize + R4 1200×628 로고 가로 정렬 모두 포함) + 단일 commit
+  - 복원 소스: `repo/.backup-pre-collab-pull-20260507-170223/today-banner-designer.html` (8,538줄, KVR R14 collab pull 직전 백업)
+  - **신규 코드 블록 6개 삽입** (Python 스크립트로 거꾸로 라인 번호로 일괄 삽입, +1,040줄):
+    - 상수 + PICKUP_HELPERS (백업 line 2566~2877, 312줄) → 현재 KVR_SCREEN_CORNER_R 다음
+    - 빌더 5종 (5489~5738, 250줄) → buildKvrFilename 다음
+    - 단건 HTML 패널 (1306~1421, 116줄) → KVR 단건 패널 다음
+    - 배치 HTML 패널 (1940~2084, 145줄) → KVR 배치 패널 다음
+    - bind 함수 3종 (6441~6542 + 6588~6702, 217줄) → loadKvrSlotToUI 다음
+  - **기존 코드 패치 17곳 (+169줄)**: TEMPLATE_KEYS / tmplLabelMap / 헤더 드롭다운 / buildBanner·buildBannerCanvas dispatcher / applyTemplateSwitch 3곳 / handleSingleDownload 3곳 / refreshSinglePreview cfg+언어전환 / bindSingleMode·bindBatchMode 끝 / syncBatchStateFromUI / renderBatchLangFields isPickup / copyLangFieldsToOthers pickup / buildBatchCfgs pickup fan-out / downloadBatchItem 3곳 / handleBatchExportZip 3곳 (사전 디코드 6자산) / state.single.pickup / state.batch.pickup / data-tmpl-hide 4곳 ',pickup' append
+  - **변경량**: today-banner-designer.html 7,141 → **8,350 라인** (+1,209, +60KB) · 단일 HTML 정책 유지
+  - **자산**: `assets/pickup/star.png` (collaborator commit에서 untouched, git tracked 보존됨)
+  - **회귀 위험 0**: Pickup이 KVR helper 0회 호출 → 새 KVR R14와 완전 독립. 통합 분기는 모두 `if (cfg.template === 'pickup')` 독립 블록
+  - **Sanity check 통과**: Pickup 14개 핵심 심볼 모두 정의 1번 + 사용 ≥2회 (PICKUP_HELPERS def=1 use=9, buildPickupCanvas def=1 use=7, etc.)
+  - 문법 검증: `node --check` 통과 ✓
+  - **검증 가이드** (사용자 브라우저): 헤더 드롭다운 6템플릿 / Pickup 단건 1x1+1200×628 × 4언어 자산·슬라이더·그라디언트 / Pickup 배치 ZIP 8장 / 절차적 frame 시각 정상 / 회귀: 다른 5템플릿 + 새 KVR R14 무영향
+  - **단일 커밋 메시지**: `revert: restore Pickup template after KVR R14 collateral deletion`
 
 ## 히스토리
 

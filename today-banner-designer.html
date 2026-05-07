@@ -908,6 +908,7 @@
         <option value="appstore-screenshot">App Store Screenshot</option>
         <option value="sd-showcase">SD Showcase</option>
         <option value="keyvisual-review">Key Visual + Review</option>
+        <option value="pickup">Pickup</option>
       </select>
     </div>
     <div class="flex items-center gap-1">
@@ -1287,15 +1288,131 @@
 
         <p class="text-[11px] text-gray-500">* 1080×1080 전용 · iPhone mockup 폭 540px, body 상단 42%만 표시 → mockup 높이 ≈ 497px (하단 = 캔버스 끝, mockup 화면 = 흰색 PNG) · 베젤 좌우 27px / 상단 30px · 콘텐츠 영역 ≈ 468×486 (콘텐츠 384 + 여유 36) · 로고 디폴트: 위쪽 키비주얼 영역 안전 위치 (drawY=200) · 헤드라인 기본 OFF · 키비주얼 슬라이더 범위 3배 (크기 50~600%, 좌우/상하 ±1500px)</p>
       </div>
+      <div class="space-y-3" data-tmpl="pickup" style="display:none;">
+        <!-- 게임 로고 -->
+        <div>
+          <div class="field-label">게임 로고 (좌측 상단, 투명 PNG 권장)</div>
+          <div id="s-drop-pickup-logo" class="dropzone" data-target="pickup-logo">
+            <p class="text-sm">클릭 또는 파일을 여기에 드롭</p>
+            <p class="text-[11px] mt-1">예: 몬길 STAR DIVE 같은 게임 타이틀 로고 · 4언어 공통 1장</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <div>
+              <div class="field-label">크기 (<span id="s-pickup-logo-scale-label">100</span>%)</div>
+              <input id="s-pickup-logo-scale" type="range" min="50" max="150" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">좌우 (<span id="s-pickup-logo-x-label">0</span>px)</div>
+              <input id="s-pickup-logo-x" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">상하 (<span id="s-pickup-logo-y-label">0</span>px)</div>
+              <input id="s-pickup-logo-y" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 배경 키아트 (R3: X/Y/Scale 슬라이더 추가) -->
+        <div>
+          <div class="field-label">배경 키아트 (전체 cover, PNG/JPG)</div>
+          <div id="s-drop-pickup-keyart" class="dropzone" data-target="pickup-keyart">
+            <p class="text-sm">클릭 또는 파일을 여기에 드롭</p>
+            <p class="text-[11px] mt-1">두 사이즈에 자동 적용 · 기본 cover (Scale 100% / X·Y 0px) · 슬라이더로 위치/확대 조정</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <div>
+              <div class="field-label">크기 (<span id="s-pickup-keyart-scale-label">100</span>%)</div>
+              <input id="s-pickup-keyart-scale" type="range" min="50" max="200" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">좌우 (<span id="s-pickup-keyart-x-label">0</span>px)</div>
+              <input id="s-pickup-keyart-x" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">상하 (<span id="s-pickup-keyart-y-label">0</span>px)</div>
+              <input id="s-pickup-keyart-y" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 캐릭터 일러스트 -->
+        <div>
+          <div class="field-label">캐릭터 일러스트 (transparent PNG 권장)</div>
+          <div id="s-drop-pickup-character" class="dropzone" data-target="pickup-character">
+            <p class="text-sm">클릭 또는 파일을 여기에 드롭</p>
+            <p class="text-[11px] mt-1">예: 미나 (구미호) · 우측 영역에 큰 비중으로 배치</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <div>
+              <div class="field-label">크기 (<span id="s-pickup-char-scale-label">100</span>%)</div>
+              <input id="s-pickup-char-scale" type="range" min="50" max="150" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">좌우 (<span id="s-pickup-char-x-label">0</span>px)</div>
+              <input id="s-pickup-char-x" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">상하 (<span id="s-pickup-char-y-label">0</span>px)</div>
+              <input id="s-pickup-char-y" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 캐릭터명 그라디언트 -->
+        <div class="border border-[#262932] rounded-lg p-3 space-y-2">
+          <p class="text-xs font-semibold text-gray-300">캐릭터명 그라디언트 (4언어 공통, 메탈릭 골드 기본)</p>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <div class="field-label">상단 색상 (default 골드)</div>
+              <input id="s-pickup-name-grad-top" type="color" value="#FFD700" class="w-full h-10 rounded border border-[#262932] cursor-pointer" />
+            </div>
+            <div>
+              <div class="field-label">하단 색상 (default 흰)</div>
+              <input id="s-pickup-name-grad-bottom" type="color" value="#FFFFFF" class="w-full h-10 rounded border border-[#262932] cursor-pointer" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 다국어 텍스트 (현재 선택된 언어) -->
+        <div class="border border-[#262932] rounded-lg p-3 space-y-2">
+          <p class="text-xs font-semibold text-gray-300">텍스트 (현재 언어 입력 → 언어 전환 시 각 언어별 별도 저장)</p>
+          <div>
+            <div class="field-label">캐릭터 설명 (예: 운명의 힘을 품은 구미호)</div>
+            <input id="s-pickup-desc" class="input-base" placeholder="운명의 힘을 품은 구미호" />
+          </div>
+          <div>
+            <div class="field-label">캐릭터명 (예: 미나)</div>
+            <input id="s-pickup-name" class="input-base" placeholder="미나" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <div class="field-label">속성 (예: 불)</div>
+              <input id="s-pickup-element" class="input-base" placeholder="불" />
+            </div>
+            <div>
+              <div class="field-label">클래스 (예: 원거리)</div>
+              <input id="s-pickup-class" class="input-base" placeholder="원거리" />
+            </div>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-gray-500">* 1080×1080 + 1200×628 지원 (9:16 미지원) · CTA "지금 플레이하세요"는 4언어 자동 매핑 (ko/en/ja/zh-TW) · 등급 5★ 고정 · 번들 자산 미제공 시 placeholder fallback (frame stroke + ★ Unicode)</p>
+      </div>
 
       <!-- 공통: 고지 문구 (Today Tap / App Badge 만 사용) -->
-      <div data-tmpl-hide="appstore-screenshot,sd-showcase,keyvisual-review">
+      <div data-tmpl-hide="appstore-screenshot,sd-showcase,keyvisual-review,pickup">
         <div class="field-label">고지 문구 (우상단, 비우면 미표시)</div>
         <input id="s-disclaimer" class="input-base" value="*확률형 아이템 포함" />
         <p class="text-[11px] text-gray-500 mt-1">언어 변경 시 자동으로 기본값이 채워집니다 (한국어만 기본값 존재)</p>
       </div>
 
-      <div class="space-y-3" data-tmpl-hide="sd-showcase,keyvisual-review">
+      <div class="space-y-3" data-tmpl-hide="sd-showcase,keyvisual-review,pickup">
         <!-- App Badge 전용: 게임 로고(BI) 업로드 -->
         <div data-tmpl="app-badge" style="display:none;">
           <div class="field-label">게임 로고 / BI (투명 PNG 권장)</div>
@@ -1537,7 +1654,7 @@
             <input id="b-ab-logo-y" type="range" min="-200" max="200" step="1" value="0" class="w-full" />
           </div>
         </div>
-        <div data-tmpl-hide="sd-showcase,keyvisual-review">
+        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup">
           <div class="field-label" id="b-keyart-label">키아트 / 배경 이미지</div>
           <div id="b-drop-keyart" class="dropzone" data-target="b-keyart">
             <p class="text-sm">클릭 또는 드롭</p>
@@ -1556,7 +1673,7 @@
             <button class="dropzone-remove" title="제거">×</button>
           </div>
         </div>
-        <div data-tmpl-hide="sd-showcase,keyvisual-review">
+        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup">
           <div class="field-label">앱 아이콘</div>
           <div id="b-drop-icon" class="dropzone" data-target="b-icon">
             <p class="text-sm">클릭 또는 드롭</p>
@@ -1803,6 +1920,151 @@
 
         <p class="text-[10px] text-gray-500">* 1080×1080 전용 (9:16 / 1200×628 자동 비활성) · 4언어 자동 출력 · 리뷰 콘텐츠(제목/본문/리뷰어 ID)는 단건 모드에서 입력한 값 자동 사용 (정책 유지)</p>
       </div>
+      <div class="border border-[#262932] rounded-lg p-3 space-y-3" data-tmpl="pickup" style="display:none;">
+        <p class="text-xs font-semibold text-gray-300">Pickup 공통 설정 (배치 전용 — 단건과 별도 슬롯)</p>
+
+        <!-- 게임 로고 (R3: 슬라이더는 사이즈별 섹션에서 별도 조정) -->
+        <div>
+          <div class="field-label">게임 로고 (좌측 상단, 투명 PNG)</div>
+          <div id="b-drop-pickup-logo" class="dropzone" data-target="b-pickup-logo">
+            <p class="text-sm">클릭 또는 드롭</p>
+            <p class="text-[11px] mt-1">예: 몬길 STAR DIVE 로고 · 4언어 공통 1장 · 위치/크기는 사이즈별로 따로 조정</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+        </div>
+
+        <!-- 배경 키아트 (R3: X/Y/Scale 슬라이더 추가, 두 사이즈 공통 단일 세트) -->
+        <div>
+          <div class="field-label">배경 키아트 (전체 cover, PNG/JPG)</div>
+          <div id="b-drop-pickup-keyart" class="dropzone" data-target="b-pickup-keyart">
+            <p class="text-sm">클릭 또는 드롭</p>
+            <p class="text-[11px] mt-1">두 사이즈 자동 적용 · 기본 cover · 슬라이더로 위치/확대 조정 (양 사이즈 공통)</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <div>
+              <div class="field-label">크기 (<span id="b-pickup-keyart-scale-label">100</span>%)</div>
+              <input id="b-pickup-keyart-scale" type="range" min="50" max="200" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">좌우 (<span id="b-pickup-keyart-x-label">0</span>px)</div>
+              <input id="b-pickup-keyart-x" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">상하 (<span id="b-pickup-keyart-y-label">0</span>px)</div>
+              <input id="b-pickup-keyart-y" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 캐릭터 일러스트 (R3: 슬라이더는 사이즈별 섹션에서 별도 조정) -->
+        <div>
+          <div class="field-label">캐릭터 일러스트 (transparent PNG)</div>
+          <div id="b-drop-pickup-character" class="dropzone" data-target="b-pickup-character">
+            <p class="text-sm">클릭 또는 드롭</p>
+            <p class="text-[11px] mt-1">예: 미나 (구미호) · 우측 영역 · 위치/크기는 사이즈별로 따로 조정</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+        </div>
+
+        <!-- R3: [1080×1080] 사이즈 전용 logo + character 슬라이더 -->
+        <div class="border border-[#262932] rounded-lg p-3 space-y-3">
+          <p class="text-[11px] font-semibold text-indigo-300">[1080×1080] 위치/크기</p>
+          <div>
+            <div class="field-label text-[10px]">게임 로고</div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <div class="field-label">크기 (<span id="b-pickup-1x1-logo-scale-label">100</span>%)</div>
+                <input id="b-pickup-1x1-logo-scale" type="range" min="50" max="150" step="1" value="100" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">좌우 (<span id="b-pickup-1x1-logo-x-label">0</span>px)</div>
+                <input id="b-pickup-1x1-logo-x" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">상하 (<span id="b-pickup-1x1-logo-y-label">0</span>px)</div>
+                <input id="b-pickup-1x1-logo-y" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="field-label text-[10px]">캐릭터 일러스트</div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <div class="field-label">크기 (<span id="b-pickup-1x1-char-scale-label">100</span>%)</div>
+                <input id="b-pickup-1x1-char-scale" type="range" min="50" max="150" step="1" value="100" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">좌우 (<span id="b-pickup-1x1-char-x-label">0</span>px)</div>
+                <input id="b-pickup-1x1-char-x" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">상하 (<span id="b-pickup-1x1-char-y-label">0</span>px)</div>
+                <input id="b-pickup-1x1-char-y" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- R3: [1200×628] 사이즈 전용 logo + character 슬라이더 -->
+        <div class="border border-[#262932] rounded-lg p-3 space-y-3">
+          <p class="text-[11px] font-semibold text-indigo-300">[1200×628] 위치/크기</p>
+          <div>
+            <div class="field-label text-[10px]">게임 로고</div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <div class="field-label">크기 (<span id="b-pickup-1200-logo-scale-label">100</span>%)</div>
+                <input id="b-pickup-1200-logo-scale" type="range" min="50" max="150" step="1" value="100" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">좌우 (<span id="b-pickup-1200-logo-x-label">0</span>px)</div>
+                <input id="b-pickup-1200-logo-x" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">상하 (<span id="b-pickup-1200-logo-y-label">0</span>px)</div>
+                <input id="b-pickup-1200-logo-y" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="field-label text-[10px]">캐릭터 일러스트</div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <div class="field-label">크기 (<span id="b-pickup-1200-char-scale-label">100</span>%)</div>
+                <input id="b-pickup-1200-char-scale" type="range" min="50" max="150" step="1" value="100" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">좌우 (<span id="b-pickup-1200-char-x-label">0</span>px)</div>
+                <input id="b-pickup-1200-char-x" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">상하 (<span id="b-pickup-1200-char-y-label">0</span>px)</div>
+                <input id="b-pickup-1200-char-y" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 캐릭터명 그라디언트 -->
+        <div class="border border-[#262932] rounded-lg p-3 space-y-2">
+          <p class="text-[11px] font-semibold text-gray-300">캐릭터명 그라디언트 (4언어 공통)</p>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <div class="field-label">상단 색상</div>
+              <input id="b-pickup-name-grad-top" type="color" value="#FFD700" class="w-full h-10 rounded border border-[#262932] cursor-pointer" />
+            </div>
+            <div>
+              <div class="field-label">하단 색상</div>
+              <input id="b-pickup-name-grad-bottom" type="color" value="#FFFFFF" class="w-full h-10 rounded border border-[#262932] cursor-pointer" />
+            </div>
+          </div>
+        </div>
+
+        <p class="text-[10px] text-gray-500">* 1080×1080 + 1200×628 (9:16 자동 비활성) · 4언어 텍스트(설명/이름/속성/클래스)는 아래 언어별 입력란에서 따로 입력 · CTA "지금 플레이하세요"는 언어별 자동 매핑 · 키아트는 두 사이즈 공통, 로고/캐릭터는 사이즈별 독립 조정</p>
+      </div>
 
       <!-- Today Tap 전용: 오버플로우 위치 조정 -->
       <div class="border border-[#262932] rounded-lg p-3 space-y-2" data-tmpl="today-tap">
@@ -1948,7 +2210,7 @@ const AS_LANG_PACK = {
 // v1.5: + appstore-screenshot 추가 (App Store Connect 스크린샷 모방)
 // v1.6: + sd-showcase 추가 (SD 캐릭터 6장 쇼케이스 배너, 1200×628 + 1080×1080)
 // ===========================================================================
-const TEMPLATE_KEYS = ['today-tap', 'app-badge', 'appstore-screenshot', 'sd-showcase', 'keyvisual-review'];
+const TEMPLATE_KEYS = ['today-tap', 'app-badge', 'appstore-screenshot', 'sd-showcase', 'keyvisual-review', 'pickup'];
 
 // 헤드라인 프리셋 (언어별 기본 문구) — 사용자 custom 선택 시 비활성
 // v1.3 r2 Gap G1: 기본값은 단일 라인 (레퍼런스 일치, 1:1 / 9:16)
@@ -2294,6 +2556,318 @@ const KVR_MOCKUP_SCREEN = {                                    // R12: xRatio 0.
   xRatio: 0.04, yRatio: 0.025, wRatio: 0.92, hRatio: 0.974,
 };
 const KVR_SCREEN_CORNER_R = 50;                               // R12: 30→50 (새 PNG 화면 corner radius 매칭, 모서리 더 둥글게)
+// v1.8: Pickup template constants (Design Ref: §2 Canvas Specs / §5 LANG_PACK)
+// 픽업 캐릭터 광고 배너 (1080×1080 + 1200×628, 4언어 ko/en/ja/zh-TW)
+// ===========================================================================
+
+// Plan FR-13: CTA 코드 고정 매핑 (사용자 수정 불가, 언어 전환 시 자동 변환)
+const PICKUP_CTA_MAP = {
+  'ko':    '지금 플레이하세요',
+  'en':    'Play Now',
+  'ja':    '今すぐプレイ',
+  'zh-TW': '立即遊玩',
+};
+
+// Plan FR-03: 번들 자산 경로 (디자이너 제공)
+const PICKUP_ASSETS = {
+  frame: {
+    '1x1':      'assets/pickup/name-frame-1x1.png',
+    '1200x628': 'assets/pickup/name-frame-1200x628.png',
+  },
+  star: 'assets/pickup/star.png',
+};
+
+// Design §2: Canvas 좌표 사양 (사이즈별 default 위치/크기)
+const PICKUP_CANVAS_SPECS = {
+  '1x1': {
+    w: 1080, h: 1080,
+    logo:    { defaultX: 80, defaultY: 80, defaultMaxW: 280, defaultMaxH: 120 },
+    character: { defaultCx: 720, defaultCy: 480, defaultMaxW: 760, defaultMaxH: 920 },
+    desc:    { cx: 540, y: 700, maxW: 760, fontSize: 36 },
+    frame:   { cx: 540, cy: 820, w: 760, h: 220 },
+    name:    { cx: 540, cy: 800, maxW: 640, baseFs: 88, minFs: 56 },
+    stars:   { cx: 410, cy: 880, starSize: 44, gap: 8 },
+    elementClass: { x: 600, cy: 880, fontSize: 28, separator: '|' },
+    cta:     { cx: 540, y: 1010, fontSize: 44 },
+    // R5: KO 고지문구 (sd-showcase 패턴, 우하단)
+    disclaimer: { right: 24, bottom: 18, fontSize: 18 },
+  },
+  '1200x628': {
+    w: 1200, h: 628,
+    // R4: 게임 로고 가로 디폴트 위치를 frame box 중앙(cx=320)에 정렬 (defaultX=320-200/2=220)
+    logo:    { defaultX: 220, defaultY: 50, defaultMaxW: 200, defaultMaxH: 90 },
+    character: { defaultCx: 880, defaultCy: 314, defaultMaxW: 600, defaultMaxH: 580 },
+    desc:    { cx: 320, y: 230, maxW: 520, fontSize: 26 },
+    frame:   { cx: 320, cy: 360, w: 540, h: 170 },
+    name:    { cx: 320, cy: 345, maxW: 440, baseFs: 64, minFs: 40 },
+    stars:   { cx: 200, cy: 410, starSize: 32, gap: 6 },
+    elementClass: { x: 360, cy: 410, fontSize: 20, separator: '|' },
+    cta:     { cx: 320, y: 525, fontSize: 32 },
+    // R5: KO 고지문구 (sd-showcase 패턴, 우하단)
+    disclaimer: { right: 20, bottom: 14, fontSize: 14 },
+  },
+};
+
+// Plan FR-05: state.{single,batch}.pickup 초기값 (deepCopy로 mutation 방지)
+// R3: keyart 슬라이더 + 배치 perSize 구조 추가
+const PICKUP_DEFAULT = {
+  // 사용자 업로드 (한 장 공용, 두 사이즈에 자동 적용)
+  logo: null, keyart: null, character: null,
+  // 게임 로고 위치/크기 슬라이더 (단건만 사용, 배치는 perSize에서 가져옴)
+  logoX: 0, logoY: 0, logoScale: 100,
+  // 캐릭터 위치/크기 슬라이더 (단건만 사용, 배치는 perSize에서 가져옴)
+  charX: 0, charY: 0, charScale: 100,
+  // R3: 키아트 위치/크기 슬라이더 (단건/배치 공통 단일 세트, default 0/0/100=cover)
+  keyartX: 0, keyartY: 0, keyartScale: 100,
+  // R3: 배치 전용 사이즈별 logo/char 분리 (단건은 perSize 안 씀)
+  perSize: {
+    '1x1':      { logoX: 0, logoY: 0, logoScale: 100, charX: 0, charY: 0, charScale: 100 },
+    '1200x628': { logoX: 0, logoY: 0, logoScale: 100, charX: 0, charY: 0, charScale: 100 },
+  },
+  // 캐릭터명 그라디언트 색상 (default 골드→흰)
+  nameGradTop: '#FFD700', nameGradBottom: '#FFFFFF',
+  // 다국어 텍스트 (4언어 × 4필드)
+  langs: {
+    'ko':    { description: '', name: '', element: '', class: '' },
+    'en':    { description: '', name: '', element: '', class: '' },
+    'ja':    { description: '', name: '', element: '', class: '' },
+    'zh-TW': { description: '', name: '', element: '', class: '' },
+  },
+};
+
+// R3: 배치 모드 마이그레이션 헬퍼 — 기존 logoX/charX 등을 perSize 양쪽에 동일 복사
+// (페이지 로드 시 + bindPickupBatchUI 진입 시 1회 호출)
+function migrateBatchPickupPerSize(stateObj) {
+  if (!stateObj) return;
+  if (!stateObj.perSize) {
+    stateObj.perSize = {
+      '1x1':      { logoX: 0, logoY: 0, logoScale: 100, charX: 0, charY: 0, charScale: 100 },
+      '1200x628': { logoX: 0, logoY: 0, logoScale: 100, charX: 0, charY: 0, charScale: 100 },
+    };
+  }
+  // 기존 단일 슬라이더 값을 양 사이즈에 동일 복사 (사용자 입력값 보존)
+  ['1x1', '1200x628'].forEach(sz => {
+    if (!stateObj.perSize[sz]) {
+      stateObj.perSize[sz] = { logoX: 0, logoY: 0, logoScale: 100, charX: 0, charY: 0, charScale: 100 };
+    }
+    const ps = stateObj.perSize[sz];
+    // 사이즈별 값이 모두 default(0/0/100/0/0/100)이고 stateObj에 단일값이 있으면 복사
+    const isDefault = (ps.logoX === 0 && ps.logoY === 0 && ps.logoScale === 100 &&
+                       ps.charX === 0 && ps.charY === 0 && ps.charScale === 100);
+    if (isDefault) {
+      ps.logoX = stateObj.logoX || 0;
+      ps.logoY = stateObj.logoY || 0;
+      ps.logoScale = stateObj.logoScale || 100;
+      ps.charX = stateObj.charX || 0;
+      ps.charY = stateObj.charY || 0;
+      ps.charScale = stateObj.charScale || 100;
+    }
+  });
+  // 키아트 슬라이더 default 보장
+  if (typeof stateObj.keyartX !== 'number') stateObj.keyartX = 0;
+  if (typeof stateObj.keyartY !== 'number') stateObj.keyartY = 0;
+  if (typeof stateObj.keyartScale !== 'number') stateObj.keyartScale = 100;
+}
+
+// Design §4: PICKUP_HELPERS 객체 (KVR_HELPERS 패턴 일관)
+const PICKUP_HELPERS = {
+  // 4.1: 자동 폰트 축소 (sd-showcase fitSdsTitle 패턴 차용)
+  fitText: function(ctx, text, maxW, baseFs, minFs, fontFamily, weight) {
+    if (!text) return baseFs;
+    weight = weight || '700';
+    minFs = minFs || 24;
+    let fs = baseFs;
+    while (fs > minFs) {
+      ctx.font = `${weight} ${fs}px ${fontFamily}`;
+      const w = ctx.measureText(text).width;
+      if (w <= maxW) return fs;
+      fs -= 2;
+    }
+    return minFs;
+  },
+  // 4.2: 그라디언트 텍스트 + 그림자
+  drawGradientText: function(ctx, text, x, y, fs, fontFamily, weight, gradTop, gradBottom) {
+    if (!text) return;
+    ctx.font = `${weight} ${fs}px ${fontFamily}`;
+    const grad = ctx.createLinearGradient(0, y - fs * 0.4, 0, y + fs * 0.6);
+    grad.addColorStop(0, gradTop);
+    grad.addColorStop(1, gradBottom);
+    ctx.fillStyle = grad;
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 4;
+    ctx.fillText(text, x, y);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+  },
+  // 4.3: 별 5개 자동 스케일 + placeholder fallback
+  drawStarRow: function(ctx, starImg, cx, cy, count, starSize, gap) {
+    count = count || 5;
+    if (!starImg || !starImg.naturalWidth) {
+      // 자산 누락 fallback: ★ Unicode (gold #FFD700)
+      const prevAlign = ctx.textAlign;
+      ctx.font = `${starSize}px serif`;
+      ctx.fillStyle = '#FFD700';
+      ctx.textAlign = 'center';
+      ctx.fillText('★'.repeat(count), cx, cy + starSize * 0.3);
+      ctx.textAlign = prevAlign;
+      return;
+    }
+    const totalW = starSize * count + gap * (count - 1);
+    const startX = cx - totalW / 2;
+    for (let i = 0; i < count; i++) {
+      const x = startX + i * (starSize + gap);
+      ctx.drawImage(starImg, x, cy - starSize / 2, starSize, starSize);
+    }
+  },
+  // 4.4: 사이즈별 프레임 PNG 경로 반환
+  getFramePath: function(size) {
+    return PICKUP_ASSETS.frame[size] || PICKUP_ASSETS.frame['1x1'];
+  },
+  // 4.5: 자산 누락 placeholder (frame stroke rect, 디버그용)
+  drawFramePlaceholder: function(ctx, frameSpec) {
+    const prev = { stroke: ctx.strokeStyle, lw: ctx.lineWidth };
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(
+      frameSpec.cx - frameSpec.w / 2,
+      frameSpec.cy - frameSpec.h / 2,
+      frameSpec.w, frameSpec.h
+    );
+    ctx.strokeStyle = prev.stroke;
+    ctx.lineWidth = prev.lw;
+  },
+
+  // 4.6: 둥근 사각형 path helper (frame 본체용)
+  _roundRect: function(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  },
+
+  // 4.7: 모서리 ornament — 아르데코 스크롤 스타일 (TL 기준 + dx/dy로 4 모서리 미러링)
+  _drawCornerOrnament: function(ctx, x, y, size, dx, dy) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(dx, dy);
+    // 골드 그림자 + stroke 설정
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetY = 2 * dy;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    // [1] 코너 filled wedge (삼각형 골드 plate)
+    const goldGrad = ctx.createLinearGradient(0, 0, size, size);
+    goldGrad.addColorStop(0, '#FFE57F');
+    goldGrad.addColorStop(0.5, '#FFD700');
+    goldGrad.addColorStop(1, '#B8860B');
+    ctx.fillStyle = goldGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(size * 0.55, 0);
+    ctx.quadraticCurveTo(size * 0.45, size * 0.18, size * 0.32, size * 0.32);
+    ctx.quadraticCurveTo(size * 0.18, size * 0.45, 0, size * 0.55);
+    ctx.closePath();
+    ctx.fill();
+    // [2] 가로 ribbon 라인 (filled wedge 끝에서 안쪽으로 진행)
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(size * 0.55, size * 0.05);
+    ctx.lineTo(size * 0.85, size * 0.05);
+    // 끝부분 작은 curl 위로
+    ctx.bezierCurveTo(size * 0.95, size * 0.05, size * 0.95, size * 0.0, size * 1.0, -size * 0.05);
+    ctx.stroke();
+    // [3] 세로 ribbon 라인 (filled wedge 끝에서 아래로)
+    ctx.beginPath();
+    ctx.moveTo(size * 0.05, size * 0.55);
+    ctx.lineTo(size * 0.05, size * 0.85);
+    ctx.bezierCurveTo(size * 0.05, size * 0.95, size * 0.0, size * 0.95, -size * 0.05, size * 1.0);
+    ctx.stroke();
+    // [4] 내부 작은 액센트 점 (메탈릭 광택 느낌)
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#FFE57F';
+    ctx.beginPath();
+    ctx.arc(size * 0.85, size * 0.05, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(size * 0.05, size * 0.85, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  },
+
+  // 4.8: 절차적 프레임 그리기 (PNG 미사용, 코드로 직접 ornate frame 재현)
+  // 레퍼런스 미나 픽업 광고의 청동/골드 메탈릭 프레임 약 90% fidelity
+  drawProceduralFrame: function(ctx, frameSpec) {
+    const { cx, cy, w, h } = frameSpec;
+    const x = cx - w / 2;
+    const y = cy - h / 2;
+    const radius = Math.min(16, Math.min(w, h) * 0.08);
+    // [1] Drop shadow + 본체 — 청동 그라디언트
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 8;
+    const bodyGrad = ctx.createLinearGradient(x, y, x, y + h);
+    bodyGrad.addColorStop(0, '#6B5036');     // 상단 밝은 청동
+    bodyGrad.addColorStop(0.5, '#3F2F1E');   // 중간 어둠
+    bodyGrad.addColorStop(1, '#221810');     // 하단 매우 어둠
+    this._roundRect(ctx, x, y, w, h, radius);
+    ctx.fillStyle = bodyGrad;
+    ctx.fill();
+    ctx.restore();
+    // [2] 외곽 골드 border (메탈릭 그라디언트, 굵게)
+    ctx.save();
+    const goldGrad = ctx.createLinearGradient(x, y, x, y + h);
+    goldGrad.addColorStop(0,    '#FFE57F');  // 상단 밝은 골드
+    goldGrad.addColorStop(0.3,  '#FFD700');
+    goldGrad.addColorStop(0.7,  '#B8860B');
+    goldGrad.addColorStop(1,    '#8B6914');  // 하단 다크 브론즈
+    this._roundRect(ctx, x, y, w, h, radius);
+    ctx.lineWidth = Math.max(3.5, w * 0.005);
+    ctx.strokeStyle = goldGrad;
+    ctx.stroke();
+    ctx.restore();
+    // [3] 내부 얇은 골드 border (이중 테두리, offset)
+    const inset = Math.max(8, w * 0.012);
+    ctx.save();
+    this._roundRect(ctx, x + inset, y + inset, w - inset * 2, h - inset * 2, Math.max(4, radius - 4));
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#D4AF37';
+    ctx.globalAlpha = 0.9;
+    ctx.stroke();
+    ctx.restore();
+    // [4] 4 모서리 ornament (아르데코 스크롤)
+    const ornamentSize = Math.max(28, w * 0.05);
+    const cornerInset = inset + 4;
+    this._drawCornerOrnament(ctx, x + cornerInset,         y + cornerInset,         ornamentSize,  1,  1);
+    this._drawCornerOrnament(ctx, x + w - cornerInset,     y + cornerInset,         ornamentSize, -1,  1);
+    this._drawCornerOrnament(ctx, x + cornerInset,         y + h - cornerInset,     ornamentSize,  1, -1);
+    this._drawCornerOrnament(ctx, x + w - cornerInset,     y + h - cornerInset,     ornamentSize, -1, -1);
+    // [5] 상하 중앙 medallion (작은 골드 점)
+    const medSize = Math.max(3.5, w * 0.005);
+    ctx.save();
+    ctx.fillStyle = '#FFD700';
+    ctx.shadowColor = 'rgba(0,0,0,0.4)';
+    ctx.shadowBlur = 4;
+    ctx.beginPath();
+    ctx.arc(cx, y + 4, medSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, y + h - 4, medSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  },
+};
 
 const PRESETS = {
   underdark:  { title: '언더다크 : 디펜스',  subtitle: '성큰 디펜스' },
@@ -2516,6 +3090,8 @@ const state = {
     sdshowcase: JSON.parse(JSON.stringify(SD_SHOWCASE_DEFAULT)),
     // v1.7: Key Visual + iPhone Review 전용 필드 (키비주얼/로고 레이어, 평점, 리뷰)
     kvr: JSON.parse(JSON.stringify(KVR_DEFAULT)),
+    // v1.8: Pickup 전용 필드 (collateral deletion 후 복원)
+    pickup: JSON.parse(JSON.stringify(PICKUP_DEFAULT)),
   },
   batch: {
     // r3 FR-18/19: 기본값 변경 (9:16→1200x628, 2개 언어→4개 언어)
@@ -2574,6 +3150,8 @@ const state = {
     // v1.7 R13: KVR 배치 전용 — 키비주얼/로고/슬라이더/평점/날짜/별색/헤드라인을 단건과 별도로 입력 가능
     // (다른 템플릿과 일관된 별도 슬롯 패턴. 콘텐츠 langs는 buildBatchCfgs에서 단건 데이터 사용 — 정책 유지)
     kvr: JSON.parse(JSON.stringify(KVR_DEFAULT)),
+    // v1.8: Pickup 배치 전용 (R3 perSize 마이그레이션은 bindPickupBatchUI에서 idempotent 처리)
+    pickup: JSON.parse(JSON.stringify(PICKUP_DEFAULT)),
   },
   ui: { previewScale: 0.45 },
 };
@@ -2920,6 +3498,10 @@ function renderBanner(cfg) {
   // v1.7: Key Visual + iPhone Review 분기
   if (cfg.template === 'keyvisual-review') {
     return buildKvrBanner(cfg);
+  }
+  // v1.8: Pickup 분기 (collateral deletion으로 인한 복원)
+  if (cfg.template === 'pickup') {
+    return buildPickupBanner(cfg);
   }
   const banner = document.createElement('div');
   banner.className = `banner size-${cfg.size}`;
@@ -4776,6 +5358,256 @@ function buildKvrFilename(s) {
   const ext = (s.format === 'jpg' || s.format === 'jpeg') ? 'jpg' : 'png';
   return `${prefix}_keyvisual-review_${lang}_${sizeStr}.${ext}`;
 }
+// v1.8: Pickup template — Canvas 빌더 5종
+// Design Ref: §8.1 buildPickupCanvas (10단계 그리기), §8.3 prepPickupCfgImages
+// Plan FR-14: 그리기 순서 = 배경 → 키아트 → 캐릭터 → 로고 → 설명 → 프레임 PNG
+//             → 캐릭터명(그라디언트) → 별 5개 → 속성/클래스 → CTA
+// ===========================================================================
+
+// Plan SC: T-2/T-3 — 4언어 LANG_PACK + 폰트 자동 스왑
+// R3: perSize 분기 (배치 모드용) + keyart 슬라이더
+function buildPickupCfg(stateObj, lang, size) {
+  // stateObj = state.single.pickup 또는 state.batch.pickup
+  const langPack = stateObj.langs[lang] || { description: '', name: '', element: '', class: '' };
+  // R3: perSize가 있고 해당 사이즈 슬롯이 있으면 배치 모드 → 사이즈별 값 사용
+  const ps = (stateObj.perSize && stateObj.perSize[size]) || null;
+  return {
+    template: 'pickup',
+    size, lang,
+    // 사용자 자산 (dataURL)
+    logo: stateObj.logo, keyart: stateObj.keyart, character: stateObj.character,
+    // R3: logo/char 슬라이더 — perSize 우선, 없으면 단일 fallback
+    logoX:     ps ? (ps.logoX || 0)     : (stateObj.logoX || 0),
+    logoY:     ps ? (ps.logoY || 0)     : (stateObj.logoY || 0),
+    logoScale: ps ? (ps.logoScale || 100) : (stateObj.logoScale || 100),
+    charX:     ps ? (ps.charX || 0)     : (stateObj.charX || 0),
+    charY:     ps ? (ps.charY || 0)     : (stateObj.charY || 0),
+    charScale: ps ? (ps.charScale || 100) : (stateObj.charScale || 100),
+    // R3: keyart 슬라이더 (단건/배치 공통 단일 세트)
+    keyartX:     stateObj.keyartX || 0,
+    keyartY:     stateObj.keyartY || 0,
+    keyartScale: typeof stateObj.keyartScale === 'number' ? stateObj.keyartScale : 100,
+    // 그라디언트
+    nameGradTop: stateObj.nameGradTop || '#FFD700',
+    nameGradBottom: stateObj.nameGradBottom || '#FFFFFF',
+    // 다국어 텍스트 (현재 언어 + 전체 langs 보존: 향후 batch에서 lang switch 시 재사용)
+    description: langPack.description || '',
+    name: langPack.name || '',
+    element: langPack.element || '',
+    class: langPack.class || '',
+    langs: stateObj.langs,
+  };
+}
+
+// Design §8.3: 사용자 자산 + 번들 자산 일괄 사전 디코드 (_imgCache 활용)
+async function prepPickupCfgImages(cfg) {
+  // 사용자 자산
+  cfg._logoImg      = cfg.logo      ? await loadCachedImage(cfg.logo)      : null;
+  cfg._keyartImg    = cfg.keyart    ? await loadCachedImage(cfg.keyart)    : null;
+  cfg._characterImg = cfg.character ? await loadCachedImage(cfg.character) : null;
+  // 번들 자산 (사이즈별 frame + 단일 star) — 누락시 null 반환 (placeholder fallback)
+  cfg._frameImg = await loadCachedImage(PICKUP_HELPERS.getFramePath(cfg.size));
+  cfg._starImg  = await loadCachedImage(PICKUP_ASSETS.star);
+  return cfg;
+}
+
+// Design §8.1: 10단계 그리기
+// Plan SC: T-7 자동 폰트 축소 / T-8 자산 누락 fallback
+async function buildPickupCanvas(cfg) {
+  const spec = PICKUP_CANVAS_SPECS[cfg.size] || PICKUP_CANVAS_SPECS['1x1'];
+  const canvas = document.createElement('canvas');
+  canvas.width = spec.w;
+  canvas.height = spec.h;
+  const ctx = canvas.getContext('2d');
+  const fontFamily = getFontFamilyForLang(cfg.lang);
+
+  // [1] 배경 검정 fallback (사용자 키아트 없을 때 빈 영역 보호)
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, spec.w, spec.h);
+
+  // [2] 배경 키아트 (R3: X/Y/Scale 슬라이더 적용 — scale=100 + X=0/Y=0이면 cover와 동일)
+  if (cfg._keyartImg) {
+    const img = cfg._keyartImg;
+    const sf = (typeof cfg.keyartScale === 'number' ? cfg.keyartScale : 100) / 100;
+    const baseRatio = Math.max(spec.w / img.naturalWidth, spec.h / img.naturalHeight);
+    const ratio = baseRatio * sf;
+    const drawW = img.naturalWidth * ratio;
+    const drawH = img.naturalHeight * ratio;
+    const drawX = (spec.w - drawW) / 2 + (cfg.keyartX || 0);
+    const drawY = (spec.h - drawH) / 2 + (cfg.keyartY || 0);
+    ctx.drawImage(img, drawX, drawY, drawW, drawH);
+  }
+
+  // [3] 캐릭터 일러스트 (X/Y/scale 슬라이더 적용)
+  if (cfg._characterImg) {
+    const cs = spec.character;
+    const sf = (cfg.charScale || 100) / 100;
+    const cw = cs.defaultMaxW * sf;
+    const ch = cs.defaultMaxH * sf;
+    const cx = cs.defaultCx + (cfg.charX || 0);
+    const cy = cs.defaultCy + (cfg.charY || 0);
+    drawImageContain(ctx, cfg._characterImg, cx - cw / 2, cy - ch / 2, cw, ch);
+  }
+
+  // [4] 게임 로고 (X/Y/scale 슬라이더 적용)
+  if (cfg._logoImg) {
+    const ls = spec.logo;
+    const sf = (cfg.logoScale || 100) / 100;
+    const lw = ls.defaultMaxW * sf;
+    const lh = ls.defaultMaxH * sf;
+    drawImageContain(ctx, cfg._logoImg,
+      ls.defaultX + (cfg.logoX || 0),
+      ls.defaultY + (cfg.logoY || 0),
+      lw, lh);
+  }
+
+  // [5] 캐릭터 설명 (drop-shadow + i18n)
+  if (cfg.description) {
+    const ds = spec.desc;
+    const fs = PICKUP_HELPERS.fitText(ctx, cfg.description, ds.maxW, ds.fontSize, 16, fontFamily, '400');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `400 ${fs}px ${fontFamily}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.shadowColor = 'rgba(0,0,0,0.7)';
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 4;
+    ctx.fillText(cfg.description, ds.cx, ds.y);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+  }
+
+  // [6] 이름 프레임 — 코드 절차적 그리기 (Option B: SVG corners + Canvas body)
+  // 디자이너 PNG가 있으면 override (assets/pickup/name-frame-{size}.png 자동 우선 적용)
+  const fs_frame = spec.frame;
+  if (cfg._frameImg) {
+    // PNG override (디자이너 자산 도착 시)
+    drawImageContain(ctx, cfg._frameImg,
+      fs_frame.cx - fs_frame.w / 2,
+      fs_frame.cy - fs_frame.h / 2,
+      fs_frame.w, fs_frame.h);
+  } else {
+    // 기본: 절차적 frame 그리기 (레퍼런스 ~90% fidelity)
+    PICKUP_HELPERS.drawProceduralFrame(ctx, fs_frame);
+  }
+
+  // [7] 캐릭터명 — 그라디언트 + 자동 폰트 축소
+  if (cfg.name) {
+    const ns = spec.name;
+    const fs = PICKUP_HELPERS.fitText(ctx, cfg.name, ns.maxW, ns.baseFs, ns.minFs, fontFamily, '900');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    PICKUP_HELPERS.drawGradientText(
+      ctx, cfg.name, ns.cx, ns.cy, fs, fontFamily, '900',
+      cfg.nameGradTop, cfg.nameGradBottom
+    );
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  // [8] 별 5개 (PNG 5번 / Unicode fallback)
+  const ss = spec.stars;
+  PICKUP_HELPERS.drawStarRow(ctx, cfg._starImg, ss.cx, ss.cy, 5, ss.starSize, ss.gap);
+
+  // [9] 속성/클래스 ("{ele} | {cls}")
+  const ele = (cfg.element || '').trim();
+  const cls = (cfg.class || '').trim();
+  let ecText = '';
+  if (ele && cls) ecText = `${ele} ${spec.elementClass.separator} ${cls}`;
+  else if (ele)   ecText = ele;
+  else if (cls)   ecText = cls;
+  if (ecText) {
+    const es = spec.elementClass;
+    const fs = PICKUP_HELPERS.fitText(ctx, ecText, spec.name.maxW * 0.6, es.fontSize, 14, fontFamily, '500');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `500 ${fs}px ${fontFamily}`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 6;
+    ctx.shadowOffsetY = 2;
+    ctx.fillText(ecText, es.x, es.cy);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  // [10] CTA (코드 고정 매핑, 흰 + drop-shadow)
+  const cta = PICKUP_CTA_MAP[cfg.lang] || PICKUP_CTA_MAP.en;
+  if (cta) {
+    const cs = spec.cta;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = `700 ${cs.fontSize}px ${fontFamily}`;
+    ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 4;
+    ctx.fillText(cta, cs.cx, cs.y);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+  }
+
+  // [11] R5: KO 고지문구 — KO일 때만 자동 표시 (ko-disclaimer-policy FR-01~FR-06, sd-showcase 패턴)
+  // Plan SC: 한국 광고법(게임산업진흥법 시행령) 자동 표기 의무
+  if (cfg.lang === 'ko') {
+    const ds = spec.disclaimer;
+    const raw = (LANG_PACK.ko && LANG_PACK.ko.disclaimer) || '*확률형 아이템 포함';
+    const discText = raw.replace(/^\*/, '');
+    ctx.font = `400 ${ds.fontSize}px ${fontFamily}`;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 2;
+    ctx.fillText(discText, spec.w - ds.right, spec.h - ds.bottom);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'left';
+  }
+
+  return canvas;
+}
+
+// Design §8.2: DOM 미리보기 wrapper (KVR 패턴 일관 — async render)
+function buildPickupBanner(cfg) {
+  const spec = PICKUP_CANVAS_SPECS[cfg.size] || PICKUP_CANVAS_SPECS['1x1'];
+  const wrap = document.createElement('div');
+  wrap.className = `banner tmpl-pickup size-${cfg.size}`;
+  wrap.dataset.lang = cfg.lang;
+  wrap.style.cssText = `width:${spec.w}px;height:${spec.h}px;position:relative;overflow:hidden;background:#000;`;
+  // async render placeholder
+  const placeholder = document.createElement('div');
+  placeholder.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#888;font-size:14px;';
+  placeholder.textContent = 'Rendering...';
+  wrap.appendChild(placeholder);
+  (async () => {
+    try {
+      const prepped = await prepPickupCfgImages(cfg);
+      const canvas = await buildPickupCanvas(prepped);
+      canvas.style.cssText = 'width:100%;height:100%;display:block;';
+      wrap.replaceChildren(canvas);
+    } catch (err) {
+      console.error('buildPickupBanner failed:', err);
+      placeholder.textContent = 'Render error: ' + (err && err.message || err);
+    }
+  })();
+  return wrap;
+}
+
+// Plan FR-18: 파일명 규칙 ({prefix}_pickup_{lang}_{size}.{ext})
+function buildPickupFilename(s) {
+  const prefix = (s.prefix && String(s.prefix).trim()) || 'banner';
+  const lang = s.lang || 'ko';
+  const sizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
+  const sizeStr = sizeMap[s.size] || '1080x1080';
+  const ext = (s.format === 'jpg' || s.format === 'jpeg') ? 'jpg' : 'png';
+  return `${prefix}_pickup_${lang}_${sizeStr}.${ext}`;
+}
 
 // bugfix Plan FR-01/02/05: Canvas 직접 합성 핵심
 async function buildBannerCanvas(cfg) {
@@ -4794,6 +5626,10 @@ async function buildBannerCanvas(cfg) {
   // v1.7: Key Visual + iPhone Review 분기
   if (cfg.template === 'keyvisual-review') {
     return buildKvrCanvas(cfg);
+  }
+  // v1.8: Pickup 분기 (collateral deletion으로 인한 복원)
+  if (cfg.template === 'pickup') {
+    return buildPickupCanvas(cfg);
   }
   const spec = CANVAS_SPECS[cfg.size];
   const pixelRatio = Math.max(1, cfg.scale || 1);
@@ -5108,6 +5944,10 @@ function bindSingleMode() {
     if (state.single.template === 'keyvisual-review') {
       loadKvrSlotToUI(lang);
     }
+    // v1.8: Pickup 입력 필드를 해당 언어 슬롯에서 복원
+    if (state.single.template === 'pickup') {
+      loadPickupSlotToUI(lang);
+    }
     state.single.lang = lang;
     syncSingleStateFromUI();
     refreshSinglePreview();
@@ -5206,6 +6046,9 @@ function bindSingleMode() {
 
   // v1.7: Key Visual + iPhone Review 전용 UI 바인딩
   bindKvrSingleUI();
+
+  // v1.8: Pickup 전용 UI 바인딩 (collateral deletion 후 복원)
+  bindPickupSingleUI();
 }
 
 // v1.6: SD Showcase 단건 모드 이벤트 바인딩 (Plan FR-07)
@@ -5506,6 +6349,223 @@ function loadKvrSlotToUI(lang) {
     }
   });
 }
+// v1.8: Pickup 배치 모드 UI 바인딩 (단건과 별도 슬롯/슬라이더, state.batch.pickup에 저장)
+// 다국어 텍스트는 renderBatchLangFields에서 자동 렌더 + syncBatchStateFromUI에서 저장
+// ===========================================================================
+function bindPickupBatchUI() {
+  // R3: perSize 마이그레이션 (state.batch.pickup에 perSize 없으면 자동 생성 + 기존 단일값 복사)
+  migrateBatchPickupPerSize(state.batch.pickup);
+
+  // 자산 dropzone 3종
+  setupDropzone('b-drop-pickup-logo', (dataURL) => {
+    updateStateImage(state.batch.pickup, 'logo', dataURL);
+  });
+  setupDropzone('b-drop-pickup-keyart', (dataURL) => {
+    updateStateImage(state.batch.pickup, 'keyart', dataURL);
+  });
+  setupDropzone('b-drop-pickup-character', (dataURL) => {
+    updateStateImage(state.batch.pickup, 'character', dataURL);
+  });
+
+  // R3: 키아트 슬라이더 (단일 세트, state.batch.pickup.{keyartX,Y,Scale} 직접 저장)
+  function bindKeyartSlider(elId, labelId, prop) {
+    const el = document.getElementById(elId);
+    const label = document.getElementById(labelId);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const v = parseInt(el.value, 10) || 0;
+      state.batch.pickup[prop] = v;
+      if (label) label.textContent = String(v);
+    });
+  }
+  bindKeyartSlider('b-pickup-keyart-scale', 'b-pickup-keyart-scale-label', 'keyartScale');
+  bindKeyartSlider('b-pickup-keyart-x',     'b-pickup-keyart-x-label',     'keyartX');
+  bindKeyartSlider('b-pickup-keyart-y',     'b-pickup-keyart-y-label',     'keyartY');
+
+  // R3: 사이즈별 logo/character 슬라이더 (perSize[size].{logo|char}{X,Y,Scale})
+  function bindPerSizeSlider(elId, labelId, sizeKey, prop) {
+    const el = document.getElementById(elId);
+    const label = document.getElementById(labelId);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const v = parseInt(el.value, 10) || 0;
+      if (!state.batch.pickup.perSize) state.batch.pickup.perSize = {};
+      if (!state.batch.pickup.perSize[sizeKey]) {
+        state.batch.pickup.perSize[sizeKey] = { logoX: 0, logoY: 0, logoScale: 100, charX: 0, charY: 0, charScale: 100 };
+      }
+      state.batch.pickup.perSize[sizeKey][prop] = v;
+      if (label) label.textContent = String(v);
+    });
+  }
+  // 1080×1080 logo + char (6 슬라이더)
+  bindPerSizeSlider('b-pickup-1x1-logo-scale', 'b-pickup-1x1-logo-scale-label', '1x1', 'logoScale');
+  bindPerSizeSlider('b-pickup-1x1-logo-x',     'b-pickup-1x1-logo-x-label',     '1x1', 'logoX');
+  bindPerSizeSlider('b-pickup-1x1-logo-y',     'b-pickup-1x1-logo-y-label',     '1x1', 'logoY');
+  bindPerSizeSlider('b-pickup-1x1-char-scale', 'b-pickup-1x1-char-scale-label', '1x1', 'charScale');
+  bindPerSizeSlider('b-pickup-1x1-char-x',     'b-pickup-1x1-char-x-label',     '1x1', 'charX');
+  bindPerSizeSlider('b-pickup-1x1-char-y',     'b-pickup-1x1-char-y-label',     '1x1', 'charY');
+  // 1200×628 logo + char (6 슬라이더)
+  bindPerSizeSlider('b-pickup-1200-logo-scale', 'b-pickup-1200-logo-scale-label', '1200x628', 'logoScale');
+  bindPerSizeSlider('b-pickup-1200-logo-x',     'b-pickup-1200-logo-x-label',     '1200x628', 'logoX');
+  bindPerSizeSlider('b-pickup-1200-logo-y',     'b-pickup-1200-logo-y-label',     '1200x628', 'logoY');
+  bindPerSizeSlider('b-pickup-1200-char-scale', 'b-pickup-1200-char-scale-label', '1200x628', 'charScale');
+  bindPerSizeSlider('b-pickup-1200-char-x',     'b-pickup-1200-char-x-label',     '1200x628', 'charX');
+  bindPerSizeSlider('b-pickup-1200-char-y',     'b-pickup-1200-char-y-label',     '1200x628', 'charY');
+
+  // R3: 마이그레이션 직후 UI에 perSize 값 reflect (기존값이 있으면 슬라이더에 표시)
+  function syncSliderUI(elId, labelId, val) {
+    const el = document.getElementById(elId);
+    const label = document.getElementById(labelId);
+    if (el) el.value = val;
+    if (label) label.textContent = String(val);
+  }
+  const ps1x1  = state.batch.pickup.perSize && state.batch.pickup.perSize['1x1'];
+  const ps1200 = state.batch.pickup.perSize && state.batch.pickup.perSize['1200x628'];
+  if (ps1x1) {
+    syncSliderUI('b-pickup-1x1-logo-scale', 'b-pickup-1x1-logo-scale-label', ps1x1.logoScale || 100);
+    syncSliderUI('b-pickup-1x1-logo-x',     'b-pickup-1x1-logo-x-label',     ps1x1.logoX || 0);
+    syncSliderUI('b-pickup-1x1-logo-y',     'b-pickup-1x1-logo-y-label',     ps1x1.logoY || 0);
+    syncSliderUI('b-pickup-1x1-char-scale', 'b-pickup-1x1-char-scale-label', ps1x1.charScale || 100);
+    syncSliderUI('b-pickup-1x1-char-x',     'b-pickup-1x1-char-x-label',     ps1x1.charX || 0);
+    syncSliderUI('b-pickup-1x1-char-y',     'b-pickup-1x1-char-y-label',     ps1x1.charY || 0);
+  }
+  if (ps1200) {
+    syncSliderUI('b-pickup-1200-logo-scale', 'b-pickup-1200-logo-scale-label', ps1200.logoScale || 100);
+    syncSliderUI('b-pickup-1200-logo-x',     'b-pickup-1200-logo-x-label',     ps1200.logoX || 0);
+    syncSliderUI('b-pickup-1200-logo-y',     'b-pickup-1200-logo-y-label',     ps1200.logoY || 0);
+    syncSliderUI('b-pickup-1200-char-scale', 'b-pickup-1200-char-scale-label', ps1200.charScale || 100);
+    syncSliderUI('b-pickup-1200-char-x',     'b-pickup-1200-char-x-label',     ps1200.charX || 0);
+    syncSliderUI('b-pickup-1200-char-y',     'b-pickup-1200-char-y-label',     ps1200.charY || 0);
+  }
+  syncSliderUI('b-pickup-keyart-scale', 'b-pickup-keyart-scale-label', state.batch.pickup.keyartScale || 100);
+  syncSliderUI('b-pickup-keyart-x',     'b-pickup-keyart-x-label',     state.batch.pickup.keyartX || 0);
+  syncSliderUI('b-pickup-keyart-y',     'b-pickup-keyart-y-label',     state.batch.pickup.keyartY || 0);
+
+  // 그라디언트 색상 picker 2종
+  const gradTop = document.getElementById('b-pickup-name-grad-top');
+  if (gradTop) gradTop.addEventListener('input', () => {
+    state.batch.pickup.nameGradTop = gradTop.value || '#FFD700';
+  });
+  const gradBot = document.getElementById('b-pickup-name-grad-bottom');
+  if (gradBot) gradBot.addEventListener('input', () => {
+    state.batch.pickup.nameGradBottom = gradBot.value || '#FFFFFF';
+  });
+}
+// v1.8: Pickup 단건 모드 이벤트 바인딩
+// Design Ref: §7.1 단건 모드 입력 폼
+// ===========================================================================
+function bindPickupSingleUI() {
+  // 자산 dropzone 3종
+  setupDropzone('s-drop-pickup-logo', (dataURL) => {
+    updateStateImage(state.single.pickup, 'logo', dataURL);
+    refreshSinglePreview();
+  });
+  setupDropzone('s-drop-pickup-keyart', (dataURL) => {
+    updateStateImage(state.single.pickup, 'keyart', dataURL);
+    refreshSinglePreview();
+  });
+  setupDropzone('s-drop-pickup-character', (dataURL) => {
+    updateStateImage(state.single.pickup, 'character', dataURL);
+    refreshSinglePreview();
+  });
+
+  // 슬라이더 9개 (logo X/Y/Scale + character X/Y/Scale + R3: keyart X/Y/Scale)
+  const sliderSpecs = [
+    ['s-pickup-logo-scale',    's-pickup-logo-scale-label',    'logoScale',    100],
+    ['s-pickup-logo-x',        's-pickup-logo-x-label',        'logoX',        0],
+    ['s-pickup-logo-y',        's-pickup-logo-y-label',        'logoY',        0],
+    ['s-pickup-char-scale',    's-pickup-char-scale-label',    'charScale',    100],
+    ['s-pickup-char-x',        's-pickup-char-x-label',        'charX',        0],
+    ['s-pickup-char-y',        's-pickup-char-y-label',        'charY',        0],
+    ['s-pickup-keyart-scale',  's-pickup-keyart-scale-label',  'keyartScale',  100],
+    ['s-pickup-keyart-x',      's-pickup-keyart-x-label',      'keyartX',      0],
+    ['s-pickup-keyart-y',      's-pickup-keyart-y-label',      'keyartY',      0],
+  ];
+  sliderSpecs.forEach(([elId, labelId, prop]) => {
+    const el = document.getElementById(elId);
+    const label = document.getElementById(labelId);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const v = parseInt(el.value, 10) || 0;
+      state.single.pickup[prop] = v;
+      if (label) label.textContent = String(v);
+      refreshSinglePreview();
+    });
+  });
+
+  // 그라디언트 색상 picker 2종
+  const gradTop = document.getElementById('s-pickup-name-grad-top');
+  if (gradTop) gradTop.addEventListener('input', () => {
+    state.single.pickup.nameGradTop = gradTop.value || '#FFD700';
+    refreshSinglePreview();
+  });
+  const gradBot = document.getElementById('s-pickup-name-grad-bottom');
+  if (gradBot) gradBot.addEventListener('input', () => {
+    state.single.pickup.nameGradBottom = gradBot.value || '#FFFFFF';
+    refreshSinglePreview();
+  });
+
+  // 다국어 텍스트 4 필드 (현재 언어에 저장)
+  const textFields = [
+    ['s-pickup-desc',    'description'],
+    ['s-pickup-name',    'name'],
+    ['s-pickup-element', 'element'],
+    ['s-pickup-class',   'class'],
+  ];
+  textFields.forEach(([elId, prop]) => {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const lang = state.single.lang;
+      if (!state.single.pickup.langs[lang]) {
+        state.single.pickup.langs[lang] = { description: '', name: '', element: '', class: '' };
+      }
+      state.single.pickup.langs[lang][prop] = el.value;
+      refreshSinglePreview();
+    });
+  });
+}
+
+// 언어 전환 시 Pickup 입력 필드를 state에서 복원 (4언어 별도 보존)
+function loadPickupSlotToUI(lang) {
+  const pickup = state.single.pickup;
+  if (!pickup) return;
+  const slot = (pickup.langs && pickup.langs[lang]) || { description: '', name: '', element: '', class: '' };
+  const descEl  = document.getElementById('s-pickup-desc');
+  const nameEl  = document.getElementById('s-pickup-name');
+  const eleEl   = document.getElementById('s-pickup-element');
+  const clsEl   = document.getElementById('s-pickup-class');
+  if (descEl) descEl.value = slot.description || '';
+  if (nameEl) nameEl.value = slot.name        || '';
+  if (eleEl)  eleEl.value  = slot.element     || '';
+  if (clsEl)  clsEl.value  = slot.class       || '';
+  // 그라디언트 색상은 4언어 공통 — 일관성 위해 재로드
+  const gradTop = document.getElementById('s-pickup-name-grad-top');
+  const gradBot = document.getElementById('s-pickup-name-grad-bottom');
+  if (gradTop) gradTop.value = pickup.nameGradTop || '#FFD700';
+  if (gradBot) gradBot.value = pickup.nameGradBottom || '#FFFFFF';
+  // 슬라이더 (4언어 공통, 일관성 유지) — R3: keyart 추가
+  const sliders = [
+    ['s-pickup-logo-scale',    's-pickup-logo-scale-label',    'logoScale',    100],
+    ['s-pickup-logo-x',        's-pickup-logo-x-label',        'logoX',        0],
+    ['s-pickup-logo-y',        's-pickup-logo-y-label',        'logoY',        0],
+    ['s-pickup-char-scale',    's-pickup-char-scale-label',    'charScale',    100],
+    ['s-pickup-char-x',        's-pickup-char-x-label',        'charX',        0],
+    ['s-pickup-char-y',        's-pickup-char-y-label',        'charY',        0],
+    ['s-pickup-keyart-scale',  's-pickup-keyart-scale-label',  'keyartScale',  100],
+    ['s-pickup-keyart-x',      's-pickup-keyart-x-label',      'keyartX',      0],
+    ['s-pickup-keyart-y',      's-pickup-keyart-y-label',      'keyartY',      0],
+  ];
+  sliders.forEach(([elId, labelId, prop, def]) => {
+    const el = document.getElementById(elId);
+    const label = document.getElementById(labelId);
+    if (el) {
+      const v = (typeof pickup[prop] === 'number') ? pickup[prop] : def;
+      el.value = v;
+      if (label) label.textContent = String(v);
+    }
+  });
+}
 
 // v1.3: App Badge 단건 모드 이벤트 바인딩
 function bindAppBadgeSingleUI() {
@@ -5690,6 +6750,16 @@ function applyTemplateSwitch(newTemplate) {
       Array.from(sizeSel.options).forEach(opt => {
         opt.disabled = (opt.value !== '1x1');
       });
+    } else if (newTemplate === 'pickup') {
+      // v1.8: Pickup 1080×1080 + 1200×628 — 9:16 비활성 (sd-showcase 패턴)
+      if (state.single.size === '9x16') {
+        sizeSel.value = '1x1';
+        state.single.size = '1x1';
+      }
+      sizeSel.disabled = false;
+      Array.from(sizeSel.options).forEach(opt => {
+        opt.disabled = (opt.value === '9x16');
+      });
     } else {
       sizeSel.disabled = false;
       // 다른 템플릿 복귀 시 모든 option 활성화
@@ -5733,6 +6803,18 @@ function applyTemplateSwitch(newTemplate) {
           pill.style.opacity = cb.disabled ? '0.4' : '1';
         }
       });
+    } else if (newTemplate === 'pickup') {
+      // v1.8: Pickup 1080×1080 + 1200×628 체크 + 9:16 비활성
+      bSizeBoxes.forEach(cb => {
+        const isAllowed = (cb.value === '1x1' || cb.value === '1200x628');
+        cb.checked = isAllowed;
+        cb.disabled = !isAllowed;
+        const pill = cb.closest('.check-pill');
+        if (pill) {
+          pill.classList.toggle('selected', cb.checked);
+          pill.style.opacity = cb.disabled ? '0.4' : '1';
+        }
+      });
     } else {
       bSizeBoxes.forEach(cb => {
         cb.disabled = false;
@@ -5752,6 +6834,10 @@ function applyTemplateSwitch(newTemplate) {
   // v1.7: Key Visual + iPhone Review로 전환 시 현재 언어 슬롯과 공통 설정을 UI에 반영
   if (newTemplate === 'keyvisual-review' && typeof loadKvrSlotToUI === 'function') {
     loadKvrSlotToUI(state.single.lang);
+  }
+  // v1.8: Pickup으로 전환 시 현재 언어 슬롯과 공통 설정을 UI에 반영
+  if (newTemplate === 'pickup' && typeof loadPickupSlotToUI === 'function') {
+    loadPickupSlotToUI(state.single.lang);
   }
   // App Badge로 전환이고, 헤드라인이 비어있으면 기본 프리셋 주입 (Q22)
   if (newTemplate === 'app-badge') {
@@ -5946,6 +7032,8 @@ function refreshSinglePreview() {
     cfg = buildSdShowcaseCfg(state.single.sdshowcase, state.single.lang, state.single.size);
   } else if (state.single.template === 'keyvisual-review') {
     cfg = buildKvrCfg(state.single.kvr, state.single.lang, state.single.size);
+  } else if (state.single.template === 'pickup') {
+    cfg = buildPickupCfg(state.single.pickup, state.single.lang, state.single.size);
   } else {
     cfg = state.single;
   }
@@ -5953,7 +7041,7 @@ function refreshSinglePreview() {
   container.appendChild(banner);
   applyPreviewScale();
   const size = SIZE_PACK[state.single.size];
-  const tmplLabelMap = { 'app-badge': 'App Badge', 'appstore-screenshot': 'App Store Screenshot', 'today-tap': 'Today Tap', 'sd-showcase': 'SD Showcase', 'keyvisual-review': 'Key Visual + Review' };
+  const tmplLabelMap = { 'app-badge': 'App Badge', 'appstore-screenshot': 'App Store Screenshot', 'today-tap': 'Today Tap', 'sd-showcase': 'SD Showcase', 'keyvisual-review': 'Key Visual + Review', 'pickup': 'Pickup' };
   const tmplLabel = tmplLabelMap[state.single.template] || 'Today Tap';
   document.getElementById('s-preview-meta').textContent =
     `${tmplLabel} · ${size.label} · ${size.w}×${size.h}px · ${LANG_PACK[state.single.lang].label}`;
@@ -5981,6 +7069,7 @@ async function handleSingleDownload() {
     const isAppStore = state.single.template === 'appstore-screenshot';
     const isSDS = state.single.template === 'sd-showcase';
     const isKvr = state.single.template === 'keyvisual-review';
+    const isPickup = state.single.template === 'pickup';  // v1.8
     let filename;
     if (isAppBadge) filename = buildAppBadgeFilename(state.single);
     else if (isAppStore) filename = buildAppStoreFilename(state.single);
@@ -6000,6 +7089,16 @@ async function handleSingleDownload() {
       const kvrLang = state.single.kvr.langs[state.single.lang] || {};
       filename = buildKvrFilename({
         prefix: slugify(kvrLang.reviewTitle || '') || 'banner',
+        lang: state.single.lang,
+        size: state.single.size,
+        format: state.single.format,
+      });
+    }
+    else if (isPickup) {
+      // v1.8: Pickup prefix: 현재 언어 캐릭터명 slug, 빈 문자열 시 'pickup' fallback
+      const pickLang = state.single.pickup.langs[state.single.lang] || {};
+      filename = buildPickupFilename({
+        prefix: slugify(pickLang.name || '') || 'pickup',
         lang: state.single.lang,
         size: state.single.size,
         format: state.single.format,
@@ -6037,6 +7136,13 @@ async function handleSingleDownload() {
       const cfg = buildKvrCfg(state.single.kvr, state.single.lang, state.single.size);
       const cfgWithImgs = await prepKvrCfgImages(cfg);
       const canvas = await buildKvrCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
+    } else if (isPickup) {
+      // v1.8: Pickup 경로 (KVR 패턴 일관)
+      await ensureFontsLoaded();
+      const cfg = buildPickupCfg(state.single.pickup, state.single.lang, state.single.size);
+      const cfgWithImgs = await prepPickupCfgImages(cfg);
+      const canvas = await buildPickupCanvas(cfgWithImgs);
       dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
     } else if (USE_CANVAS_EXPORT) {
       await ensureFontsLoaded();
@@ -6364,6 +7470,7 @@ function bindBatchMode() {
   loadBatchOverflowSliders();
   loadBatchShadowSliders();  // Plan FR-14: 초기 Shadow 슬라이더 로드
   bindKvrBatchUI();          // v1.7 R13: KVR 배치 전용 UI (별도 슬롯/슬라이더)
+  bindPickupBatchUI();       // v1.8: Pickup 배치 전용 UI (R3 perSize 마이그레이션 포함, collateral deletion 후 복원)
 }
 
 function loadBatchOverflowSliders() {
@@ -6497,6 +7604,27 @@ function syncBatchStateFromUI() {
     state.batch.sd_spacing = isNaN(v) ? 20 : v;
   }
   if (sdsShow)   state.batch.sd_showPill   = sdsShow.checked;
+
+  // v1.8: Pickup 공통 설정 (그라디언트 색상 2종)
+  const pkGradTop = document.getElementById('b-pickup-name-grad-top');
+  const pkGradBot = document.getElementById('b-pickup-name-grad-bottom');
+  if (pkGradTop) state.batch.pickup.nameGradTop    = pkGradTop.value || '#FFD700';
+  if (pkGradBot) state.batch.pickup.nameGradBottom = pkGradBot.value || '#FFFFFF';
+
+  // v1.8: Pickup 언어별 텍스트 (state.batch.pickup.langs에 직접 저장)
+  state.batch.langs.forEach(lang => {
+    const dEl = document.getElementById(`b-pickup-desc-${lang}`);
+    const nEl = document.getElementById(`b-pickup-name-${lang}`);
+    const eEl = document.getElementById(`b-pickup-element-${lang}`);
+    const cEl = document.getElementById(`b-pickup-class-${lang}`);
+    if (!state.batch.pickup.langs[lang]) {
+      state.batch.pickup.langs[lang] = { description: '', name: '', element: '', class: '' };
+    }
+    if (dEl) state.batch.pickup.langs[lang].description = dEl.value;
+    if (nEl) state.batch.pickup.langs[lang].name        = nEl.value;
+    if (eEl) state.batch.pickup.langs[lang].element     = eEl.value;
+    if (cEl) state.batch.pickup.langs[lang].class       = cEl.value;
+  });
 }
 
 function renderBatchLangFields() {
@@ -6515,6 +7643,7 @@ function renderBatchLangFields() {
   const isAS = tmpl === 'appstore-screenshot';
   const isSDS = tmpl === 'sd-showcase';
   const isKvr = tmpl === 'keyvisual-review';
+  const isPickup = tmpl === 'pickup';  // v1.8
 
   // v1.7: Key Visual + iPhone Review — 단건 모드 입력 데이터를 그대로 4언어 ZIP 출력
   // 배치에 별도 언어별 입력 폼 없음 (UA 워크플로 단순화)
@@ -6579,6 +7708,27 @@ function renderBatchLangFields() {
           <input id="b-as-rating-count-${lang}"  class="input-base text-sm" placeholder="리뷰수"         value="${escapeHTML(rcountVal)}" />
           <input id="b-as-ranking-${lang}"       class="input-base text-sm" placeholder="랭킹 (#7)"     value="${escapeHTML(rankVal)}" />
           <input id="b-as-developer-${lang}"     class="input-base text-sm" placeholder="개발자"         value="${escapeHTML(devVal)}" />
+        </div>
+      `;
+    } else if (isPickup) {
+      // v1.8: Pickup — description / name / element / class (4 필드)
+      const pkDefault = (PICKUP_DEFAULT.langs && PICKUP_DEFAULT.langs[lang]) || { description: '', name: '', element: '', class: '' };
+      const pkSlot = (state.batch.pickup && state.batch.pickup.langs && state.batch.pickup.langs[lang]) || pkDefault;
+      const getVal = (id, fallback) => existing[id] !== undefined ? existing[id] : (fallback || '');
+      const descVal    = getVal(`b-pickup-desc-${lang}`,    pkSlot.description);
+      const nameVal    = getVal(`b-pickup-name-${lang}`,    pkSlot.name);
+      const elementVal = getVal(`b-pickup-element-${lang}`, pkSlot.element);
+      const classVal   = getVal(`b-pickup-class-${lang}`,   pkSlot.class);
+      group.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-200 font-semibold">${pack.label}</span>
+          <button type="button" class="text-[10px] text-indigo-400 hover:underline" data-copy-from="${lang}" title="이 언어의 텍스트를 다른 선택 언어에 복사">다른 언어에 복사</button>
+        </div>
+        <input id="b-pickup-desc-${lang}"    class="input-base text-sm" placeholder="캐릭터 설명 (${pack.label}, 예: 운명의 힘을 품은 구미호)" value="${escapeHTML(descVal)}" />
+        <input id="b-pickup-name-${lang}"    class="input-base text-sm" placeholder="캐릭터명 (${pack.label}, 예: 미나)" value="${escapeHTML(nameVal)}" />
+        <div class="grid grid-cols-2 gap-2">
+          <input id="b-pickup-element-${lang}" class="input-base text-sm" placeholder="속성 (예: 불)"    value="${escapeHTML(elementVal)}" />
+          <input id="b-pickup-class-${lang}"   class="input-base text-sm" placeholder="클래스 (예: 원거리)" value="${escapeHTML(classVal)}" />
         </div>
       `;
     } else if (isAB) {
@@ -6646,6 +7796,23 @@ function copyLangFieldsToOthers(srcLang) {
       const p = document.getElementById(`b-sds-pill-${lang}`);
       if (t) { t.value = srcTitle; copied++; }
       if (p) { p.value = srcPill; }
+    });
+  } else if (tmpl === 'pickup') {
+    // v1.8: Pickup — 4필드 복사 (description, name, element, class)
+    const srcDesc    = document.getElementById(`b-pickup-desc-${srcLang}`)?.value    || '';
+    const srcName    = document.getElementById(`b-pickup-name-${srcLang}`)?.value    || '';
+    const srcElement = document.getElementById(`b-pickup-element-${srcLang}`)?.value || '';
+    const srcClass   = document.getElementById(`b-pickup-class-${srcLang}`)?.value   || '';
+    langs.forEach(lang => {
+      if (lang === srcLang) return;
+      const d = document.getElementById(`b-pickup-desc-${lang}`);
+      const n = document.getElementById(`b-pickup-name-${lang}`);
+      const e = document.getElementById(`b-pickup-element-${lang}`);
+      const c = document.getElementById(`b-pickup-class-${lang}`);
+      if (d) { d.value = srcDesc; copied++; }
+      if (n) n.value = srcName;
+      if (e) e.value = srcElement;
+      if (c) c.value = srcClass;
     });
   } else {
     const srcTitle    = document.getElementById(`b-title-${srcLang}`)?.value    || '';
@@ -6728,6 +7895,13 @@ function buildBatchCfgs() {
     if (tmpl === 'keyvisual-review') {
       const batchKvr = { ...state.batch.kvr, langs: state.single.kvr.langs };
       const cfg = buildKvrCfg(batchKvr, combo.lang, '1x1');
+      cfg._combo = combo;
+      return cfg;
+    }
+    // v1.8: Pickup 분기 — 1x1 + 1200×628 (combo.size 그대로 사용)
+    // 자산/슬라이더/그라디언트/언어별 텍스트 모두 state.batch.pickup에서 자동 사용
+    if (tmpl === 'pickup') {
+      const cfg = buildPickupCfg(state.batch.pickup, combo.lang, combo.size);
       cfg._combo = combo;
       return cfg;
     }
@@ -6870,6 +8044,7 @@ async function downloadBatchItem(idx) {
     const isAS = cfg.template === 'appstore-screenshot';
     const isSDS = cfg.template === 'sd-showcase';
     const isKvr = cfg.template === 'keyvisual-review';
+    const isPickup = cfg.template === 'pickup';  // v1.8
     const sdsSizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
     const filename = isAB
       ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
@@ -6879,7 +8054,9 @@ async function downloadBatchItem(idx) {
           ? `${state.batch.prefix}_sdshowcase_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
           : isKvr
             ? `${state.batch.prefix}_keyvisual-review_${cfg.lang}_1080x1080.${ext}`
-            : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+            : isPickup
+              ? `${state.batch.prefix}_pickup_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
+              : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
     let dataURL;
     if (isAB) {
       await ensureFontsLoaded();
@@ -6903,6 +8080,12 @@ async function downloadBatchItem(idx) {
       await ensureFontsLoaded();
       const cfgWithImgs = await prepKvrCfgImages({ ...cfg, scale: state.batch.scale, format: state.batch.format });
       const canvas = await buildKvrCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
+    } else if (isPickup) {
+      // v1.8: Pickup 단일 다운로드 (KVR 패턴 일관)
+      await ensureFontsLoaded();
+      const cfgWithImgs = await prepPickupCfgImages({ ...cfg, scale: state.batch.scale, format: state.batch.format });
+      const canvas = await buildPickupCanvas(cfgWithImgs);
       dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
     } else if (USE_CANVAS_EXPORT) {
       await ensureFontsLoaded();
@@ -6980,6 +8163,18 @@ async function handleBatchExportZip() {
           loadCachedImage(KVR_MOCKUP_PATH),
         ])
       : [null, null, null];
+    // v1.8: Pickup — logo/keyart/character + 번들 자산(frame×2 + star) 사전 디코드 (8장 모두 공유)
+    const hasPickup = cfgs.some(c => c.template === 'pickup');
+    const [pkLogoImg, pkKeyartImg, pkCharImg, pkFrame1x1, pkFrame1200, pkStarImg] = hasPickup
+      ? await Promise.all([
+          loadCachedImage(state.batch.pickup.logo),
+          loadCachedImage(state.batch.pickup.keyart),
+          loadCachedImage(state.batch.pickup.character),
+          loadCachedImage(PICKUP_ASSETS.frame['1x1']),
+          loadCachedImage(PICKUP_ASSETS.frame['1200x628']),
+          loadCachedImage(PICKUP_ASSETS.star),
+        ])
+      : [null, null, null, null, null, null];
 
     statusEl.textContent = `0 / ${total} 변환 중...`;
     for (let i = 0; i < cfgs.length; i++) {
@@ -6988,6 +8183,7 @@ async function handleBatchExportZip() {
       const isAS = cfg.template === 'appstore-screenshot';
       const isSDS = cfg.template === 'sd-showcase';
       const isKvr = cfg.template === 'keyvisual-review';
+      const isPickup = cfg.template === 'pickup';  // v1.8
       try {
         let canvas;
         if (isAB) {
@@ -7024,6 +8220,17 @@ async function handleBatchExportZip() {
             _logoImg: kvrLogoImg,
             _mockupImg: kvrMockupImg,
           });
+        } else if (isPickup) {
+          // v1.8: Pickup — 사용자 자산 + 번들 자산(사이즈별 frame + star) 공유 (1회 decode)
+          canvas = await buildPickupCanvas({
+            ...cfg,
+            scale: state.batch.scale,
+            _logoImg: pkLogoImg,
+            _keyartImg: pkKeyartImg,
+            _characterImg: pkCharImg,
+            _frameImg: cfg.size === '1200x628' ? pkFrame1200 : pkFrame1x1,
+            _starImg: pkStarImg,
+          });
         } else {
           canvas = await buildBannerCanvas({
             ...cfg,
@@ -7044,7 +8251,9 @@ async function handleBatchExportZip() {
               ? `${state.batch.prefix}_sdshowcase_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
               : isKvr
                 ? `${state.batch.prefix}_keyvisual-review_${cfg.lang}_1080x1080.${ext}`
-                : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+                : isPickup
+                  ? `${state.batch.prefix}_pickup_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
+                  : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
         zip.file(filename, dataURL.split(',')[1], { base64: true });
       } catch (err) {
         console.error(err);
