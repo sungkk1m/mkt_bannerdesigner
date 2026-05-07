@@ -688,6 +688,61 @@ _(작업 지시 시 최신 상태로 갱신)_
   - 문법 검증: `node --check` 통과 ✓
   - **검증 가이드** (사용자 브라우저): 헤더 드롭다운 6템플릿 / Pickup 단건 1x1+1200×628 × 4언어 자산·슬라이더·그라디언트 / Pickup 배치 ZIP 8장 / 절차적 frame 시각 정상 / 회귀: 다른 5템플릿 + 새 KVR R14 무영향
   - **단일 커밋 메시지**: `revert: restore Pickup template after KVR R14 collateral deletion`
+- 2026-05-07: **[Pickup R5 hotfix] 단건편집 logo+char 슬라이더 미작동 수정 (Option A — buildPickupCfg mode 인자)**
+  - 사용자 보고: "Pickup 단건편집에서 캐릭터 일러스트와 게임 로고의 x/y/scale 조정이 안된다"
+  - **Root cause**: `buildPickupCfg`의 perSize 분기가 단건/배치 구분 없이 `stateObj.perSize`만 보고 작동. R3에서 `PICKUP_DEFAULT.perSize` default 추가로 `state.single.pickup`도 perSize 항상 보유 → cfg가 직접값(`stateObj.logoX`) 무시하고 `ps.logoX`(default 0)만 사용 → 단건 슬라이더 무효. keyart는 perSize 분기 없어 정상 동작 (사용자 보고와 100% 일치).
+  - **Option A 채택** (4 라인 변경, 회귀 위험 0):
+    - `buildPickupCfg(stateObj, lang, size)` → `buildPickupCfg(stateObj, lang, size, mode = 'batch')` ([:5369](repo/today-banner-designer.html:5369))
+    - `ps` 분기에 `mode === 'batch'` 조건 추가 ([:5374](repo/today-banner-designer.html:5374))
+    - refreshSinglePreview Pickup 분기: `, 'single'` 추가 ([:7037](repo/today-banner-designer.html:7037))
+    - handleSingleDownload Pickup 분기: `, 'single'` 추가 ([:7144](repo/today-banner-designer.html:7144))
+    - buildBatchCfgs Pickup fan-out: 무수정 (default 'batch', [:7905](repo/today-banner-designer.html:7905))
+  - 변경량: today-banner-designer.html 8,350 → 8,351 라인 (+1, 주석 1줄)
+  - 회귀 위험 0: Pickup 단건만 영향, 배치 fan-out 동작 동일, 다른 5템플릿 무영향
+  - 문법 검증: `node --check` 통과 ✓
+  - **검증 가이드** (사용자 브라우저): Pickup 단건 → 캐릭터/로고 PNG 업로드 → s-pickup-char-x +200, s-pickup-logo-scale 150% 슬라이더 동작 즉시 미리보기 반영 확인 / 키아트 회귀 0 / 배치 ZIP 4장 perSize 분리 동작 회귀 0
+- 2026-05-07: **[ko-disclaimer-restore] AppStore Screenshot + KVR KO 고지문구 백업에서 복원 (collateral pull 후)**
+  - 사용자 요청 2건:
+    1. AppStore Screenshot: 백업 파일 설정값 그대로 가져오기
+    2. KVR(keyvisual+review): 위치는 우측 하단, 단 collaborator R14 1.8x 확대 mockup(X=180~900, Y=625~1080)과 충돌 안 되게 조정
+  - **사용자 결정** (AskUserQuestion 1건): KVR 위치 = 코너에 더 가깝게 (W-24, H-20) — mockup에서 26px 여유, 백업의 (W-32, H-32)보다 코너 안쪽으로
+  - **AppStore Screenshot 적용** (백업 1:1, 3 블록):
+    - **CSS** ([:864~870](repo/today-banner-designer.html:864)): `.as-ko-disclaimer` 규칙 추가 (`padding: 22px 50px 0 50px; font-size: 24px; color: var(--as-text-secondary);`)
+    - **DOM** ([:3475~3476](repo/today-banner-designer.html:3475)): description div 다음에 ko-disclaimer div 추가 (KO만, `*` 제거)
+    - **Canvas [7.1]** ([:4516~4527](repo/today-banner-designer.html:4516)): description 본문 4줄 끝 + 22px gap, fs 24, theme.textSecondary, KO만
+  - **KVR 적용** (위치 조정, 2 블록):
+    - **상수** ([:2560](repo/today-banner-designer.html:2560)): `KVR_DISCLAIMER_KO = '*확률형 아이템 포함'` 신규
+    - **Canvas [7]** ([:5293~5304](repo/today-banner-designer.html:5293)): mockup PNG 그린 후 우하단 (W-24, H-20), fs 16 #8a8a8a, right-bottom 정렬, 사용 후 textAlign/textBaseline 복원
+  - **mockup 충돌 검증**: 1.8x mockup X=180~900, "확률형 아이템 포함" 16px 텍스트 폭 ~130px → 우측 X=926~1056 → mockup 우측(900)에서 26px 여유 ✅
+  - 변경량: today-banner-designer.html 8,350 → **8,387 라인** (+37) · 회귀 위험 0 (KO만 영향, 다른 3언어 + 다른 4템플릿 무영향)
+  - 문법 검증: `node --check` 통과 ✓
+  - **검증 가이드** (사용자 브라우저):
+    - AppStore KO 9:16: description 본문 4줄 끝에 textSecondary 24px "확률형 아이템 포함" 한 줄 추가
+    - AppStore en/ja/zh-TW: 미표시
+    - KVR KO 1080×1080: 우하단 코너 #8a8a8a 16px (mockup과 26px 여유)
+    - KVR en/ja/zh-TW: 미표시
+    - 다른 4 템플릿(today-tap, app-badge, sd-showcase, pickup) 회귀 0
+- 2026-05-07: **[KVR R18] 리뷰 카드 + drop shadow strong 복원 + mockup/흰BG 10% 추가 확대**
+  - 사용자 요청 (캡처본 기반, 강정아·김성권 슬랙 메시지):
+    1. 정아님 작업(collaborator R14)에 + 리뷰 영역 drop shadow + 확아포 고지 우하단
+    2. 백그라운드 컬러로 잘림 방지 (이미 흰 BG 박스 보존됨)
+    3. 흰 bg박스 + black iPhone mockup PNG 크기 10% 확대, 상단 위치 y값 유지
+  - **사용자 결정 (AskUserQuestion 2건)**: 카드 padding/radius = 백업 R14 그대로 (P 16/14/16, R 12) / 평가 개수 정렬 = 현재 좌측 인라인 유지 (R14 [5.2] 우측정렬 복원 안 함)
+  - **변경 사항**:
+    - **KVR_REVIEW_CARD 상수 신규** ([:2562](repo/today-banner-designer.html:2562)): radius 12, padX 16, padTop 14, padBot 16, bg #FFFFFF, shadow strong (rgba 0.22 / blur 28 / offsetY 6 — 이전 세션 R17 시안 매트릭스 05번 확정값)
+    - **buildKvrCanvas [5.4 PRE] 카드 측정/그리기** ([:5241~5279](repo/today-banner-designer.html:5241), +40 라인): titleFs+bodyFs+bodyLineH+metaFs 미리 계산 → cardInnerH → cardX/Y/W/H → drop shadow + 흰 BG fill (둥근 path) → cardCx0/cardInnerW로 카드 내부 좌표 진입 + cy 정상화
+    - **[5.4.1] [5.4.2] [5.4.3] in-place 치환**: cx0 → cardCx0, cw → cardInnerW (5곳). collaborator R14의 자연 흐름 (title → body → meta) 그대로 + 별점 제거 그대로 유지
+    - **[5.4.3] 끝에 cy 정상화** ([:5325](repo/today-banner-designer.html:5325)): `cy = cardY + cardH` 추가 (다음 그리기 단계 영향 방지)
+    - **KVR_MOCKUP_SCALE** ([:5066](repo/today-banner-designer.html:5066)): 1.8 → **1.98** (10% 추가 확대). mockupW: 720 → 792, mockupH: 818.6 → 900.4, mockupX: 180 → 144 (자동 재중앙). mockupY는 baseMockupW(400) 기준이라 **625 자동 유지** (사용자 요청 "상단 y값은 지금과 같이 유지" 부합). 흰 BG 박스도 KVR_MOCKUP_SCREEN 비율 기반이라 자동 10% 확대.
+  - **변경량**: today-banner-designer.html 8,387 → **8,437 라인** (+50) · 회귀 위험 0 (KVR 전용)
+  - **충돌 검증**: KO 고지문구 위치 (W-24, H-20) — 새 mockup 우측 X=936 (792+144)에서 12px 여유. 텍스트 폭 ~130px이라 X=926~1056 → mockup 우측(936)을 약간 침범할 가능성 → 사용자 시각 검증 후 필요시 미세 조정
+  - 문법 검증: `node --check` 통과 ✓
+  - **검증 가이드** (사용자 브라우저):
+    - KVR 단건 1080×1080: 리뷰 영역 (title 44px + body 26px 2줄 + meta 20px)이 흰 카드 안 + strong drop shadow + 12px 둥근 모서리
+    - mockup 시각: 폭 792 (1.8x 720 대비 +72px), 캔버스 하단까지 더 채움. 상단 y=625 그대로
+    - 흰 BG 박스: mockup 비율 기반이라 자동 10% 확대 (시각 통합)
+    - 한국어 우하단 고지: 새 mockup 우측 가장자리(X=936)와 12px 여유 — 잘 보이는지 확인
+    - 4언어 배치 ZIP: 카드 + drop shadow 모든 언어 일관 적용
 
 ## 히스토리
 
