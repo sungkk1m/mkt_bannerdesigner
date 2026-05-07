@@ -5035,10 +5035,13 @@ async function buildKvrCanvas(cfg) {
   const srcBW = KVR_MOCKUP_BODY.w;                                       // 650
   const srcH_visible = KVR_MOCKUP_BODY.h * KVR_MOCKUP_SOURCE_TOP_RATIO;  // 1425 × 1.0 = 1425 (body 100%)
   // destination: 폭 400 (R8: body 100% 표시 가능한 폭), 종횡비는 source rect 기준
-  const mockupW = 400;
-  const mockupH = mockupW * (srcH_visible / srcBW);  // ≈ 877.3 (캔버스 81%)
-  const mockupX = (W - mockupW) / 2;                  // 340
-  const mockupY = H - mockupH;                        // ≈ 202.7 (위쪽 ~203px = 키비주얼+로고+헤드라인 영역)
+  // R14: 흰 BG 박스 + mockup 1.8x 확대 (처음 기준 +80%, 사용자 요청). 상단 y값은 1.0x 기준으로 고정 → 확대분이 아래쪽으로만 늘어남(캔버스 하단 자동 cut)
+  const KVR_MOCKUP_SCALE = 1.8;
+  const baseMockupW = 400;
+  const mockupW = baseMockupW * KVR_MOCKUP_SCALE;                       // 720 (1.8x)
+  const mockupH = mockupW * (srcH_visible / srcBW);                     // 자동 1.8x — 흰 BG/screen* 좌표 모두 동기 확대
+  const mockupX = (W - mockupW) / 2;                                    // 자동 재중앙 (180)
+  const mockupY = H - baseMockupW * (srcH_visible / srcBW);             // 1.0x 기준 mockupY 유지 (상단 y 고정)
 
   // [2] 로고 슬롯 — 캔버스 위쪽 영역 (mockup 위), 가로 중앙
   if (cfg._logoImg) {
@@ -5051,7 +5054,7 @@ async function buildKvrCanvas(cfg) {
       const drawW = baseW * userScale;
       const drawH = (ih / iw) * drawW;
       const baseCx = W / 2;
-      const baseCy = mockupY - 16 - drawH / 2;  // R10: mockup 바로 상단에 위치 (mockup 상단으로부터 16px 간격). 사용자 슬라이더로 미세조정
+      const baseCy = 80;  // R14c: 헤드라인↔로고 swap → 캔버스 상단 (이전 헤드라인 자리). 사용자 슬라이더(logoY)로 미세조정
       const drawX = baseCx - drawW / 2 + cfg.logoX;
       const drawY = baseCy - drawH / 2 + cfg.logoY;
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
@@ -5066,17 +5069,18 @@ async function buildKvrCanvas(cfg) {
   }
   if (headlineText) {
     const langScale = (cfg.lang === 'ja') ? 0.85 : (cfg.lang === 'zh-TW' ? 0.92 : 1);
-    const fs = Math.round(44 * langScale);  // R8: 56 → 44 (위쪽 영역 0~203 안에 맞춤)
+    const fs = Math.round(60 * langScale);  // R14e: 44 → 60 (사용자 요청, 헤드라인 텍스트 확대)
     ctx.font = `700 ${fs}px ${fontFamily}`;
     ctx.fillStyle = '#FFFFFF';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    // R8: y=80 — mockup 시작 y≈203 위, 로고 baseCy=140+ 위 (위쪽 영역 안 자연스러운 배치)
+    // R14e: 헤드라인 ↔ mockup 간격 16 → 32px (사용자 요청, 하단 여백 추가). textBaseline='middle' 보정 위해 fs/2 빼기
+    const headlineY = mockupY - 32 - fs / 2;
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
     ctx.shadowBlur = 16;
     ctx.shadowOffsetY = 4;
-    ctx.fillText(headlineText, W / 2, 80);
+    ctx.fillText(headlineText, W / 2, headlineY);
     ctx.restore();
   }
 
@@ -5162,9 +5166,9 @@ async function buildKvrCanvas(cfg) {
   const metaX = cx0 + ratingNumW + 22;
   const metaCenterY = cy + ratingFs * 0.5;
 
-  // 별점 5개 (0.5 단위 부분 채움) — R3: 26
-  const starSize = 26;
-  const starGap = 4;
+  // 별점 5개 (0.5 단위 부분 채움) — R14b: 26 → 36 (사용자 요청, 평점 박스 별 확대)
+  const starSize = 36;
+  const starGap = 6;
   const parts = KVR_HELPERS.starParts(cfg.rating);
   const drawStar = (sx, sy, fillRatio) => {
     // ★ 유니코드를 fillRatio 만큼만 채우기 위해 clip 사용
@@ -5203,73 +5207,23 @@ async function buildKvrCanvas(cfg) {
 
   cy += ratingFs + 28;
 
-  // [5.3] 부제목 "가장 도움이 되는 리뷰" — R3: 22
-  ctx.font = `700 ${Math.round(22 * labelScale)}px ${fontFamily}`;
-  ctx.fillStyle = '#000';
-  ctx.textBaseline = 'top';
-  ctx.fillText(lp.mostHelpful, cx0, cy);
-  cy += Math.round(22 * labelScale) + 22;
+  // [5.3] 부제목 "가장 도움이 되는 리뷰" — R14: 사용자 요청으로 제거 (cy 진행 없음, 평점 박스 하단 28px 갭 직후 리뷰 카드 시작)
 
   // [5.4] 리뷰 카드 (외곽선 없음, 자연 흐름)
-  // [5.4.1] 리뷰 제목 — R3: 24
+  // [5.4.1] 리뷰 제목 — R14b: 24 → 44 (사용자 요청, 텍스트 확대)
   if (cfg.reviewTitle) {
-    ctx.font = `700 ${Math.round(24 * labelScale)}px ${fontFamily}`;
+    ctx.font = `700 ${Math.round(44 * labelScale)}px ${fontFamily}`;
     ctx.fillStyle = '#000';
     ctx.textBaseline = 'top';
     // 1줄 ellipsis
     const titleLine = ellipsisLine(ctx, cfg.reviewTitle, cw);
     ctx.fillText(titleLine, cx0, cy);
-    cy += Math.round(24 * labelScale) + 12;
+    cy += Math.round(44 * labelScale) + 22;
   }
 
-  // [5.4.2] 메타 행: 별점(작게) + 날짜 + 아이디 — R3: 14
-  const smallStar = 14;
-  const smallStarGap = 2;
-  let smX = cx0;
-  const smCenterY = cy + 12;
-  const smParts = KVR_HELPERS.starParts(cfg.rating);
-  const drawSmallStar = (sx, sy, fillRatio) => {
-    ctx.save();
-    if (fillRatio < 1) {
-      ctx.fillStyle = '#d2d2d7';
-      ctx.font = `${smallStar}px ${fontFamily}`;
-      ctx.textBaseline = 'middle';
-      ctx.fillText('★', sx, sy);
-    }
-    if (fillRatio > 0) {
-      ctx.beginPath();
-      ctx.rect(sx, sy - smallStar, smallStar * fillRatio, smallStar * 2);
-      ctx.clip();
-      ctx.fillStyle = cfg.starColor || '#1d1d1f';
-      ctx.font = `${smallStar}px ${fontFamily}`;
-      ctx.textBaseline = 'middle';
-      ctx.fillText('★', sx, sy);
-    }
-    ctx.restore();
-  };
-  ctx.textAlign = 'left';
-  for (let i = 0; i < smParts.full; i++) { drawSmallStar(smX, smCenterY, 1); smX += smallStar + smallStarGap; }
-  if (smParts.half) { drawSmallStar(smX, smCenterY, 0.5); smX += smallStar + smallStarGap; }
-  for (let i = 0; i < smParts.empty; i++) { drawSmallStar(smX, smCenterY, 0); smX += smallStar + smallStarGap; }
-  smX += 10;
-  // 날짜 — R3: 16
-  const dateStr = KVR_HELPERS.formatReviewDate(cfg.reviewDate, cfg.lang);
-  const metaFs = Math.round(16 * labelScale);
-  ctx.font = `400 ${metaFs}px ${fontFamily}`;
-  ctx.fillStyle = '#6e6e73';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(dateStr, smX, smCenterY);
-  smX += ctx.measureText(dateStr).width + 10;
-  // 구분점 ·
-  ctx.fillText('·', smX, smCenterY);
-  smX += ctx.measureText('·').width + 10;
-  // 아이디
-  ctx.fillText(cfg.reviewerId || '', smX, smCenterY);
-  cy += smallStar * 2 + 14;
-
-  // [5.4.3] 리뷰 본문 — 2줄 고정 + ellipsis. R3: 20
+  // [5.4.2] 리뷰 본문 — 2줄 고정 + ellipsis. R14d/e: 메타 행 위로 재배치, 폰트 20 → 26 (사용자 요청)
   if (cfg.reviewBody) {
-    const bodyFs = Math.round(20 * labelScale);
+    const bodyFs = Math.round(26 * labelScale);
     const lineH = bodyFs * 1.45;
     ctx.font = `400 ${bodyFs}px ${fontFamily}`;
     ctx.fillStyle = '#1d1d1f';
@@ -5278,7 +5232,25 @@ async function buildKvrCanvas(cfg) {
     lines.forEach((ln, idx) => {
       ctx.fillText(ln, cx0, cy + idx * lineH);
     });
+    cy += 2 * lineH + 14;  // R14d: 2줄 본문 다음 cy 진행 (메타 행과 14px 갭)
   }
+
+  // [5.4.3] 메타 행: 날짜 + 아이디 — R14e: 별 5개 제거 (사용자 요청), 폰트 20px
+  let smX = cx0;
+  const metaFs = Math.round(20 * labelScale);
+  const smCenterY = cy + Math.round(metaFs / 2);  // 텍스트 vertical center
+  const dateStr = KVR_HELPERS.formatReviewDate(cfg.reviewDate, cfg.lang);
+  ctx.font = `400 ${metaFs}px ${fontFamily}`;
+  ctx.fillStyle = '#6e6e73';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(dateStr, smX, smCenterY);
+  smX += ctx.measureText(dateStr).width + 10;
+  // 구분점 ·
+  ctx.fillText('·', smX, smCenterY);
+  smX += ctx.measureText('·').width + 10;
+  // 아이디
+  ctx.fillText(cfg.reviewerId || '', smX, smCenterY);
 
   ctx.restore();  // screen clip 해제
 
