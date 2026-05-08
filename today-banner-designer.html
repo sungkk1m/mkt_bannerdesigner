@@ -8388,4 +8388,177 @@ async function handleBatchExportZip() {
           loadCachedImage(PICKUP_ASSETS.frame['1200x628']),
           loadCachedImage(PICKUP_ASSETS.star),
         ])
-      : [null,
+      : [null, null, null, null, null, null];
+
+    statusEl.textContent = `0 / ${total} 변환 중...`;
+    for (let i = 0; i < cfgs.length; i++) {
+      const cfg = cfgs[i];
+      const isAB = cfg.template === 'app-badge';
+      const isAS = cfg.template === 'appstore-screenshot';
+      const isSDS = cfg.template === 'sd-showcase';
+      const isKvr = cfg.template === 'keyvisual-review';
+      const isPickup = cfg.template === 'pickup';  // v1.8
+      try {
+        let canvas;
+        if (isAB) {
+          const bs = resolveBadgeState(cfg.headlinePreset);
+          const gpImg = await loadCachedImage(pickBadgeUri('googlePlay', bs, cfg.lang));
+          const asImg = await loadCachedImage(pickBadgeUri('appStore',   bs, cfg.lang));
+          canvas = await buildAppBadgeCanvas({
+            ...cfg,
+            scale: state.batch.scale,
+            _bgImg: keyartImg,      // batch keyart를 App Badge 배경으로 공유
+            _logoImg: logoImg,
+            _iconImg: iconImg,
+            _googlePlayImg: gpImg,
+            _appStoreImg: asImg,
+          });
+        } else if (isAS) {
+          // v1.5: App Store Screenshot — 공유 keyart/icon 재사용 + SVG 아이콘 매번 캐시 hit
+          const cfgWithImgs = await prepAppStoreCfgImages({ ...cfg, scale: state.batch.scale });
+          // _iconImg/_keyartImg는 prepAppStoreCfgImages가 이미 채움 (loadCachedImage가 hit)
+          canvas = await buildAppStoreScreenshotCanvas(cfgWithImgs);
+        } else if (isSDS) {
+          // v1.6: SD Showcase — 6 슬롯 이미지 공유 (1회 decode)
+          canvas = await buildSdShowcaseCanvas({
+            ...cfg,
+            scale: state.batch.scale,
+            _slotImgs: sdsSlotImgs,
+          });
+        } else if (isKvr) {
+          // v1.7: Key Visual + iPhone Review — bg/logo/mockup 이미지 공유 (1회 decode)
+          canvas = await buildKvrCanvas({
+            ...cfg,
+            scale: state.batch.scale,
+            _bgImg: kvrBgImg,
+            _logoImg: kvrLogoImg,
+            _mockupImg: kvrMockupImg,
+          });
+        } else if (isPickup) {
+          // v1.8: Pickup — 사용자 자산 + 번들 자산(사이즈별 frame + star) 공유 (1회 decode)
+          canvas = await buildPickupCanvas({
+            ...cfg,
+            scale: state.batch.scale,
+            _logoImg: pkLogoImg,
+            _keyartImg: pkKeyartImg,
+            _characterImg: pkCharImg,
+            _frameImg: cfg.size === '1200x628' ? pkFrame1200 : pkFrame1x1,
+            _starImg: pkStarImg,
+          });
+        } else {
+          canvas = await buildBannerCanvas({
+            ...cfg,
+            scale: state.batch.scale,
+            _keyartImg: keyartImg,
+            _overflowImg: overflowImg,
+            _iconImg: iconImg,
+          });
+        }
+        const dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
+        const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
+        const sdsSizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
+        const filename = isAB
+          ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
+          : isAS
+            ? `${state.batch.prefix}_appstore_${cfg.lang}_${cfg.theme || 'dark'}_1080x1920.${ext}`
+            : isSDS
+              ? `${state.batch.prefix}_sdshowcase_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
+              : isKvr
+                ? `${state.batch.prefix}_keyvisual-review_${cfg.lang}_1080x1080.${ext}`
+                : isPickup
+                  ? `${state.batch.prefix}_pickup_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
+                  : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+        zip.file(filename, dataURL.split(',')[1], { base64: true });
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `❌ ${cfg.size} ${cfg.lang} 실패: ${err.message}`;
+      }
+      const progress = ((i + 1) / total) * 100;
+      barEl.style.width = progress + '%';
+      statusEl.textContent = `${i + 1} / ${total} 변환 완료`;
+    }
+  } else {
+    // Fallback: 기존 html-to-image 경로
+    const stage = document.getElementById('renderStage');
+    statusEl.textContent = `0 / ${total} 변환 중...`;
+    for (let i = 0; i < cfgs.length; i++) {
+      const cfg = cfgs[i];
+      stage.innerHTML = '';
+      const banner = renderBanner(cfg);
+      stage.appendChild(banner);
+      try {
+        await waitForImages(banner);
+        await document.fonts.ready;
+        const dataURL = await bannerToImage(banner, { format: state.batch.format, scale: state.batch.scale });
+        const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
+        const filename = `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+        zip.file(filename, dataURL.split(',')[1], { base64: true });
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `❌ ${cfg.size} ${cfg.lang} 실패: ${err.message}`;
+      }
+      const progress = ((i + 1) / total) * 100;
+      barEl.style.width = progress + '%';
+      statusEl.textContent = `${i + 1} / ${total} 변환 완료`;
+    }
+    stage.innerHTML = '';
+  }
+
+  statusEl.textContent = 'ZIP 파일 생성 중...';
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${state.batch.prefix}_banners.zip`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  const elapsed = Math.round(performance.now() - startT);
+  statusEl.textContent = `✅ 완료! ${total}장 ZIP 다운로드됨 (${elapsed}ms)`;
+}
+
+// ===========================================================================
+// 8. 탭 전환
+// ===========================================================================
+function bindTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-content').forEach(sec => {
+        sec.classList.toggle('hidden', sec.id !== `tab-${target}`);
+      });
+    });
+  });
+}
+
+// ===========================================================================
+// 9. 초기화
+// ===========================================================================
+window.addEventListener('DOMContentLoaded', () => {
+  bindTabs();
+  bindSingleMode();
+  bindBatchMode();
+  applySingleOverflowPreset(state.single.size);
+  updateSingleHints(state.single.size);       // Plan FR-02/11
+  applySingleShadowControlsState();           // Plan FR-13
+  updateSingleShadowLabels();
+  syncSingleStateFromUI();
+
+  // v1.3: 템플릿 전환 드롭다운 이벤트 바인딩 + 초기 UI 표시
+  const tmplSel = document.getElementById('template-selector');
+  if (tmplSel) {
+    tmplSel.addEventListener('change', (e) => applyTemplateSwitch(e.target.value));
+    tmplSel.value = state.single.template;
+  }
+  applyTemplateSwitch(state.single.template); // 초기: Today Tap UI 보이기
+  updateAppBadgeHint(state.single.size);      // App Badge 힌트도 사이즈 초기값 기반으로
+
+  refreshSinglePreview();
+  renderPresetListUI();                       // r3 FR-22: 사용자 프리셋 목록 초기 렌더
+});
+</script>
+
+</body>
+</html>
