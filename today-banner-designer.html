@@ -1214,6 +1214,21 @@
               <input id="s-kvr-bg-y" type="range" min="-1500" max="1500" step="10" value="0" class="w-full" />
             </div>
           </div>
+          <!-- R21: 배경 컬러 + 하단 20% 그라데이션 (그라데이션 컬러 = 배경 컬러) -->
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <div>
+              <div class="field-label">배경 컬러</div>
+              <input id="s-kvr-bg-color" type="color" value="#000000" class="w-full h-10 rounded border border-[#262932] cursor-pointer" />
+              <p class="text-[10px] text-gray-500 mt-1">키비주얼 미커버 영역 + 그라데이션 끝 컬러</p>
+            </div>
+            <div>
+              <div class="field-label">하단 그라데이션</div>
+              <label class="flex items-center gap-2 text-xs cursor-pointer mt-2">
+                <input id="s-kvr-bg-grad" type="checkbox" class="cursor-pointer" />
+                <span>하단 20% 영역 페이드 (배경 컬러로)</span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -1231,7 +1246,7 @@
             </div>
             <div>
               <div class="field-label">좌우 (<span id="s-kvr-logo-x-label">0</span>px)</div>
-              <input id="s-kvr-logo-x" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+              <input id="s-kvr-logo-x" type="range" min="-400" max="400" step="2" value="0" class="w-full" />
             </div>
             <div>
               <div class="field-label">상하 (<span id="s-kvr-logo-y-label">0</span>px)</div>
@@ -1250,6 +1265,11 @@
             <option value="off">— 비활성 (헤드라인 미표시) —</option>
           </select>
           <p class="text-[11px] text-gray-500 mt-1">언어 변경 시 자동으로 해당 언어 텍스트가 출력 · OFF 시에도 mockup 위치는 그대로</p>
+          <!-- R22: 헤드라인 텍스트 배경 박스 (rgba(0,0,0,0.5)) -->
+          <label class="flex items-center gap-2 text-xs cursor-pointer mt-2">
+            <input id="s-kvr-headline-bg" type="checkbox" class="cursor-pointer" />
+            <span>헤드라인 배경 박스 (반투명 검정 50%)</span>
+          </label>
         </div>
 
         <div class="border border-[#262932] rounded-lg p-3 space-y-3">
@@ -1865,6 +1885,20 @@
               <input id="b-kvr-bg-y" type="range" min="-1500" max="1500" step="10" value="0" class="w-full" />
             </div>
           </div>
+          <!-- R21: 배경 컬러 + 하단 20% 그라데이션 -->
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <div>
+              <div class="field-label">배경 컬러</div>
+              <input id="b-kvr-bg-color" type="color" value="#000000" class="w-full h-10 rounded border border-[#262932] cursor-pointer" />
+            </div>
+            <div>
+              <div class="field-label">하단 그라데이션</div>
+              <label class="flex items-center gap-2 text-xs cursor-pointer mt-2">
+                <input id="b-kvr-bg-grad" type="checkbox" class="cursor-pointer" />
+                <span>하단 20% 페이드 (배경 컬러로)</span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -1882,7 +1916,7 @@
             </div>
             <div>
               <div class="field-label">좌우 (<span id="b-kvr-logo-x-label">0</span>px)</div>
-              <input id="b-kvr-logo-x" type="range" min="-200" max="200" step="2" value="0" class="w-full" />
+              <input id="b-kvr-logo-x" type="range" min="-400" max="400" step="2" value="0" class="w-full" />
             </div>
             <div>
               <div class="field-label">상하 (<span id="b-kvr-logo-y-label">0</span>px)</div>
@@ -1900,6 +1934,11 @@
             <option value="five-star">5점 리뷰 모음 / 5-Star Reviews</option>
             <option value="off" selected>— 비활성 (헤드라인 미표시) —</option>
           </select>
+          <!-- R22: 헤드라인 텍스트 배경 박스 -->
+          <label class="flex items-center gap-2 text-xs cursor-pointer mt-2">
+            <input id="b-kvr-headline-bg" type="checkbox" class="cursor-pointer" />
+            <span>헤드라인 배경 박스 (반투명 검정 50%)</span>
+          </label>
         </div>
 
         <div class="border border-[#262932] rounded-lg p-3 space-y-3">
@@ -2484,11 +2523,14 @@ const KVR_DEFAULT = {
   bgScale: 100,    // 50..200 (%)
   bgX: 0,          // -500..+500 (px)
   bgY: 0,
+  bgColor: '#000000',          // R21: 배경 컬러 — 키비주얼 미커버 영역 + 하단 그라데이션 끝 컬러
+  bgGradientEnabled: false,    // R21: 하단 20% 그라데이션 ON/OFF (그라데이션 컬러 = bgColor)
   logoImage: null,
   logoScale: 100,  // 50..150 (%)
-  logoX: 0,        // -200..+200
+  logoX: 0,        // -400..+400 (R20: ±200→±300 / R24: ±300→±400 확장)
   logoY: 0,        // -100..+200
   headlinePreset: 'off',  // KVR_HEADLINE_PRESETS.id 또는 'off' (디폴트 OFF, wireframe 의도)
+  headlineBgEnabled: false,    // R22: 헤드라인 텍스트 뒤 반투명 검정 박스 ON/OFF (rgba(0,0,0,0.5))
   rating: 4.8,
   ratingCount: 21000,
   reviewDate: '2026-01-23',
@@ -4989,11 +5031,14 @@ function buildKvrCfg(stateNode, lang, size) {
     bgScale: typeof stateNode.bgScale === 'number' ? stateNode.bgScale : 100,
     bgX: typeof stateNode.bgX === 'number' ? stateNode.bgX : 0,
     bgY: typeof stateNode.bgY === 'number' ? stateNode.bgY : 0,
+    bgColor: stateNode.bgColor || '#000000',                  // R21
+    bgGradientEnabled: !!stateNode.bgGradientEnabled,         // R21
     logoImage: stateNode.logoImage || null,
     logoScale: typeof stateNode.logoScale === 'number' ? stateNode.logoScale : 100,
     logoX: typeof stateNode.logoX === 'number' ? stateNode.logoX : 0,
     logoY: typeof stateNode.logoY === 'number' ? stateNode.logoY : 0,
     headlinePreset: stateNode.headlinePreset || 'off',
+    headlineBgEnabled: !!stateNode.headlineBgEnabled,         // R22
     rating: typeof stateNode.rating === 'number' ? stateNode.rating : 4.8,
     ratingCount: typeof stateNode.ratingCount === 'number' ? stateNode.ratingCount : 21000,
     reviewDate: stateNode.reviewDate || '2026-01-23',
@@ -5033,6 +5078,11 @@ async function buildKvrCanvas(cfg) {
   // - mockupW 540→400 → mockupH 877 (캔버스 81%) → 위쪽 ~203px (키비주얼+로고+헤드라인 영역)
 
   // [1] 배경 (키비주얼) — cover-fit + scale/x/y
+  // R21: bgColor를 항상 먼저 fill — 키비주얼 미커버 영역(슬라이더 오프셋 등) + 빈 배경 fallback 모두 처리
+  ctx.fillStyle = cfg.bgColor || '#000000';
+  ctx.fillRect(0, 0, W, H);
+  // R23: 키비주얼 그려진 rect 좌표를 외부 스코프로 노출 (그라데이션 계산용)
+  let kvDrawY = 0, kvDrawH = H;  // 키비주얼 없을 때 fallback = 캔버스 전체
   if (cfg._bgImg) {
     const img = cfg._bgImg;
     const iw = img.naturalWidth || img.width;
@@ -5046,13 +5096,31 @@ async function buildKvrCanvas(cfg) {
       const drawX = (W - drawW) / 2 + cfg.bgX;
       const drawY = (H - drawH) / 2 + cfg.bgY;
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
+      kvDrawY = drawY;
+      kvDrawH = drawH;
     }
-  } else {
-    // 빈 배경 — 연한 그레이 그라데이션 (placeholder)
-    const grd = ctx.createLinearGradient(0, 0, 0, H);
-    grd.addColorStop(0, '#1f2937'); grd.addColorStop(1, '#374151');
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, W, H);
+  }
+
+  // R23 (이전 R21 수정): 키비주얼 이미지의 하단 20% 영역에 그라데이션 (이전엔 캔버스 하단 20% Y=864~1080였음 — 사용자 요청으로 키비주얼 실제 그려진 rect 기준으로 변경)
+  // 키비주얼이 슬라이더 scale/Y 오프셋으로 이동해도 그라데이션이 함께 따라감 · 캔버스 밖으로 넘친 부분은 fillRect 클립
+  if (cfg.bgGradientEnabled) {
+    const hex = (cfg.bgColor || '#000000').replace(/^#/, '');
+    const r = parseInt(hex.slice(0, 2), 16) || 0;
+    const g = parseInt(hex.slice(2, 4), 16) || 0;
+    const b = parseInt(hex.slice(4, 6), 16) || 0;
+    const gradTop = kvDrawY + kvDrawH * 0.8;   // 키비주얼 하단 20% 시작
+    const gradBot = kvDrawY + kvDrawH;          // 키비주얼 하단
+    const clipTop = Math.max(0, gradTop);
+    const clipBot = Math.min(H, gradBot);
+    if (clipBot > clipTop) {
+      // 그라데이션 stops는 키비주얼 좌표 기준 (gradTop/gradBot), fillRect만 캔버스 범위로 클립
+      // → 키비주얼이 캔버스 밖으로 넘쳐도 보이는 부분에 정확한 alpha 진행도 적용
+      const grd = ctx.createLinearGradient(0, gradTop, 0, gradBot);
+      grd.addColorStop(0, `rgba(${r},${g},${b},0)`);
+      grd.addColorStop(1, `rgba(${r},${g},${b},1)`);
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, clipTop, W, clipBot - clipTop);
+    }
   }
 
   // R8: iPhone mockup 좌표 계산 (drawing은 [6]에서 마지막에 수행)
@@ -5062,13 +5130,14 @@ async function buildKvrCanvas(cfg) {
   const srcH_visible = KVR_MOCKUP_BODY.h * KVR_MOCKUP_SOURCE_TOP_RATIO;  // 1425 × 1.0 = 1425 (body 100%)
   // destination: 폭 400 (R8: body 100% 표시 가능한 폭), 종횡비는 source rect 기준
   // R14: 흰 BG 박스 + mockup 1.8x 확대. 상단 y값은 1.0x 기준으로 고정 → 확대분이 아래쪽으로만 늘어남(캔버스 하단 자동 cut)
-  // R18: 1.8 → 1.98 (10% 추가 확대, 사용자 요청 "흰 bg박스+mockup 10% 키우고 상단 y값 유지"). mockupY는 baseMockupW 기준이라 자동 유지
+  // R18: 1.8 → 1.98 (10% 추가 확대, mockupY는 baseMockupW 기준이라 자동 유지)
+  // R19: mockupY를 캔버스 50%(H/2=540)로 이동 — mockup이 더 많이 보이도록 상단 y 위로 (이전 ~625에서 -85px). 흰 BG·screenY·콘텐츠 cy0·헤드라인 모두 mockupY 기반이라 자동 동반 이동
   const KVR_MOCKUP_SCALE = 1.98;
   const baseMockupW = 400;
   const mockupW = baseMockupW * KVR_MOCKUP_SCALE;                       // 720 (1.8x)
   const mockupH = mockupW * (srcH_visible / srcBW);                     // 자동 1.8x — 흰 BG/screen* 좌표 모두 동기 확대
   const mockupX = (W - mockupW) / 2;                                    // 자동 재중앙 (180)
-  const mockupY = H - baseMockupW * (srcH_visible / srcBW);             // 1.0x 기준 mockupY 유지 (상단 y 고정)
+  const mockupY = H / 2;                                                // R19: 캔버스 50% (1080 / 2 = 540) — mockup이 더 많이 보이도록 위로 이동
 
   // [2] 로고 슬롯 — 캔버스 위쪽 영역 (mockup 위), 가로 중앙
   if (cfg._logoImg) {
@@ -5098,11 +5167,28 @@ async function buildKvrCanvas(cfg) {
     const langScale = (cfg.lang === 'ja') ? 0.85 : (cfg.lang === 'zh-TW' ? 0.92 : 1);
     const fs = Math.round(60 * langScale);  // R14e: 44 → 60 (사용자 요청, 헤드라인 텍스트 확대)
     ctx.font = `700 ${fs}px ${fontFamily}`;
-    ctx.fillStyle = '#FFFFFF';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     // R14e: 헤드라인 ↔ mockup 간격 16 → 32px (사용자 요청, 하단 여백 추가). textBaseline='middle' 보정 위해 fs/2 빼기
     const headlineY = mockupY - 32 - fs / 2;
+
+    // R22: 헤드라인 텍스트 뒤 반투명 검정 배경 박스 (옵션, rgba(0,0,0,0.5)) — 텍스트 앞에 그려야 텍스트가 위에 보임
+    if (cfg.headlineBgEnabled) {
+      const metrics = ctx.measureText(headlineText);
+      const padX = Math.round(fs * 0.5);   // 좌우 padding (fs 기준 비례)
+      const padY = Math.round(fs * 0.25);  // 상하 padding
+      const boxW = metrics.width + padX * 2;
+      const boxH = fs + padY * 2;
+      const boxX = W / 2 - boxW / 2;
+      const boxY = headlineY - boxH / 2;
+      const boxR = Math.round(fs * 0.2);   // rounded corner
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.beginPath();
+      ctx.roundRect(boxX, boxY, boxW, boxH, boxR);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = '#FFFFFF';
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
     ctx.shadowBlur = 16;
@@ -6279,10 +6365,28 @@ function bindKvrSingleUI() {
   bindKvrSlider('s-kvr-logo-x',    's-kvr-logo-x-label',    'logoX',    'px');
   bindKvrSlider('s-kvr-logo-y',    's-kvr-logo-y-label',    'logoY',    'px');
 
+  // R21: 배경 컬러 picker + 하단 20% 그라데이션 toggle
+  const bgColorEl = document.getElementById('s-kvr-bg-color');
+  if (bgColorEl) bgColorEl.addEventListener('input', () => {
+    state.single.kvr.bgColor = bgColorEl.value || '#000000';
+    refreshSinglePreview();
+  });
+  const bgGradEl = document.getElementById('s-kvr-bg-grad');
+  if (bgGradEl) bgGradEl.addEventListener('change', () => {
+    state.single.kvr.bgGradientEnabled = !!bgGradEl.checked;
+    refreshSinglePreview();
+  });
+
   // 헤드라인 프리셋 select
   const hlEl = document.getElementById('s-kvr-headline');
   if (hlEl) hlEl.addEventListener('change', () => {
     state.single.kvr.headlinePreset = hlEl.value;
+    refreshSinglePreview();
+  });
+  // R22: 헤드라인 배경 박스 toggle
+  const hlBgEl = document.getElementById('s-kvr-headline-bg');
+  if (hlBgEl) hlBgEl.addEventListener('change', () => {
+    state.single.kvr.headlineBgEnabled = !!hlBgEl.checked;
     refreshSinglePreview();
   });
 
@@ -6367,10 +6471,25 @@ function bindKvrBatchUI() {
   bindKvrBatchSlider('b-kvr-logo-x',     'b-kvr-logo-x-label',     'logoX');
   bindKvrBatchSlider('b-kvr-logo-y',     'b-kvr-logo-y-label',     'logoY');
 
+  // R21: 배경 컬러 picker + 하단 20% 그라데이션 toggle (batch — refreshSinglePreview 미호출)
+  const bgColorEl = document.getElementById('b-kvr-bg-color');
+  if (bgColorEl) bgColorEl.addEventListener('input', () => {
+    state.batch.kvr.bgColor = bgColorEl.value || '#000000';
+  });
+  const bgGradEl = document.getElementById('b-kvr-bg-grad');
+  if (bgGradEl) bgGradEl.addEventListener('change', () => {
+    state.batch.kvr.bgGradientEnabled = !!bgGradEl.checked;
+  });
+
   // 헤드라인 프리셋 select
   const hlEl = document.getElementById('b-kvr-headline');
   if (hlEl) hlEl.addEventListener('change', () => {
     state.batch.kvr.headlinePreset = hlEl.value;
+  });
+  // R22: 헤드라인 배경 박스 toggle (batch)
+  const hlBgEl = document.getElementById('b-kvr-headline-bg');
+  if (hlBgEl) hlBgEl.addEventListener('change', () => {
+    state.batch.kvr.headlineBgEnabled = !!hlBgEl.checked;
   });
 
   // 평점 / 평가 개수 / 작성 날짜 / 별색
@@ -6409,6 +6528,9 @@ function loadKvrSlotToUI(lang) {
   // 공통 (재로드, 일관성 유지)
   const hlEl = document.getElementById('s-kvr-headline');
   if (hlEl) hlEl.value = kvr.headlinePreset || 'off';
+  // R22: 헤드라인 배경 박스 체크 상태 복원
+  const hlBgEl = document.getElementById('s-kvr-headline-bg');
+  if (hlBgEl) hlBgEl.checked = !!kvr.headlineBgEnabled;
   const ratingEl = document.getElementById('s-kvr-rating');
   if (ratingEl) ratingEl.value = (typeof kvr.rating === 'number') ? kvr.rating : 4.8;
   const countEl = document.getElementById('s-kvr-rating-count');
@@ -6417,6 +6539,11 @@ function loadKvrSlotToUI(lang) {
   if (dateEl) dateEl.value = kvr.reviewDate || '2026-01-23';
   const colorEl = document.getElementById('s-kvr-star-color');
   if (colorEl) colorEl.value = kvr.starColor || '#1d1d1f';
+  // R21: 배경 컬러 + 하단 그라데이션 복원
+  const bgColorEl = document.getElementById('s-kvr-bg-color');
+  if (bgColorEl) bgColorEl.value = kvr.bgColor || '#000000';
+  const bgGradEl = document.getElementById('s-kvr-bg-grad');
+  if (bgGradEl) bgGradEl.checked = !!kvr.bgGradientEnabled;
   // sliders
   const sliders = [
     ['s-kvr-bg-scale',   's-kvr-bg-scale-label',   'bgScale',   100],
@@ -8261,177 +8388,4 @@ async function handleBatchExportZip() {
           loadCachedImage(PICKUP_ASSETS.frame['1200x628']),
           loadCachedImage(PICKUP_ASSETS.star),
         ])
-      : [null, null, null, null, null, null];
-
-    statusEl.textContent = `0 / ${total} 변환 중...`;
-    for (let i = 0; i < cfgs.length; i++) {
-      const cfg = cfgs[i];
-      const isAB = cfg.template === 'app-badge';
-      const isAS = cfg.template === 'appstore-screenshot';
-      const isSDS = cfg.template === 'sd-showcase';
-      const isKvr = cfg.template === 'keyvisual-review';
-      const isPickup = cfg.template === 'pickup';  // v1.8
-      try {
-        let canvas;
-        if (isAB) {
-          const bs = resolveBadgeState(cfg.headlinePreset);
-          const gpImg = await loadCachedImage(pickBadgeUri('googlePlay', bs, cfg.lang));
-          const asImg = await loadCachedImage(pickBadgeUri('appStore',   bs, cfg.lang));
-          canvas = await buildAppBadgeCanvas({
-            ...cfg,
-            scale: state.batch.scale,
-            _bgImg: keyartImg,      // batch keyart를 App Badge 배경으로 공유
-            _logoImg: logoImg,
-            _iconImg: iconImg,
-            _googlePlayImg: gpImg,
-            _appStoreImg: asImg,
-          });
-        } else if (isAS) {
-          // v1.5: App Store Screenshot — 공유 keyart/icon 재사용 + SVG 아이콘 매번 캐시 hit
-          const cfgWithImgs = await prepAppStoreCfgImages({ ...cfg, scale: state.batch.scale });
-          // _iconImg/_keyartImg는 prepAppStoreCfgImages가 이미 채움 (loadCachedImage가 hit)
-          canvas = await buildAppStoreScreenshotCanvas(cfgWithImgs);
-        } else if (isSDS) {
-          // v1.6: SD Showcase — 6 슬롯 이미지 공유 (1회 decode)
-          canvas = await buildSdShowcaseCanvas({
-            ...cfg,
-            scale: state.batch.scale,
-            _slotImgs: sdsSlotImgs,
-          });
-        } else if (isKvr) {
-          // v1.7: Key Visual + iPhone Review — bg/logo/mockup 이미지 공유 (1회 decode)
-          canvas = await buildKvrCanvas({
-            ...cfg,
-            scale: state.batch.scale,
-            _bgImg: kvrBgImg,
-            _logoImg: kvrLogoImg,
-            _mockupImg: kvrMockupImg,
-          });
-        } else if (isPickup) {
-          // v1.8: Pickup — 사용자 자산 + 번들 자산(사이즈별 frame + star) 공유 (1회 decode)
-          canvas = await buildPickupCanvas({
-            ...cfg,
-            scale: state.batch.scale,
-            _logoImg: pkLogoImg,
-            _keyartImg: pkKeyartImg,
-            _characterImg: pkCharImg,
-            _frameImg: cfg.size === '1200x628' ? pkFrame1200 : pkFrame1x1,
-            _starImg: pkStarImg,
-          });
-        } else {
-          canvas = await buildBannerCanvas({
-            ...cfg,
-            scale: state.batch.scale,
-            _keyartImg: keyartImg,
-            _overflowImg: overflowImg,
-            _iconImg: iconImg,
-          });
-        }
-        const dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
-        const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
-        const sdsSizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
-        const filename = isAB
-          ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
-          : isAS
-            ? `${state.batch.prefix}_appstore_${cfg.lang}_${cfg.theme || 'dark'}_1080x1920.${ext}`
-            : isSDS
-              ? `${state.batch.prefix}_sdshowcase_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
-              : isKvr
-                ? `${state.batch.prefix}_keyvisual-review_${cfg.lang}_1080x1080.${ext}`
-                : isPickup
-                  ? `${state.batch.prefix}_pickup_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
-                  : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
-        zip.file(filename, dataURL.split(',')[1], { base64: true });
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = `❌ ${cfg.size} ${cfg.lang} 실패: ${err.message}`;
-      }
-      const progress = ((i + 1) / total) * 100;
-      barEl.style.width = progress + '%';
-      statusEl.textContent = `${i + 1} / ${total} 변환 완료`;
-    }
-  } else {
-    // Fallback: 기존 html-to-image 경로
-    const stage = document.getElementById('renderStage');
-    statusEl.textContent = `0 / ${total} 변환 중...`;
-    for (let i = 0; i < cfgs.length; i++) {
-      const cfg = cfgs[i];
-      stage.innerHTML = '';
-      const banner = renderBanner(cfg);
-      stage.appendChild(banner);
-      try {
-        await waitForImages(banner);
-        await document.fonts.ready;
-        const dataURL = await bannerToImage(banner, { format: state.batch.format, scale: state.batch.scale });
-        const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
-        const filename = `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
-        zip.file(filename, dataURL.split(',')[1], { base64: true });
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = `❌ ${cfg.size} ${cfg.lang} 실패: ${err.message}`;
-      }
-      const progress = ((i + 1) / total) * 100;
-      barEl.style.width = progress + '%';
-      statusEl.textContent = `${i + 1} / ${total} 변환 완료`;
-    }
-    stage.innerHTML = '';
-  }
-
-  statusEl.textContent = 'ZIP 파일 생성 중...';
-  const blob = await zip.generateAsync({ type: 'blob' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${state.batch.prefix}_banners.zip`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  const elapsed = Math.round(performance.now() - startT);
-  statusEl.textContent = `✅ 완료! ${total}장 ZIP 다운로드됨 (${elapsed}ms)`;
-}
-
-// ===========================================================================
-// 8. 탭 전환
-// ===========================================================================
-function bindTabs() {
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const target = btn.getAttribute('data-tab');
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
-      document.querySelectorAll('.tab-content').forEach(sec => {
-        sec.classList.toggle('hidden', sec.id !== `tab-${target}`);
-      });
-    });
-  });
-}
-
-// ===========================================================================
-// 9. 초기화
-// ===========================================================================
-window.addEventListener('DOMContentLoaded', () => {
-  bindTabs();
-  bindSingleMode();
-  bindBatchMode();
-  applySingleOverflowPreset(state.single.size);
-  updateSingleHints(state.single.size);       // Plan FR-02/11
-  applySingleShadowControlsState();           // Plan FR-13
-  updateSingleShadowLabels();
-  syncSingleStateFromUI();
-
-  // v1.3: 템플릿 전환 드롭다운 이벤트 바인딩 + 초기 UI 표시
-  const tmplSel = document.getElementById('template-selector');
-  if (tmplSel) {
-    tmplSel.addEventListener('change', (e) => applyTemplateSwitch(e.target.value));
-    tmplSel.value = state.single.template;
-  }
-  applyTemplateSwitch(state.single.template); // 초기: Today Tap UI 보이기
-  updateAppBadgeHint(state.single.size);      // App Badge 힌트도 사이즈 초기값 기반으로
-
-  refreshSinglePreview();
-  renderPresetListUI();                       // r3 FR-22: 사용자 프리셋 목록 초기 렌더
-});
-</script>
-
-</body>
-</html>
+      : [null,
