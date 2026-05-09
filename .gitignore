@@ -2,7 +2,8 @@
 .bkit/
 
 # Local sync backup folders (timestamp 포함, 동기화 작업 시 자동 생성)
-.backup-pre-sync-*/
+# .backup-pre-sync-*/, .backup-pre-pull-*/, .backup-pre-collab-pull-*/ 등 모든 백업 폴더 차단
+.backup-pre-*/
 
 # Claude Code per-user 설정 (권한 캐시, 로컬 절대경로 포함)
 .claude/settings.local.json

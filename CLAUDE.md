@@ -743,6 +743,20 @@ _(작업 지시 시 최신 상태로 갱신)_
     - 흰 BG 박스: mockup 비율 기반이라 자동 10% 확대 (시각 통합)
     - 한국어 우하단 고지: 새 mockup 우측 가장자리(X=936)와 12px 여유 — 잘 보이는지 확인
     - 4언어 배치 ZIP: 카드 + drop shadow 모든 언어 일관 적용
+- 2026-05-09: **[R19~R28 통합 push] AppStore Screenshot + KVR 카드/BG/KO 고지 누적 조정**
+  - **AppStore Screenshot (R19/R20, 이전 세션 미커밋 분 포함)**:
+    - R19: 앱 아이콘 220→242px (+10%), 타이틀 54→60px (+10%), border-radius 50→55px
+    - R19/R20: 배터리 아이콘 5% 빨간 채움 (외곽선은 currentColor + 0.55 opacity 그대로 — 실제 iPhone UI 매칭)
+  - **KVR (R19/R20 이전 세션 + R21~R28 본 세션)**:
+    - R19: 리뷰 카드 1.2x 스케일링 + screen clip 해제 후 mockup 위에 카드 그리기 + KO 고지 mockup 우측 정렬
+    - R20: 헤드라인 textAlign reset 버그 수정, KO 고지 H-20→H-23 (3px 위로), padTop 14→17
+    - R21: 리뷰 카드 padTop 17→20, drop shadow strong→very strong (rgba 0.22→0.32 / blur 28→40 / offsetY 6→9), 큰 흰 BG 상하 ±10→±13px
+    - R22: 큰 흰 BG 상단 모서리 곡선→직선 사다리꼴 (cornerR=50px, mockup body 침범 완화)
+    - R23→R24: BG 좌·우 +10% 확장 시도 후 롤백 (사용자 의도 영역 오인). 카드 _cardScale 1.2→1.4 (폭만 +20%씩 누적, mockup 외곽 ±80px씩 돌출)
+    - R25: 카드 높이 _origCardH × 1.2 (사용자 명시 미세 조정, 위아래 길이 변경 없음 → 1.2x 최종)
+    - R26~R28: KO 고지문구 X mockup 우측(936) → 카드 우측 끝(cardX+cardW≈1016) → -5 → -15 (최종 ~1001, 카드 우측 안쪽 15px)
+  - 변경량: today-banner-designer.html +68/-56 라인 (1 파일). 회귀 위험 0 (AppStore + KVR 전용, 다른 4 템플릿 무영향)
+  - 문법 검증: `node --check` 통과 / .gitignore `.backup-pre-*/` 통합 패턴 (모든 백업 폴더 차단)
 
 ## 히스토리
 
