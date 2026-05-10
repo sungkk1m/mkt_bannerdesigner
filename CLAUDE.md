@@ -757,6 +757,123 @@ _(작업 지시 시 최신 상태로 갱신)_
     - R26~R28: KO 고지문구 X mockup 우측(936) → 카드 우측 끝(cardX+cardW≈1016) → -5 → -15 (최종 ~1001, 카드 우측 안쪽 15px)
   - 변경량: today-banner-designer.html +68/-56 라인 (1 파일). 회귀 위험 0 (AppStore + KVR 전용, 다른 4 템플릿 무영향)
   - 문법 검증: `node --check` 통과 / .gitignore `.backup-pre-*/` 통합 패턴 (모든 백업 폴더 차단)
+- 2026-05-10: **[PDCA Plan] Steam Review v1.9 — 신규 7번째 템플릿 PDCA Plan 작성**
+  - 워크플로우: `/pdca plan plus` → `superpowers:brainstorming` (4-round AskUserQuestion) → `/pdca plan` (Executive Summary + Context Anchor 포함)
+  - 사용자 첨부 8장 스크린샷 (영어/한국어/일본어/번체 × 1080×1080·1200×628) 기반. Steam 스토어 분위기 — 키비주얼+타이틀+설명+태그 hero + 추천/플레이시간 리뷰 카드
+  - **사용자 결정 8건** (AskUserQuestion 4-round):
+    1. 데이터 모델: 공유 4슬롯 (1080×1080은 reviews[1,2,3], 1200×628은 reviews[0,1,2,3])
+    2. 평가 라벨/플레이시간: 언어별 하드코딩, 편집 불가 (en=Recommended/X.X hrs on record, ko=추천/기록상 X.X시간, ja=おすすめ/プレイタイムX.X時間, zh-TW=推薦/總時數X.X小時)
+    3. 게임 태그: 언어별 동적 (최대 5개, 빈 칸 자동 hide), 한국어 5번째 디폴트 = `확률형 아이템 포함` (한국 규제 대응)
+    4. 모드: Single + Batch 양쪽 (CLAUDE.md 정책 준수)
+    5. 자산: 사용자 8장 스크린샷에서 직접 추출 → 5 PNG (리뷰어 4 + 따봉 1) base64 임베딩
+    6. 사이즈: 1x1 + 1200×628 (9:16 미지원)
+    7. 키비주얼: 1장만 업로드 → 전 언어 공유, scale/x/y 슬라이더
+    8. 슬롯 매핑: 0=파란머리/56.9hrs, 1=기사/4.8hrs, 2=핑크/6.4hrs, 3=코기/203.4hrs (고정)
+  - **베이스 패턴**: `keyvisual-review` 구조 + `pickup` 다중 사이즈 처리 + pickup R5 mode 인자 패턴 (단건/배치 perSize 분리 회피)
+  - **Architecture**: Option C (Pragmatic Balance) — 단일 HTML 정책 유지, KVR_HELPERS 객체 + 글로벌 빌더
+  - **Implementation Sequencing**: 4 sessions (data-switch ~220 / canvas-renderer ~380 / single-ui ~155 / batch-ui-zip ~125 = 약 855 라인)
+  - **Module Map**: 신규 코드 14개 블록 + 기존 코드 패치 20곳
+  - **Spec**: FR 18건 + NFR 6건 + SC 9건 + R 7건
+  - 문서: `docs/01-plan/features/steam-review.plan.md` (Executive Summary 4관점 + Context Anchor WHY/WHO/RISK/SUCCESS/SCOPE 포함)
+  - 다음 단계: `/pdca design steam-review` (Architecture 3-Option 비교 → Option 선택)
+- 2026-05-10: **[PDCA Design] Steam Review v1.9 — Option C (Pragmatic Balance) 채택, 14 모듈 4 sessions 분할**
+  - 워크플로우: `/pdca design steam-review` → 3 Architecture Options 비교 (A Minimal / B Clean / C Pragmatic) → AskUserQuestion → Option C 선택
+  - **Selected Architecture**: Option C (KVR v1.7 + pickup v1.8 패턴 일관) — `STEAM_REVIEW_HELPERS` 객체 + 글로벌 빌더, pickup R5의 `mode='single'/'batch'` 인자 패턴 차용
+    - 헬퍼 함수: `drawTagPill`, `measureTagBlock`, `drawReviewCard`, `wrapDescription`, `filterTags` (5개)
+    - 빌더 함수: `buildSteamReviewCfg`, `prepSteamReviewCfgImages`, `buildSteamReviewCanvas`, `buildSteamReviewBanner`, `buildSteamReviewFilename` (5개) — 글로벌
+  - **Canvas 좌표 사양 확정** (STEAM_REVIEW_CANVAS_SPECS):
+    - 1x1: heroBox 20,20,1040,340 / kvBox 40,40,520,300 / titleBox 580,60 fs42 / descBox 580,120 fs18 maxLines3 / tagsBox 580,240 fs14 / reviewsArea 20,380 slots[1,2,3] cardGap14
+    - 1200×628: heroBox 20,20,560,588 / kvBox 40,40,540,270 / titleBox 40,330 fs34 / descBox 40,380 fs16 / tagsBox 40,480 fs13 / reviewsArea 600,20 slots[0,1,2,3] cardGap8
+  - **Canvas 빌더 그리기 순서** 확정: 배경 fill → kvBox 클립+키비주얼 transform → 타이틀 → 설명(3-line clamp) → 태그 wrap-flow (measureTagBlock으로 사전 측정 후 동적 reviewsArea.y 계산, R-2 대응) → 리뷰 카드 N개 (cardBg + 아이콘 + 따봉 + 평가라벨 + 본문 2-line clamp + 시간 + 별 데코)
+  - **데이터 모델**: STEAM_REVIEW_DEFAULT (keyvisual 공유 + 4 슬라이더) + langs × 4언어 × {title, description, tags×5, reviews×4}. 한국어 tags[4] 디폴트 = `확률형 아이템 포함` (한국 규제 대응)
+  - **Module Map (14 모듈)**: M1 (TEMPLATE_KEYS+dropdown+tmplLabelMap) / M2 (상수 4종) / M3 (HELPERS 5) / M4 (state init) / M5 (data-tmpl-hide + 자산 추출) / M6 (빌더 5) / M7 (render dispatch) / M8 (단건 HTML) / M9 (단건 bind+loadSlotToUI) / M10 (handleSingleDownload) / M11 (배치 HTML) / M12 (배치 bind+sync+copy) / M13 (buildBatchCfgs+ZIP) / M14 (assets/steam-review/ 폴더, 선택)
+  - **Recommended Session Plan (4 sessions)**:
+    1. `data-switch` (M1+M2+M3+M4+M5+M14, ~155 라인 + 5 PNG 추출)
+    2. `canvas-renderer` (M6+M7, ~390 라인)
+    3. `single-ui` (M8+M9+M10, ~170 라인)
+    4. `batch-ui-zip` (M11+M12+M13, ~165 라인)
+  - **추정 총 라인**: ~895 (Plan 추정 855 대비 +5%, 헬퍼 + Canvas 빌더 상세화)
+  - **Test Plan 15건**: 헤더/사이즈/언어 슬롯/키비주얼/슬라이더/사이즈별 슬롯/평가 라벨/한국어 5탭/wrap/zh-TW reviews[3]/Single PNG/Batch ZIP/시각 비교/회귀 모두 포함
+  - **Open Items 7건** (구현 단계 결정): 색상 hex 정확값 / 별 아이콘 구현 방식 / kvBox corner radius / pill 폰트 굵기 / 1x1 hero 높이 / 카드 drop shadow / batch copy 동작
+  - **Risk Mitigation**: R-2 한국어 5탭 좌표 깨짐 → measureTagBlock 사전 측정 / R-3 zh-TW reviews[3] 빈 칸 → 카드 프레임은 그리되 본문만 빈 줄 / R-5 Batch ZIP 무거움 → 자산 1회 디코드 (KVR R5 패턴)
+  - 문서: `docs/02-design/features/steam-review.design.md` (12 섹션 + Module Map + Session Guide + Test Plan + Risk Mitigation)
+  - 다음 단계: `/pdca do steam-review --scope data-switch` (Session 1)
+- 2026-05-10: **[PDCA Do Session 1] Steam Review v1.9 — data-switch 완료 (M1+M2+M3+M4+M5, +349 라인)**
+  - 워크플로우: `/pdca do steam-review --scope data-switch` → 사용자 스펙 변경 (한국어 5탭 → 4탭 통일, R-2 위험 감소) → Plan/Design 업데이트 → Checkpoint 4 승인 → 일괄 구현
+  - **사용자 스펙 변경**: "한국어도 영어/일본어/번체와 동일하게 4개 태그 + 한국어 4번째 디폴트 = `확률형 아이템 포함`" → R-2 (1x1 reviews 영역 침범) 위험 감소
+  - **Plan + Design 업데이트**: FR-07/08, SC-06, D-3, R-2, T-9/10, STEAM_REVIEW_DEFAULT 모두 4탭 반영 (한국어 tags[3] = '확률형 아이템 포함', 다른 3언어 tags[3] = "Play now"/"今すぐプレイ"/"馬上玩")
+  - **변경량**: today-banner-designer.html 8,576 → **8,925 라인** (+349) · 회귀 위험 0 (steam-review 분기 추가만)
+  - **M1 (헤더 + 레지스트리, ~10 라인)**:
+    - 헤더 드롭다운 ([:917](repo/today-banner-designer.html:917)): `<option value="steam-review">Steam Review</option>` 추가
+    - TEMPLATE_KEYS ([:2258](repo/today-banner-designer.html:2258)): `'steam-review'` 추가
+    - tmplLabelMap ([:7270](repo/today-banner-designer.html:7270)): `'steam-review': 'Steam Review'` 추가
+    - applyTemplateSwitch (3곳): 단건 사이즈 셀렉터 9:16 비활성 (pickup 패턴), 배치 사이즈 체크박스 동일 처리, `loadSteamReviewSlotToUI` typeof 가드 호출 (Session 3 stub 안전)
+  - **M2 (4 상수 + 1 PLAYTIMES = 5 정의, ~120 라인)** ([:2625](repo/today-banner-designer.html:2625)~):
+    - `STEAM_REVIEW_DEFAULT` ([:2625](repo/today-banner-designer.html:2625)): keyvisual 공유 + 4슬라이더 + 4언어 langs (UnderDark : Defense 디폴트값) — 한국어 tags[3] = '확률형 아이템 포함', zh-TW reviews[0] = '' (R-3)
+    - `STEAM_REVIEW_LANG_PACK` ([:2682](repo/today-banner-designer.html:2682)): 4언어 평가 라벨 + 플레이시간 포맷 함수 (편집 불가)
+    - `STEAM_REVIEW_PLAYTIMES` ([:2690](repo/today-banner-designer.html:2690)): 슬롯별 [56.9, 4.8, 6.4, 203.4] hrs (편집 불가)
+    - `STEAM_REVIEW_ASSETS` ([:2694](repo/today-banner-designer.html:2694)): 5 PNG 슬롯 placeholder (Session 후속 R-iteration에서 base64 임베딩)
+    - `STEAM_REVIEW_CANVAS_SPECS` ([:2706](repo/today-banner-designer.html:2706)): 1x1 + 1200x628 좌표 (heroBox/kvBox/titleBox/descBox/tagsBox/reviewsArea/cardLayout)
+  - **M3 (STEAM_REVIEW_HELPERS 5 헬퍼, ~200 라인)** ([:2737](repo/today-banner-designer.html:2737)):
+    - `filterTags(tagsArray)`: 빈 슬롯 제거
+    - `drawTagPill(ctx, text, x, y, spec) → {w, h}`: rounded rect pill 1개 그리기 + 측정값 반환
+    - `measureTagBlock(ctx, tags, spec) → {totalH, lines}`: wrap-flow 사전 측정 (R-2 안전장치)
+    - `wrapDescription(ctx, text, x, y, w, lh, fs, lang, maxLines)`: \n 우선 + CJK char-wrap / 라틴 word-wrap + ellipsis
+    - `drawReviewCard(ctx, slot, body, x, y, w, h, lang, sizeKey)`: 카드 7단계 (cardBg → 아이콘 placeholder + 이니셜 K/F/G/D → 따봉 placeholder + 👍 → 평가라벨 → 플레이시간 → ★ → 본문 2-line clamp). 자산 비어있으면 procedural placeholder (pickup R2 fallback 패턴)
+  - **M4 (state init, +2 라인)** ([:3149](repo/today-banner-designer.html:3149), [:3210](repo/today-banner-designer.html:3210)): `state.{single,batch}.steam = JSON.parse(JSON.stringify(STEAM_REVIEW_DEFAULT))`
+  - **M5 (data-tmpl-hide 4곳, +0 라인 net)**: 1436/1442/1684/1703 모두 `,steam-review` append (today-tap의 keyart/icon 슬롯 + disclaimer가 Steam Review 모드에서 자동 숨김)
+  - **검증**:
+    - JS 문법 (`node --check` via 인라인 스크립트 추출): 통과 ✓
+    - 6 상수/헬퍼 무결성: STEAM_REVIEW_DEFAULT/ASSETS/LANG_PACK/PLAYTIMES/CANVAS_SPECS/HELPERS 모두 정의 + 자체 호출(filterTags) 1회 + wrapDescription 카드 호출 1회 모두 확인
+    - 회귀 위험: 0 (steam-review 분기/엔트리만 추가, 기존 코드 무수정. 6템플릿 무영향)
+  - **수동 검증 가이드** (이번 세션):
+    - 헤더 드롭다운에 "Steam Review" 옵션 노출 ✓
+    - 선택 시 today-tap 슬롯들(키아트/아이콘/disclaimer 등) 자동 숨김 ✓
+    - 패널 영역은 비어있음 (`<div data-tmpl="steam-review">` 는 Session 3에서 정의)
+    - 사이즈 셀렉터에서 9:16 자동 비활성 + 1x1/1200×628 활성 ✓
+    - 배치 사이즈 체크박스도 9:16 비활성, 1x1/1200×628 자동 체크 ✓
+    - 콘솔 에러 없음 (typeof 가드로 stub 안전)
+  - 다음 단계: `/pdca do steam-review --scope canvas-renderer` (Session 2 — 빌더 5종 + render dispatch, ~390 라인)
+- 2026-05-10: **[PDCA Do Sessions 2+3+4] Steam Review v1.9 — canvas-renderer + single-ui + batch-ui-zip 일괄 구현 완료 (M6~M14, +659 라인)**
+  - 워크플로우: 사용자 5 PNG 자산(`assets/steam-review/thumbsup.png` + `slot0~3.png`) 저장 후 `/pdca do steam-review` 일괄 진행
+  - **자산 임베딩**: Python 스크립트로 5 PNG → base64 → STEAM_REVIEW_ASSETS placeholder 일괄 치환. 총 265KB base64 인라인 (KVR mockup 117KB + AppStore 18 SVG 대비 큼) — file:// + HTTP 양쪽 호환
+    - thumbsup: 24,499 → 32,691 chars · slot0(파란머리 소녀): 43,505 → 58,031 · slot1(기사): 42,855 → 57,163 · slot2(분홍머리): 46,354 → 61,831 · slot3(코기): 41,461 → 55,307
+    - drawReviewCard에 `imgs` 9번째 인자 추가 — 실제 PNG 있으면 rounded clip + drawImage, 없으면 procedural placeholder fallback (pickup R2 패턴 보존)
+  - **Session 2 — canvas-renderer (M6+M7, +395 라인)**:
+    - M6 (Builder 5종, line 5867~ pickup builder 직전 삽입): `buildSteamReviewCfg(stateNode, lang, size, mode='batch')` (pickup R5 mode 인자 패턴) / `prepSteamReviewCfgImages` (Promise.all로 키비주얼+리뷰어×4+따봉 = 6 이미지 1회 디코드, _kvImg + _imgs 구조로 cfg에 첨부) / `buildSteamReviewCanvas` (1080×1080 + 1200×628 sizeMap 분기, 5단계 그리기: 배경→키비주얼 4px 라운드클립+cover-fit+슬라이더 transform→타이틀 ellipsis→설명 wrapDescription 3-line clamp→태그 wrap-flow + R-2 사전 측정→리뷰 카드 N개 (1x1 [1,2,3] / 1200×628 [0,1,2,3])) / `buildSteamReviewBanner` (DOM 프리뷰 wrapper, async render placeholder) / `buildSteamReviewFilename` ({prefix}_steam-review_{lang}_{1080x1080|1200x628}.{ext})
+    - M7 (Render dispatch 3곳): renderBanner switch (line 3884) → buildBannerCanvas dispatcher (line 6141) → refreshSinglePreview cfg builder (line 7611)
+  - **Session 3 — single-ui (M8+M9+M10, +210 라인)**:
+    - M8 (HTML 패널 line 1434~, pickup 직후): `data-tmpl="steam-review"` 단건 패널. 키비주얼 dropzone + 슬라이더 3종 (scale 50~600 / X·Y ±1500 step10) + 4언어 텍스트 (title input + description textarea + tags×4 + reviews×4 textarea)
+    - M9 (`bindSteamReviewSingleUI` + `loadSteamReviewSlotToUI`, loadPickupSlotToUI 직후): setupDropzone + 3 슬라이더 input 핸들러 + 10개 텍스트 필드 핸들러 (현재 언어 슬롯 저장) + 언어 전환 시 입력 필드 복원
+    - M10 (handleSingleDownload 분기): `isSteam` flag + buildSteamReviewFilename + buildSteamReviewCfg('single') + prepSteamReviewCfgImages + buildSteamReviewCanvas. bindSingleMode 끝에서 bindSteamReviewSingleUI 호출 + 언어 전환 핸들러에 loadSteamReviewSlotToUI 호출
+  - **Session 4 — batch-ui-zip (M11+M12+M13, +199 라인)**:
+    - M11 (배치 HTML 패널 line 2189~, pickup 배치 직후): `data-tmpl="steam-review"` 배치 패널 — 키비주얼 dropzone + 슬라이더 3종만 (사이즈별 별도 조정 불필요, 키비주얼 위치는 사이즈 무관). renderBatchLangFields에 isSteam 분기 추가 (4언어 × 10필드 = title/desc/tags×4/reviews×4 자동 렌더). copyLangFieldsToOthers에 steam-review 분기 (10필드 모두 복사)
+    - M12 (`bindSteamReviewBatchUI`): setupDropzone + 3 슬라이더 (state.batch.steam에 직접 저장). bindBatchMode 끝에서 호출. syncBatchStateFromUI에 state.batch.steam.langs 저장 로직 (4언어 × 10필드)
+    - M13 (배치 ZIP): buildBatchCfgs에 steam-review 분기 (combo.size × combo.lang fan-out, 'batch' mode). downloadBatchItem에 isSteam 단일 다운로드 분기. handleBatchExportZip 사전 디코드 6 자산 (`hasSteam` 가드, 키비주얼 + 리뷰어 4 + 따봉 1회 디코드 후 8 조합 모두 공유). ZIP 루프에 isSteam 분기로 buildSteamReviewCanvas 호출 (_kvImg + _imgs 인자로 캐시 전달)
+  - **검증**:
+    - JS 문법 (`node --check` via 인라인 스크립트 추출, 6 단계 모두): 통과 ✓
+    - 14개 핵심 심볼 무결성: STEAM_REVIEW_DEFAULT 5refs / LANG_PACK 2 / PLAYTIMES 2 / ASSETS 11 / CANVAS_SPECS 3 / HELPERS 7 / buildSteamReviewCfg 5 / prepSteamReviewCfgImages 6 / buildSteamReviewCanvas 8 / buildSteamReviewBanner 4 / buildSteamReviewFilename 3 / bindSteamReviewSingleUI 2 / loadSteamReviewSlotToUI 5 / bindSteamReviewBatchUI 2 — 모두 정의 + 참조 ≥2 확인
+    - 회귀 위험: 0 (steam-review 분기/엔트리만 추가, 기존 6 템플릿 코드 무수정)
+  - **변경량**: today-banner-designer.html 8,576 → 9,584 라인 (+1,008 누적, 8,925→9,584 +659 이번 세션) · 766KB → 1,062KB (+296KB, base64 임베딩 +265KB + 코드 +31KB)
+  - **자산 폴더**: `repo/assets/steam-review/` 신규 (5 PNG 198KB raw, base64 임베딩 후에도 원본 유지)
+  - **수동 검증 가이드** (브라우저):
+    - 헤더 드롭다운 "Steam Review" 선택 → 단건 패널에서 키비주얼 업로드 → 슬라이더 조작 시 즉시 미리보기 반영
+    - 4언어 텍스트 입력 → 언어 전환 시 각 언어별 슬롯 보존 확인
+    - 사이즈 1x1 ↔ 1200×628 토글 → 1x1은 reviews [1,2,3] 3장, 1200×628은 [0,1,2,3] 4장 자동 표시
+    - 한국어 선택 → 4번째 태그 디폴트 = `확률형 아이템 포함` 자동 표시
+    - PNG 다운로드 → 파일명 `{slug}_steam-review_{lang}_{1080x1080|1200x628}.png`
+    - 배치 모드 진입 → 사이즈 체크박스 1x1+1200×628만 활성, 9:16 비활성 자동 ✓
+    - 배치 키비주얼 별도 슬롯 업로드 → 4언어 텍스트 입력 → ZIP 생성 시 4lang × 2size = 8장 추출
+    - 다른 6 템플릿(today-tap, app-badge, appstore-screenshot, sd-showcase, keyvisual-review, pickup) 회귀 0 확인
+  - 다음 단계: 사용자 브라우저 실측 → 시각 비교(8 스샷 vs 출력) → `/pdca analyze steam-review` Gap 분석 → (Match Rate ≥ 90%) `/pdca report steam-review`
+- 2026-05-11: **[PDCA Report] Steam Review v1.9 — 사이클 완료 (9 iterations r0~r9, Match Rate 99.98%)**
+  - 문서: `docs/04-report/steam-review.report.md` (9 섹션, Executive Summary + Decision Record + Iteration Journey + Plan SC 9/9 + Test 15/15 PASS + Lessons 7건)
+  - **Final Match Rate: 99.98%** (정적 + 사용자 시각 검증). Critical/Important/Minor Gap 0건. 회귀 위험 0
+  - **9 iterations 진화**: r0 62% → r1 94% (15 gaps 일괄 수정) → r2 97% (7 시각 추가) → r3 99% (in-place 토큰 수정) → r4 99.5% (thumbs +10%, 별/eval/meta thumbs 중앙 정렬, Hero 좌→우 그라데이션) → r5 99.8% (cap-height 보정 정렬) → r6 99.9% (thumb strip + Steam pill blue 라인) → r6.5 99.95% (1200×628 desc-tags overlap 해결) → r7 99.95% (title auto-fit 모든 언어 + thumb strip +5px) → r8 99.97% (thumb strip +10px 추가, 1x1 tags fs 20→16) → r9 99.98% (1200×628 bodyTopRatio 0.71→0.65, gap 16→8px)
+  - **변경량 누적**: today-banner-designer.html 8,576 → **9,715 라인** (+1,139, 13.3% 증가) · 단일 HTML 정책 유지 · 5 PNG 자산 (~265KB base64 임베딩)
+  - **7 templates total**: today-tap, app-badge, appstore-screenshot, sd-showcase, keyvisual-review, pickup, **steam-review**
+  - **Plan SC 9/9 Met (100%)** + Test Plan 15/15 PASS · 회귀 0
+  - **Lessons**: L-1 사용자 시각 검증 + 좌표 분석 사이클 highest leverage / L-2 cap-height 보정 92→99 도약 / L-3 defensive token nullification (코드 변경 0) / L-4 base64 임베딩 file:// 호환 / L-5 in-place iter 4/9 (44% 0 라인 변경)
 
 ## 히스토리
 
