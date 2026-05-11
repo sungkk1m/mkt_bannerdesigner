@@ -1204,7 +1204,7 @@
           <div class="grid grid-cols-3 gap-2 mt-2">
             <div>
               <div class="field-label">크기 (<span id="s-kvr-bg-scale-label">100</span>%)</div>
-              <input id="s-kvr-bg-scale" type="range" min="50" max="600" step="1" value="100" class="w-full" />
+              <input id="s-kvr-bg-scale" type="range" min="50" max="250" step="1" value="100" class="w-full" />
             </div>
             <div>
               <div class="field-label">좌우 (<span id="s-kvr-bg-x-label">0</span>px)</div>
@@ -1212,7 +1212,7 @@
             </div>
             <div>
               <div class="field-label">상하 (<span id="s-kvr-bg-y-label">0</span>px)</div>
-              <input id="s-kvr-bg-y" type="range" min="-1500" max="1500" step="10" value="0" class="w-full" />
+              <input id="s-kvr-bg-y" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
             </div>
           </div>
           <!-- R21: 배경 컬러 + 하단 20% 그라데이션 (그라데이션 컬러 = 배경 컬러) -->
@@ -1313,7 +1313,7 @@
           </div>
         </div>
 
-        <p class="text-[11px] text-gray-500">* 1080×1080 전용 · iPhone mockup 폭 540px, body 상단 42%만 표시 → mockup 높이 ≈ 497px (하단 = 캔버스 끝, mockup 화면 = 흰색 PNG) · 베젤 좌우 27px / 상단 30px · 콘텐츠 영역 ≈ 468×486 (콘텐츠 384 + 여유 36) · 로고 디폴트: 위쪽 키비주얼 영역 안전 위치 (drawY=200) · 헤드라인 기본 OFF · 키비주얼 슬라이더 범위 3배 (크기 50~600%, 좌우/상하 ±1500px)</p>
+        <p class="text-[11px] text-gray-500">* 1080×1080 전용 · iPhone mockup 폭 540px, body 상단 42%만 표시 → mockup 높이 ≈ 497px (하단 = 캔버스 끝, mockup 화면 = 흰색 PNG) · 베젤 좌우 27px / 상단 30px · 콘텐츠 영역 ≈ 468×486 (콘텐츠 384 + 여유 36) · 로고 디폴트: 위쪽 키비주얼 영역 안전 위치 (drawY=200) · 헤드라인 기본 OFF · 키비주얼 슬라이더 (크기 50~250%, 좌우 ±1500px / 상하 ±500px) — R31 미세조정 범위 좁힘</p>
       </div>
       <div class="space-y-3" data-tmpl="pickup" style="display:none;">
         <!-- 게임 로고 -->
@@ -1950,7 +1950,7 @@
           <div class="grid grid-cols-3 gap-2 mt-2">
             <div>
               <div class="field-label">크기 (<span id="b-kvr-bg-scale-label">100</span>%)</div>
-              <input id="b-kvr-bg-scale" type="range" min="50" max="600" step="1" value="100" class="w-full" />
+              <input id="b-kvr-bg-scale" type="range" min="50" max="250" step="1" value="100" class="w-full" />
             </div>
             <div>
               <div class="field-label">좌우 (<span id="b-kvr-bg-x-label">0</span>px)</div>
@@ -1958,7 +1958,7 @@
             </div>
             <div>
               <div class="field-label">상하 (<span id="b-kvr-bg-y-label">0</span>px)</div>
-              <input id="b-kvr-bg-y" type="range" min="-1500" max="1500" step="10" value="0" class="w-full" />
+              <input id="b-kvr-bg-y" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
             </div>
           </div>
           <!-- R21: 배경 컬러 + 하단 20% 그라데이션 -->

@@ -955,6 +955,20 @@ _(작업 지시 시 최신 상태로 갱신)_
   - 변경량: today-banner-designer.html 9,779 라인 유지 (in-place 토큰 수정) · 문법 검증 `node --check` 통과 ✓
   - 회귀 위험: 0 (evalFs 토큰만 변경, 다른 토큰/템플릿 무영향)
   - **report 통합**: `docs/04-report/steam-review.report.md` r11 행 추가 + Key Tokens evalFs 갱신 (44 / 31) + Final Status iteration 11 (Iterations 10→11, in-place 비중 5/10 → 6/11)
+- 2026-05-11: **[KVR R31 / pdca iterate] 키비주얼 BG 슬라이더 미세조정 범위 좁힘 (사용자 피드백 반영)**
+  - 사용자 보고: KVR 키비주얼 크기/좌우/상하 슬라이더가 너무 큰 폭으로 움직여 불편 (R6에서 3배 확장한 후 R17 mockup 1.98x 확대로 실용 범위 좁아진 상태)
+  - 사용자 결정 (AskUserQuestion 3건): 크기 50~250% step 1 / 상하 ±500px step 5 / 좌우 변경 없음 (±1500 step 10 유지)
+  - 수정 5곳 in-place:
+    - 단건 [:1207](repo/today-banner-designer.html:1207) `s-kvr-bg-scale` max 600→**250**
+    - 단건 [:1215](repo/today-banner-designer.html:1215) `s-kvr-bg-y` min/max ±1500→**±500**, step 10→**5**
+    - 배치 [:1953](repo/today-banner-designer.html:1953) `b-kvr-bg-scale` max 600→**250**
+    - 배치 [:1961](repo/today-banner-designer.html:1961) `b-kvr-bg-y` min/max ±1500→**±500**, step 10→**5**
+    - 안내 텍스트 [:1316](repo/today-banner-designer.html:1316) "키비주얼 슬라이더 범위 3배 (크기 50~600%, 좌우/상하 ±1500px)" → "키비주얼 슬라이더 (크기 50~250%, 좌우 ±1500px / 상하 ±500px) — R31 미세조정 범위 좁힘"
+  - 효과 (수치): 크기 1픽셀 드래그 ≈ 3.7%→1.5% (**~2.5배 미세조정 쉬워짐**) / 상하 1유닛 점프 10px→5px + 슬라이더 칸 300→200 (**~6배 미세조정 쉬워짐**)
+  - 회귀 위험 0 (KVR 분기만, Canvas 빌더 `buildKvrCanvas`의 bgScale/bgX/bgY 계산식 무수정, 디폴트값 100/0/0 새 범위 안. 다른 6 템플릿 무영향)
+  - state 호환성: state.{single,batch}.kvr.bgScale/bgY는 브라우저 세션 일회성. 새 max 안에 디폴트 들어옴
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓ · today-banner-designer.html 9,779 라인 유지
+  - 검증 대기 (사용자 브라우저 실측): KVR 단건 모드 크기 슬라이더 max 250% / 상하 ±500px 5단위 / 좌우 ±1500px 10단위 유지 / 배치 동일 / 다른 6 템플릿 회귀 0
 
 ## 히스토리
 
