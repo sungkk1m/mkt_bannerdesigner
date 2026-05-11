@@ -6663,15 +6663,6 @@ async function buildBannerCanvas(cfg) {
 
   const pad = spec.padding;
 
-  // [2] Today 헤더 (italic, letter-spacing)
-  const headerText = cfg.header || LANG_PACK[cfg.lang].header;
-  ctx.fillStyle = '#000000';
-  ctx.font = `${spec.header.style} ${spec.header.weight} ${spec.header.fontSize}px ${fontFamily}`;
-  if ('letterSpacing' in ctx) ctx.letterSpacing = `${spec.header.letterSpacing}em`;
-  ctx.textAlign = 'left';
-  ctx.fillText(headerText, pad.left, pad.top);
-  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
-
   // [3] 프로필 아이콘 (1200×628만)
   if (spec.profile.show) {
     const p = spec.profile;
@@ -6784,6 +6775,15 @@ async function buildBannerCanvas(cfg) {
     ctx.drawImage(img, imgX0, imgY0, imgW0, imgH0);
     ctx.restore();
   }
+
+  // [6.5] Today 헤더 (overflow 위에 그려 미리보기 CSS z-index와 일치 — 미리보기/다운로드 통일)
+  const headerText = cfg.header || LANG_PACK[cfg.lang].header;
+  ctx.fillStyle = '#000000';
+  ctx.font = `${spec.header.style} ${spec.header.weight} ${spec.header.fontSize}px ${fontFamily}`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = `${spec.header.letterSpacing}em`;
+  ctx.textAlign = 'left';
+  ctx.fillText(headerText, pad.left, pad.top);
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
 
   // [7] 다크바 (rounded 하단, rgba 97% 검정)
   ctx.save();

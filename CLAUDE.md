@@ -874,6 +874,14 @@ _(작업 지시 시 최신 상태로 갱신)_
   - **7 templates total**: today-tap, app-badge, appstore-screenshot, sd-showcase, keyvisual-review, pickup, **steam-review**
   - **Plan SC 9/9 Met (100%)** + Test Plan 15/15 PASS · 회귀 0
   - **Lessons**: L-1 사용자 시각 검증 + 좌표 분석 사이클 highest leverage / L-2 cap-height 보정 92→99 도약 / L-3 defensive token nullification (코드 변경 0) / L-4 base64 임베딩 file:// 호환 / L-5 in-place iter 4/9 (44% 0 라인 변경)
+- 2026-05-11: **[today-tap z-order fix] buildBannerCanvas 헤더 그리기 [2] → [6.5] 이동 (미리보기↔다운로드 통일)**
+  - 사용자 보고: today-tap 미리보기는 Today 글자가 overflow 위에 표시되는데, 다운로드 PNG에서는 overflow 이미지가 Today 글자를 가림
+  - 원인: CSS z-index(header 20 > overflow 10)는 DOM 미리보기에만 적용. Canvas는 z-index 없이 그리기 순서가 곧 layering. `buildBannerCanvas`는 step [2]에서 header 먼저, step [6]에서 overflow 나중에 그려 미리보기와 정반대 결과
+  - 수정: 기존 step [2] 헤더 블록(8줄)을 step [6] overflow 직후, step [7] 다크바 직전(line 6779)으로 이동. 주석 [6.5]로 갱신. 좌표/인자/로직 무변경 — 순수 코드 위치 이동
+  - 영향 범위: today-tap default 분기만 (다른 6 템플릿은 별도 builder 사용, 무영향). DOM `buildBanner`/CSS z-index 무수정 — 미리보기 동작 100% 유지
+  - 변경량: today-banner-designer.html 9,715 → 9,716 라인 (+1 — `[6.5]` 주석 + 코드 8줄 추가, [2] 자리 9줄 삭제 net +1 빈 줄)
+  - 회귀 위험: 0. 문법 검증 `node --check` 통과
+  - 검증 대기: 사용자 브라우저 실측 — today-tap 1x1/9x16/1200×628 × 단건+배치 ZIP에서 Today 글자가 overflow 위에 표시되는지
 
 ## 히스토리
 
