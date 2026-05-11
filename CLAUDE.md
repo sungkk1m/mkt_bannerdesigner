@@ -945,6 +945,16 @@ _(작업 지시 시 최신 상태로 갱신)_
   - 변경량: today-banner-designer.html 9,779 라인 유지 (in-place 토큰 수정) · 문법 검증 `node --check` 통과 ✓
   - 회귀 위험: 0 (Steam Review evalFs 토큰만 변경, 다른 6 템플릿 + R29/R30 KVR 변경 무영향)
   - **report 통합**: `docs/04-report/steam-review.report.md` r10 행 + Key Tokens evalFs 갱신 + Final Status iteration 10 갱신 (Iterations 9→10, in-place 비중 4/9 → 5/10)
+- 2026-05-11: **[Steam Review R11 / pdca iterate] 평가 라벨 추가 축소 — 원본 대비 누적 −15% (in-place, 0 라인)**
+  - 사용자 피드백: R10(-10%, 1080×1080 기준 5px / 1200×628 기준 4px 축소)이 미리보기 스케일에서 시각적으로 거의 인지되지 않음 → 추가 축소 요청
+  - 사용자 결정: 원본 대비 **−15%** (R10에서 추가로 −3 px / −1 px)
+  - **수정** (`today-banner-designer.html`, 2줄만):
+    - `cardLayout.evalFs` line 2839: **47 → 44** (원본 52 대비 −15.4%)
+    - `cardLayout.evalFs` line 2868: **32 → 31** (원본 36 대비 −13.9%)
+  - 옵션 1 유지 (metaGap 무수정) — "추천 ↔ 플레이시간" 간격 보존, 두 라인 묶음만 카드 안에서 추가로 살짝 위로 이동
+  - 변경량: today-banner-designer.html 9,779 라인 유지 (in-place 토큰 수정) · 문법 검증 `node --check` 통과 ✓
+  - 회귀 위험: 0 (evalFs 토큰만 변경, 다른 토큰/템플릿 무영향)
+  - **report 통합**: `docs/04-report/steam-review.report.md` r11 행 추가 + Key Tokens evalFs 갱신 (44 / 31) + Final Status iteration 11 (Iterations 10→11, in-place 비중 5/10 → 6/11)
 
 ## 히스토리
 

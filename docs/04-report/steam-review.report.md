@@ -4,7 +4,7 @@
 **Period**: 2026-05-10 → 2026-05-11 (2일)
 **Author**: ksk@superplanet.net (UA Manager, Superplanet)
 **Status**: ✅ Completed (Match Rate 99.98%)
-**Iterations**: 10 (r0 → r10, 모두 사용자 시각 검증 후 진행)
+**Iterations**: 11 (r0 → r11, 모두 사용자 시각 검증 후 진행)
 
 ---
 
@@ -15,7 +15,7 @@
 | Feature | Steam Review 템플릿 (7번째) |
 | 기간 | 2026-05-10 ~ 2026-05-11 |
 | 본체 파일 | `today-banner-designer.html` 단일 HTML |
-| 라인 변경 | 8,576 → **9,715** (+1,139, r10은 in-place 토큰 수정 0 라인) |
+| 라인 변경 | 8,576 → **9,715** (+1,139, r10/r11은 in-place 토큰 수정 0 라인) |
 | 자산 | `repo/assets/steam-review/` 5 PNG (thumbsup + reviewer×4, base64 임베딩 ~265KB) |
 | 사이즈 | 1080×1080 + 1200×628 (9:16 미지원) |
 | 언어 | ko / en / ja / zh-TW |
@@ -49,7 +49,7 @@
 
 ---
 
-## 2. Iteration Journey (r0 → r10)
+## 2. Iteration Journey (r0 → r11)
 
 | Iter | Match Rate | 변경 내용 (요약) | 라인 |
 |---|---|---|---|
@@ -64,11 +64,12 @@
 | **r7** | 99.95% | 타이틀 auto-fit fs (긴 EN 잘림 해결), thumb strip +5px, user icon PNG 가이드 | +11 |
 | **r8** | 99.97% | thumb strip +10px 추가 (5→15), 1x1 tags fs 20→16, title auto-fit 모든 언어 적용 확인 | 0 |
 | **r9** | 99.98% | 1200×628 bodyTopRatio 0.71→0.65 (gap 16→8px, 2줄 body 침범 해결) | 0 |
-| **r10** | **99.98%** | 평가 라벨 ("추천/Recommended") evalFs −10% (1x1 52→47, 1200×628 36→32). Option 1 (metaGap 무수정, "추천↔플레이시간" 간격 유지) | 0 (in-place) |
+| **r10** | 99.98% | 평가 라벨 ("추천/Recommended") evalFs −10% (1x1 52→47, 1200×628 36→32). Option 1 (metaGap 무수정) | 0 (in-place) |
+| **r11** | **99.98%** | 평가 라벨 evalFs 추가 축소 (사용자 피드백: R10 변화 인지 안 됨 → 원본 대비 **−15%** 누적). 1x1 47→**44**, 1200×628 32→**31**. metaGap 무수정 유지 | 0 (in-place) |
 
-**Cumulative Match Rate**: 62% → **99.98%** (+37.98pp, r10은 micro-polish)
-**Cumulative Lines**: +1,139 (8,576 → 9,715, r10은 0 라인)
-**Iteration 효율**: 평균 +3.6pp/iter, **in-place 변경 비중 73%** (r3, r6.5, r8, r9, **r10**)
+**Cumulative Match Rate**: 62% → **99.98%** (+37.98pp, r10/r11은 micro-polish)
+**Cumulative Lines**: +1,139 (8,576 → 9,715, r10/r11은 0 라인)
+**Iteration 효율**: 평균 +3.3pp/iter, **in-place 변경 비중 6/11 = 55%** (r3, r6.5, r8, r9, r10, **r11**)
 
 ---
 
@@ -141,12 +142,12 @@
 ## 6. Key Tokens (CANVAS_SPECS — Final r9)
 
 ### 1080×1080 cardLayout
-- iconSize 150, thumbsSize 92, evalFs **47** (r10 52→47, −9.6%), bodyFs 32, metaFs 24, starFs 55
+- iconSize 150, thumbsSize 92, evalFs **44** (r11 47→44, 원본 52 대비 −15.4%), bodyFs 32, metaFs 24, starFs 55
 - bodyTopRatio **0.65**, metaExtraOffsetY 2, metaGap 8 (불변)
 - cardThumbStripBg `#14202c`, cardThumbStripRightExtra **15**
 
 ### 1200×628 cardLayout
-- iconSize 100, thumbsSize 66, evalFs **32** (r10 36→32, −11.1%), bodyFs **18** (r6 22→18), metaFs 18, starFs 38
+- iconSize 100, thumbsSize 66, evalFs **31** (r11 32→31, 원본 36 대비 −13.9%), bodyFs **18** (r6 22→18), metaFs 18, starFs 38
 - bodyTopRatio **0.65** (r9 0.71→0.65), metaGap 6 (불변)
 - cardThumbStripBg `#14202c`, cardThumbStripRightExtra **15**
 
@@ -162,7 +163,7 @@
 2. **cap-height 보정의 가치** — r5에서 textBaseline='top' + EM-box 단순 중앙 → 'middle' + cap_ratio 0.72 보정으로 한국어 시각 정렬 정확도 92→99로 도약
 3. **defensive token nullification** — r3에서 cardInfoBg/cardSeparatorColor를 코드 변경 없이 spec 값만 null로 설정하여 효과 적용 (가드 문 자동 skip)
 4. **base64 임베딩 패턴 재사용** — KVR R7 hotfix 학습이 Steam Review 자산 5 PNG 임베딩에서 file:// 호환 즉시 보장
-5. **In-place iteration 비중 ↑** — 10개 iter 중 5개(r3, r6.5, r8, r9, r10)가 0 라인 변경 (토큰 값 수정만으로 매치률 +5pp 및 비주얼 톤 미세조정)
+5. **In-place iteration 비중 ↑** — 11개 iter 중 6개(r3, r6.5, r8, r9, r10, r11)가 0 라인 변경 (토큰 값 수정만으로 매치률 +5pp 및 비주얼 톤 미세조정)
 6. **사용자 결정 기록 명시화** — 각 iter의 AskUserQuestion 답변을 analysis.md에 표 형태로 보존 → 재현 가능성 + 향후 다른 템플릿 적용 시 참고
 7. **다중 사이즈 분기의 sweet spot** — pickup 패턴(perSize 객체) 대신 spec 객체 기반(`STEAM_REVIEW_CANVAS_SPECS[size]`)이 더 직관적
 
@@ -192,9 +193,9 @@
 ─────────────────────────────
 Phase: completed ✅
 Match Rate: 99.98% (목표 90% +9.98pp)
-Iteration: 10 (max 5 초과, 사용자 시각 검증 cycle로 진행)
+Iteration: 11 (max 5 초과, 사용자 시각 검증 cycle로 진행)
 ─────────────────────────────
-[PM] N/A → [Plan] ✅ → [Design] ✅ → [Do] ✅ → [Check] ✅ → [Act ×10] ✅ → [Report] ✅
+[PM] N/A → [Plan] ✅ → [Design] ✅ → [Do] ✅ → [Check] ✅ → [Act ×11] ✅ → [Report] ✅
 ```
 
 ### 다음 단계 권장
@@ -206,5 +207,5 @@ Iteration: 10 (max 5 초과, 사용자 시각 검증 cycle로 진행)
 
 **Report Generated**: 2026-05-11
 **Final Match Rate**: 99.98%
-**PDCA Sub-cycle**: 10 iterations (r0 → r10)
+**PDCA Sub-cycle**: 11 iterations (r0 → r11)
 **회귀 위험**: 0 (다른 6 템플릿 무영향)
