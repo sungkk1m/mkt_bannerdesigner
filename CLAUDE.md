@@ -932,6 +932,19 @@ _(작업 지시 시 최신 상태로 갱신)_
   - 정리: state.batch 초기화 블록(line 3747-3748, 3752) R30/Steam Review 정책 정합 주석으로 갱신
   - 본체 라인: today-banner-designer.html 9,779 라인 유지 · 문법 검증 `node --check` 통과 ✓
   - 다음 단계: 사용자 브라우저 실측 OK → `/pdca report keyvisual-review`로 R29+R30 통합 완료 보고서 작성
+- 2026-05-11: **[Steam Review R10 / pdca iterate] 평가 라벨 ("추천/Recommended/おすすめ/推薦") evalFs −10% 축소 (in-place, 0 라인)**
+  - 사용자 요청: Steam Review 카드의 평가 라벨이 너무 큼 → 1080×1080·1200×628 두 규격 evalFs 현재값 보고 후 10% 축소
+  - 현재값 확인 (코드 트레이싱: STEAM_REVIEW_CANVAS_SPECS → cardLayout.evalFs → drawReviewCard ctx.font + ctx.fillText(lp.evalLabel)):
+    - 1080×1080: evalFs **52 px** (line 2839)
+    - 1200×628: evalFs **36 px** (line 2868)
+  - 사용자 결정 (옵션 1 + 10% 축소): evalFs만 수정, metaGap은 손대지 않음 → "추천 ↔ 플레이시간" 간격 유지, 두 라인 묶음만 카드 안에서 약간 위로 자연 이동 (수용)
+  - **수정** (`today-banner-designer.html`, 2줄만):
+    - `cardLayout.evalFs` line 2839: **52 → 47** (정확 −9.6%, 46.8 정수 반올림)
+    - `cardLayout.evalFs` line 2868: **36 → 32** (정확 −11.1%, 32.4 정수 반올림)
+  - 의존성 검증: `metaY = evalY + cl.evalFs + cl.metaGap` 식이므로 evalFs 줄어든 만큼 meta 라인이 자동으로 위로 살짝 따라 올라옴. starFs/bodyFs/metaFs/iconSize는 evalFs와 독립 — 영향 0
+  - 변경량: today-banner-designer.html 9,779 라인 유지 (in-place 토큰 수정) · 문법 검증 `node --check` 통과 ✓
+  - 회귀 위험: 0 (Steam Review evalFs 토큰만 변경, 다른 6 템플릿 + R29/R30 KVR 변경 무영향)
+  - **report 통합**: `docs/04-report/steam-review.report.md` r10 행 + Key Tokens evalFs 갱신 + Final Status iteration 10 갱신 (Iterations 9→10, in-place 비중 4/9 → 5/10)
 
 ## 히스토리
 
