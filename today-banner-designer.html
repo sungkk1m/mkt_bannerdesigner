@@ -2039,7 +2039,7 @@
           </div>
         </div>
 
-        <p class="text-[10px] text-gray-500">* 1080×1080 전용 (9:16 / 1200×628 자동 비활성) · 4언어 자동 출력 · 리뷰 콘텐츠(제목/본문/리뷰어 ID)는 단건 모드에서 입력한 값 자동 사용 (정책 유지)</p>
+        <p class="text-[10px] text-gray-500">* 1080×1080 전용 (9:16 / 1200×628 자동 비활성) · 4언어 자동 출력 · 리뷰 콘텐츠(제목/본문/리뷰어 ID)는 아래 "언어 텍스트" 패널에서 언어별로 직접 입력 (R30: 단건과 독립)</p>
       </div>
       <div class="border border-[#262932] rounded-lg p-3 space-y-3" data-tmpl="pickup" style="display:none;">
         <p class="text-xs font-semibold text-gray-300">Pickup 공통 설정 (배치 전용 — 단건과 별도 슬롯)</p>
@@ -3744,12 +3744,12 @@ const state = {
     sd_showPill: true,
     sd_slots: [null, null, null, null, null, null],
     // 언어별 SD Showcase 텍스트 (sds_title, sds_pill)도 langOverrides[lang]에 통합 저장
-    // v1.7 R13: KVR 배치 전용 — 키비주얼/로고/슬라이더/평점/날짜/별색/헤드라인을 단건과 별도로 입력 가능
-    // (다른 템플릿과 일관된 별도 슬롯 패턴. 콘텐츠 langs는 buildBatchCfgs에서 단건 데이터 사용 — 정책 유지)
+    // v1.7 R13 → R30: KVR 배치 전용 — 키비주얼/로고/슬라이더/평점/날짜/별색/헤드라인 + 콘텐츠 langs(reviewTitle/Body/reviewerId)
+    // 모두 단건과 독립 입력 (R30부터 콘텐츠 langs도 분리. 다른 5 템플릿과 완전 일관)
     kvr: JSON.parse(JSON.stringify(KVR_DEFAULT)),
     // v1.8: Pickup 배치 전용 (R3 perSize 마이그레이션은 bindPickupBatchUI에서 idempotent 처리)
     pickup: JSON.parse(JSON.stringify(PICKUP_DEFAULT)),
-    // v1.9: Steam Review 배치 전용 (KVR R13 분리 패턴 — 키비주얼/슬라이더는 배치 별도, 콘텐츠 langs는 단건 데이터 차용)
+    // v1.9: Steam Review 배치 전용 (키비주얼/슬라이더 + 콘텐츠 langs 모두 배치 별도, syncBatchStateFromUI에서 state.batch.steam.langs 저장)
     steam: JSON.parse(JSON.stringify(STEAM_REVIEW_DEFAULT)),
   },
   ui: { previewScale: 0.45 },
@@ -6017,44 +6017,70 @@ function ellipsisLine(ctx, text, maxW) {
   return text.slice(0, lo) + ell;
 }
 
-// N줄 줄바꿈 + 마지막 줄 ellipsis
+// N줄 줄바꿈 + 마지막 줄 ellipsis. v1.7 R29: 사용자 명시 \n 우선 분리 (KVR 리뷰 본문 / Steam Review 리뷰 카드)
+// 빈 줄 정책: 연속 \n으로 인한 빈 segment는 한 줄을 차지하지 않고 skip (Plan §4 Item1 option 2)
 function wrapTextToNLines(ctx, text, maxW, lang, maxLines) {
   const isCJK = (lang === 'ja' || lang === 'zh-TW' || lang === 'ko');
+  const segments = String(text == null ? '' : text).split(/\r?\n/);
   const out = [];
-  let cur = '';
-  if (isCJK) {
-    for (const ch of text) {
-      const test = cur + ch;
-      if (ctx.measureText(test).width <= maxW) {
-        cur = test;
-      } else {
-        if (cur) out.push(cur);
-        cur = ch;
-        if (out.length >= maxLines) break;
+  let remainingAfterCap = '';
+  const joinSep = isCJK ? '' : ' ';
+
+  // 단일 segment 내부 width-based wrap (기존 로직 캡슐화, maxLines 캡 미적용 — 호출부에서 캡)
+  const wrapSegment = (seg) => {
+    const lines = [];
+    let cur = '';
+    if (isCJK) {
+      for (const ch of seg) {
+        const test = cur + ch;
+        if (ctx.measureText(test).width <= maxW) {
+          cur = test;
+        } else {
+          if (cur) lines.push(cur);
+          cur = ch;
+        }
       }
-    }
-    if (cur && out.length < maxLines) out.push(cur);
-  } else {
-    const tokens = text.split(/\s+/).filter(Boolean);
-    for (const w of tokens) {
-      const test = cur ? cur + ' ' + w : w;
-      if (ctx.measureText(test).width <= maxW) {
-        cur = test;
-      } else {
-        if (cur) out.push(cur);
-        cur = w;
-        if (out.length >= maxLines) break;
+      if (cur) lines.push(cur);
+    } else {
+      const tokens = seg.split(/\s+/).filter(Boolean);
+      for (const w of tokens) {
+        const test = cur ? cur + ' ' + w : w;
+        if (ctx.measureText(test).width <= maxW) {
+          cur = test;
+        } else {
+          if (cur) lines.push(cur);
+          cur = w;
+        }
       }
+      if (cur) lines.push(cur);
     }
-    if (cur && out.length < maxLines) out.push(cur);
-  }
-  // 마지막 줄이 잘렸을 수 있으면 ellipsis
-  if (out.length === maxLines) {
-    const remaining = isCJK ? text.slice(out.join('').length) : text.split(/\s+/).slice(out.join(' ').split(/\s+/).length).join(' ');
-    if (remaining && remaining.trim()) {
-      out[maxLines - 1] = ellipsisLine(ctx, out[maxLines - 1] + (isCJK ? '' : ' ') + remaining.trim(), maxW);
+    return lines;
+  };
+
+  for (const seg of segments) {
+    if (out.length >= maxLines) {
+      // 캡 도달 — 잔여 segments는 마지막 줄 ellipsis 힌트로 누적
+      if (seg) remainingAfterCap += (remainingAfterCap ? joinSep : '') + seg;
+      continue;
+    }
+    if (seg === '') continue;  // 빈 segment(연속 \n) skip
+    const segLines = wrapSegment(seg);
+    for (let i = 0; i < segLines.length; i++) {
+      if (out.length >= maxLines) {
+        // 본 segment의 나머지 wrap 줄 + 이후 segments를 잔여로 누적
+        const rest = segLines.slice(i).join(joinSep);
+        remainingAfterCap += (remainingAfterCap ? joinSep : '') + rest;
+        break;
+      }
+      out.push(segLines[i]);
     }
   }
+
+  // 마지막 줄이 잘렸으면 잔여 내용을 hint로 붙여서 ellipsis
+  if (out.length === maxLines && remainingAfterCap.trim()) {
+    out[maxLines - 1] = ellipsisLine(ctx, out[maxLines - 1] + joinSep + remainingAfterCap.trim(), maxW);
+  }
+
   return out;
 }
 
@@ -7292,7 +7318,8 @@ function bindKvrSingleUI() {
 }
 
 // v1.7 R13: KVR 배치 전용 UI 바인딩 (단건과 별도 슬롯/슬라이더, state.batch.kvr에 저장)
-// 콘텐츠 langs는 buildBatchCfgs에서 state.single.kvr.langs를 참조 (정책 유지)
+// R30 (2026-05-11): 콘텐츠 langs (reviewTitle/Body/reviewerId)도 state.batch.kvr.langs로 분리 — 단건과 완전 독립.
+//                   렌더는 renderBatchLangFields가, 저장은 syncBatchStateFromUI가 처리
 function bindKvrBatchUI() {
   // 키비주얼 dropzone
   setupDropzone('b-drop-kvr-bg', (dataURL) => {
@@ -8878,6 +8905,25 @@ function syncBatchStateFromUI() {
     if (cEl) state.batch.pickup.langs[lang].class       = cEl.value;
   });
 
+  // v1.7 R30: KVR 언어별 리뷰 텍스트 (state.batch.kvr.langs에 직접 저장)
+  // 이전 R13까지는 buildBatchCfgs에서 state.single.kvr.langs를 강제 override했지만,
+  // R30부터 배치 모드도 다른 템플릿처럼 언어별 입력 가능 (단건과 독립)
+  if (state.batch.kvr) {
+    if (!state.batch.kvr.langs) state.batch.kvr.langs = {};
+    state.batch.langs.forEach(lang => {
+      if (!state.batch.kvr.langs[lang]) {
+        state.batch.kvr.langs[lang] = { reviewTitle: '', reviewBody: '', reviewerId: '' };
+      }
+      const slot = state.batch.kvr.langs[lang];
+      const titleEl    = document.getElementById(`b-kvr-review-title-${lang}`);
+      const bodyEl     = document.getElementById(`b-kvr-review-body-${lang}`);
+      const reviewerEl = document.getElementById(`b-kvr-reviewer-id-${lang}`);
+      if (titleEl)    slot.reviewTitle = titleEl.value;
+      if (bodyEl)     slot.reviewBody  = bodyEl.value;
+      if (reviewerEl) slot.reviewerId  = reviewerEl.value;
+    });
+  }
+
   // v1.9: Steam Review 언어별 텍스트 (state.batch.steam.langs에 직접 저장)
   state.batch.langs.forEach(lang => {
     if (!state.batch.steam.langs[lang]) {
@@ -8918,20 +8964,8 @@ function renderBatchLangFields() {
   const isPickup = tmpl === 'pickup';  // v1.8
   const isSteam = tmpl === 'steam-review';  // v1.9
 
-  // v1.7: Key Visual + iPhone Review — 단건 모드 입력 데이터를 그대로 4언어 ZIP 출력
-  // 배치에 별도 언어별 입력 폼 없음 (UA 워크플로 단순화)
-  if (isKvr) {
-    container.innerHTML = `
-      <div class="text-xs text-gray-400 bg-[#14151a] border border-[#262932] rounded-lg p-3 space-y-1">
-        <p><strong class="text-gray-200">📱 Key Visual + Review 배치 모드</strong></p>
-        <p>단건 편집 탭에서 입력한 키비주얼 / 로고 / 평점 / 리뷰 데이터를 그대로 사용합니다.</p>
-        <p>위에서 선택한 ${langs.length}개 언어로 1080×1080 ${langs.length}장 ZIP을 자동 생성합니다.</p>
-        <p class="text-gray-500 mt-2">* 단건 편집 탭의 언어 탭별 리뷰 텍스트가 각각 출력됩니다.</p>
-      </div>
-    `;
-    return;
-  }
-
+  // v1.7 R30: KVR 배치도 다른 템플릿(Pickup/Steam Review 등)과 일관된 언어별 입력 폼 제공
+  // 초기값은 state.batch.kvr.langs (KVR_DEFAULT deep copy로 init됨)
   langs.forEach((lang, idx) => {
     const pack = LANG_PACK[lang];
     const group = document.createElement('div');
@@ -9040,6 +9074,23 @@ function renderBatchLangFields() {
         <textarea id="b-steam-review-${lang}-2" class="input-base text-sm" rows="2" placeholder="리뷰 슬롯 2 (6.4 hrs)">${escapeHTML(revVal2)}</textarea>
         <textarea id="b-steam-review-${lang}-3" class="input-base text-sm" rows="2" placeholder="리뷰 슬롯 3 (203.4 hrs)">${escapeHTML(revVal3)}</textarea>
       `;
+    } else if (isKvr) {
+      // v1.7 R30: KVR 언어별 입력 — reviewTitle / reviewBody / reviewerId (3 필드, state.batch.kvr.langs)
+      const kvrDefault = (KVR_DEFAULT.langs && KVR_DEFAULT.langs[lang]) || { reviewTitle: '', reviewBody: '', reviewerId: '' };
+      const kvrSlot = (state.batch.kvr && state.batch.kvr.langs && state.batch.kvr.langs[lang]) || kvrDefault;
+      const getVal = (id, fallback) => existing[id] !== undefined ? existing[id] : (fallback || '');
+      const titleVal    = getVal(`b-kvr-review-title-${lang}`, kvrSlot.reviewTitle);
+      const bodyVal     = getVal(`b-kvr-review-body-${lang}`,  kvrSlot.reviewBody);
+      const reviewerVal = getVal(`b-kvr-reviewer-id-${lang}`,  kvrSlot.reviewerId);
+      group.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-200 font-semibold">${pack.label}</span>
+          <button type="button" class="text-[10px] text-indigo-400 hover:underline" data-copy-from="${lang}" title="이 언어의 리뷰 텍스트를 다른 선택 언어에 복사">다른 언어에 복사</button>
+        </div>
+        <input id="b-kvr-review-title-${lang}" class="input-base text-sm" placeholder="리뷰 제목 (${pack.label})" value="${escapeHTML(titleVal)}" />
+        <textarea id="b-kvr-review-body-${lang}" class="input-base text-sm" rows="2" placeholder="리뷰 본문 (2줄 + ellipsis · Enter로 줄바꿈 가능)">${escapeHTML(bodyVal)}</textarea>
+        <input id="b-kvr-reviewer-id-${lang}" class="input-base text-sm" placeholder="리뷰어 아이디" value="${escapeHTML(reviewerVal)}" />
+      `;
     } else if (isAB) {
       // App Badge: 헤드라인 textarea + 고지문구만
       const presetKey = state.batch.ab_headlinePreset || 'download';
@@ -9142,6 +9193,20 @@ function copyLangFieldsToOthers(srcLang) {
         if (rv) rv.value = srcReviews[i];
       }
     });
+  } else if (tmpl === 'keyvisual-review') {
+    // v1.7 R30: KVR — reviewTitle / reviewBody / reviewerId (3필드)
+    const srcTitle    = document.getElementById(`b-kvr-review-title-${srcLang}`)?.value || '';
+    const srcBody     = document.getElementById(`b-kvr-review-body-${srcLang}`)?.value  || '';
+    const srcReviewer = document.getElementById(`b-kvr-reviewer-id-${srcLang}`)?.value  || '';
+    langs.forEach(lang => {
+      if (lang === srcLang) return;
+      const t = document.getElementById(`b-kvr-review-title-${lang}`);
+      const b = document.getElementById(`b-kvr-review-body-${lang}`);
+      const r = document.getElementById(`b-kvr-reviewer-id-${lang}`);
+      if (t) { t.value = srcTitle; copied++; }
+      if (b) b.value = srcBody;
+      if (r) r.value = srcReviewer;
+    });
   } else {
     const srcTitle    = document.getElementById(`b-title-${srcLang}`)?.value    || '';
     const srcSubtitle = document.getElementById(`b-subtitle-${srcLang}`)?.value || '';
@@ -9219,10 +9284,9 @@ function buildBatchCfgs() {
     }
     // v1.7: Key Visual + iPhone Review 분기 — 1080×1080 전용 + 4언어 자동 출력
     // R13: 키비주얼/로고/슬라이더/평점/날짜/별색/헤드라인은 state.batch.kvr (배치 별도 입력)
-    //      콘텐츠 langs (reviewTitle/Body/reviewerId)는 state.single.kvr.langs 참조 (정책 유지)
+    // R30: 콘텐츠 langs (reviewTitle/Body/reviewerId)도 state.batch.kvr.langs (배치 언어별 독립 편집, 단건 분리)
     if (tmpl === 'keyvisual-review') {
-      const batchKvr = { ...state.batch.kvr, langs: state.single.kvr.langs };
-      const cfg = buildKvrCfg(batchKvr, combo.lang, '1x1');
+      const cfg = buildKvrCfg(state.batch.kvr, combo.lang, '1x1');
       cfg._combo = combo;
       return cfg;
     }

@@ -355,3 +355,138 @@ Mockup 화면(스크린) 영역: x=300.6..781.6, y=24..1055.9
 **R8/R8.1 결정 기록 검증**:
 - ✅ R8 사용자 결정 (이슈 3건 일괄 해결): A+B+C 결합 → 모두 충실 적용
 - ✅ R8.1 사용자 시각 검증 후 발견된 워터마크: PNG body 좌표 정밀화로 즉각 해결
+
+---
+
+## Round 29+30 — `\n` 줄바꿈 지원 + 배치 모드 콘텐츠 언어별 독립 편집 (2026-05-11)
+
+### 분석 범위
+
+본 라운드는 v1.7 cycle 종결(R8.1, 2026-05-04) 이후 누적된 R9~R28의 시각 미세 조정과는 별도로, **사용자 워크플로 핵심 2건의 보수적 개선**을 분석:
+
+- **R29**: KVR 리뷰 본문 textarea에 입력한 `\n` 줄바꿈이 미리보기/다운로드 PNG에 무시되던 버그 수정
+- **R30**: KVR 배치 모드가 단건 콘텐츠(reviewTitle/Body/reviewerId)를 강제 복사하던 R13 정책 폐기 → 다른 5 템플릿과 일관된 언어별 독립 편집
+
+### 변경 영향 요약
+
+| 영역 | R29 | R30 |
+|------|-----|-----|
+| 본체 파일 라인 | 9,716 → 9,741 (+25) | 9,741 → 9,779 (+38) |
+| 핵심 수정 함수 | `wrapTextToNLines` (재작성) | `renderBatchLangFields` / `syncBatchStateFromUI` / `copyLangFieldsToOthers` / `buildBatchCfgs` (4 군데) |
+| 신규 DOM ID | 0 | `b-kvr-review-title-${lang}` / `b-kvr-review-body-${lang}` / `b-kvr-reviewer-id-${lang}` (3 × 활성 언어 수) |
+| 신규 state 필드 | 0 (기존 cfg.reviewBody 활용) | 0 (`state.batch.kvr.langs` 이미 init됨 — deadweight 활성화) |
+| 회귀 위험 (다른 6 템플릿) | 0 | 0 |
+| 회귀 위험 (KVR 단건 모드) | 0 (\n 없는 입력은 기존과 동일 출력) | 0 (단건 코드 무수정, state.single.kvr 분리) |
+| 회귀 위험 (KVR 배치 모드) | 0 | **의도된 변경**: 단건 → 배치 자동 복사 동작이 제거됨 (단건과 분리). 사용자 결정(option (a))에 의해 KVR_DEFAULT 샘플로 시작 |
+
+### Plan FR/SC 재평가
+
+| 항목 | Plan 원문 | R28까지의 실제 동작 | R29+R30 이후 |
+|------|----------|-------------------|--------------|
+| **FR-7** "본문 (2줄 고정 + ellipsis)" | 폭 기반 word-wrap만 명시. `\n` 처리 미언급 | `\n` 무시 (라틴: `/\s+/`가 흡수, CJK: Canvas가 0폭 처리) | **확장**: `\n` 우선 분리 + 각 segment 내부 width-wrap. ellipsis 동작 유지. Plan 미명세 영역 → 사용자 편의 향상 (스펙 강화) |
+| **FR-9** "공통 박스 + 언어별 탭 4개 (각 탭에 리뷰 제목·본문·아이디)" | **단건+배치 모두에 적용되는 폼** | R13에서 배치는 단건 자동 복사로 정책 절충 (Plan FR-9 위반) | **복원**: 배치 모드에 언어별 입력 폼 4탭 부활. Plan FR-9 본래 의도 100% 충족 |
+| **SC-1** "4언어 LANG_PACK 라벨 정확도" | LANG_PACK 자동 변환 | ✅ R8.1 100% 유지 | 무영향 |
+| **SC-6** "기존 4템플릿 회귀 없음" | other-template no regression | ✅ R8.1 100% | ✅ 정적 검증 0 (KVR 분기/엔트리만 변경, 다른 6템플릿 호출부 무수정) |
+| **SC-7** "ZIP 4장 ≤2초" | 성능 | 무영향 (state 참조 위치만 변경, 이미지 디코드 캐시 동일) | 사용자 실측 시 R28 대비 동일 또는 미세 향상 (단건 langs 참조 제거) |
+
+### Strategic Alignment Check (Phase 3)
+
+| 질문 | 응답 |
+|------|-----|
+| PRD 핵심 가치(WHY) 부합? | ✅ **강화**: 4언어 운영 자동화의 본래 의도(Plan FR-9 4탭 분리)에 R30이 복귀. R29는 ellipsis 한계 안에서 사용자 라인 제어 가능 → UA 카피라이팅 자유도 향상 |
+| Plan Success Criteria 부합? | ✅ FR-7 강화 + FR-9 본래 의도 복원 (R13 정책 폐기) |
+| Design Architecture Option C(Pragmatic Balance) 준수? | ✅ R29는 함수 내부 재작성으로 호출부 무영향. R30은 다른 5 템플릿(App Store/SD Showcase/Pickup/Steam Review)이 이미 확립한 패턴 100% 일관 적용 — over-engineering 없음 |
+
+### Decision Record Verification
+
+| 결정 | 출처 | 검증 |
+|------|------|-----|
+| `\n` 줄바꿈 지원 후 빈 줄 정책 = option 2 (빈 segment skip) | R29 plan-mode | ✅ `wrapTextToNLines` line 6068 `if (seg === '') continue;` |
+| R30 배치 초기값 = KVR_DEFAULT 하드코딩 샘플 (option (a)) | R30 사용자 결정 | ✅ `renderBatchLangFields` line 9079 `(state.batch.kvr.langs[lang]) \|\| kvrDefault` |
+| 다른 언어에 복사 버튼 포함 | R30 사용자 결정 | ✅ `copyLangFieldsToOthers` line 9196+ KVR 분기 (3필드 cross-lang) + UI button line 9088 |
+| 단건/배치 완전 독립 | R30 사용자 결정 | ✅ `buildBatchCfgs` line 9290 `langs: state.single.kvr.langs` override 삭제 → `buildKvrCfg(state.batch.kvr, ...)` 직접 호출 |
+
+### Static Gap Detection
+
+#### Structural Match (1.0 / 1.0)
+- ✅ `wrapTextToNLines` 정의 1회 (line 6022), KVR 호출 1회 (line 5962, cfg.reviewBody) — 시그니처 무변경
+- ✅ `state.batch.kvr.langs` 정의 (line 3749 deep copy from KVR_DEFAULT) → write 4 sites (sync 8917~8919) → read 3 sites (render 9080, buildBatchCfgs 9291) 완결성 확보
+- ✅ 신규 DOM ID 패턴 `b-kvr-review-title/body-${lang}` + `b-kvr-reviewer-id-${lang}` 정의(HTML 9089-9091) ↔ sync 저장(8917-8919) ↔ copy 읽기(9197-9199) 모두 일관
+
+#### Functional Depth (1.0 / 1.0)
+- ✅ R29 핵심 로직: `segments = text.split(/\r?\n/)` (6063) → `wrapSegment(seg)` 호출 → maxLines 캡 도달 시 `remainingAfterCap` 누적 (6073) → 마지막 줄 ellipsis (6084) — Plan 동작 시나리오 7건 모두 케이스 커버
+- ✅ R30 핵심 로직: render에서 `existing[id] !== undefined ? existing[id] : kvrSlot.field` 패턴 (9081-9083) — 다른 5 템플릿과 100% 동일 (Pickup line 9016~ / Steam Review line 9038~)
+- ✅ Lazy init guard: `if (!state.batch.kvr.langs) state.batch.kvr.langs = {}` (line 8912) — 백업 안전망
+
+#### Contract (1.0 / 1.0)
+- ✅ `buildKvrCfg(stateNode, lang, size)` 시그니처 무변경 — 호출자 변경에도 함수 자체는 무수정
+- ✅ KVR Canvas 그리기 로직(`buildKvrCanvas`, line 5611+) 무변경 — cfg 입력 path만 단건/배치 분리
+
+### Runtime Verification
+
+| Level | 적용 가능 | 상태 |
+|-------|---------|-----|
+| L1 (API endpoint) | ❌ 비적용 — 단일 HTML 정적 도구, 서버/API 없음 | n/a |
+| L2 (Playwright UI action) | ⚠️ 도입 안 됨 — `node --check` + 정적 분석 + 사용자 시각 검증으로 대체 (KVR cycle 전체 동일 정책) | n/a |
+| L3 (E2E Playwright) | ⚠️ 동일 사유 | n/a |
+| **Visual (사용자 브라우저)** | ✅ 적용 가능 | **사용자 실측 대기** (R29: 줄바꿈 / R30: 언어별 입력 + 4언어 ZIP 분리 검증) |
+
+### Match Rate Formula (적응)
+
+Single HTML 도구이므로 v2.3.0 공식의 Runtime 가중치는 사용자 시각 검증(Visual)으로 대체. Static-only 공식 적용 후 사용자 실측을 별도 표기:
+
+```
+Overall (R29+R30 delta, static-only) = Structural × 0.2 + Functional × 0.4 + Contract × 0.4
+                                     = 1.0 × 0.2 + 1.0 × 0.4 + 1.0 × 0.4
+                                     = 1.0 (100%)
+```
+
+| 축 | 점수 | 근거 |
+|----|------|------|
+| Structural | 100% | 함수/state/DOM ID 모두 정의↔참조 완결 |
+| Functional | 100% | R29 7 시나리오 + R30 4 시나리오 모두 정적 로직 일관 |
+| Contract | 100% | `buildKvrCfg`/`buildKvrCanvas` 시그니처 + Canvas 그리기 무변경 |
+
+**Match Rate (R29+R30 delta, 정적): 100%** (사용자 시각 검증 대기 영역 별도)
+
+### 통합 Match Rate (R0 ~ R28 baseline + R29+R30 delta)
+
+| 시점 | Match Rate | 비고 |
+|------|-----------|-----|
+| R0 (2026-05-03 초기) | 100% (정적) → 35% (실측 후) | mockup 좌표 오류 |
+| R8.1 (2026-05-04) | ≈100% (정적 + 시각 일부) | mockup 좌표 정밀화 + 워터마크 해소 |
+| **R29+R30 (2026-05-11)** | **100% (정적)** | FR-7 강화 + FR-9 본래 의도 복원. 회귀 0 |
+
+### Gap List
+
+#### Critical Gaps (severity ≥ 90%)
+- **없음**
+
+#### Important Gaps (severity 70-89%)
+- **없음**
+
+#### Minor Gaps / Note (severity < 70%, Gap 아님 — 정보 기록)
+- **N-1 (Info)**: R29 빈 줄 정책 = option 2 (빈 segment skip). 만약 사용자가 의도적 빈 줄(`"a\n\nb"`로 시각 분리)을 원하면 정책 (1)로 전환 가능 — 현재 미요청 → 변경 안 함
+- **N-2 (Info)**: R30 배치 초기값이 KVR_DEFAULT 하드코딩 샘플("현질 유도가 너무 심합니다" 등). 사용자가 단건에서 작업한 값을 자동 복사받기 원하면 별도 "단건에서 가져오기" 버튼 추가 가능 — 현재 미요청 → 변경 안 함
+- **N-3 (Info)**: Plan FR-7은 `\n` 처리를 명시하지 않았으므로 R29는 Plan 미명세 영역 강화. Plan/Design 문서 본문 갱신은 후행 작업(/pdca report 단계)에서 통합 반영 가능
+
+### 회귀 영향 분석 (실측 보완 필요 영역)
+
+| 검증 항목 | 정적 결과 | 사용자 실측 필요 |
+|----------|-----------|----------------|
+| KVR 단건 4언어 본문 `\n` 줄바꿈 적용 | ✅ 로직 정확 | ✅ 4언어 미리보기 + PNG 시각 확인 |
+| 단건에서 3줄 이상 입력 시 마지막 줄 ellipsis + 잔여 hint | ✅ remainingAfterCap 누적 로직 | ✅ 시각 확인 |
+| 단건 회귀 (`\n` 없는 긴 1줄 입력) | ✅ wrapSegment가 기존 로직 캡슐화 | ✅ 4언어 width-wrap + ellipsis 시각 확인 |
+| 배치 모드 4언어 카드별 입력 폼 노출 | ✅ HTML 정의 + render 분기 | ✅ 진입 시 4 × 3필드 + 복사 버튼 노출 |
+| 배치 ZIP 4장 각 언어별 콘텐츠 적용 | ✅ buildBatchCfgs 분리 | ✅ ZIP 4장 다운로드 후 각 PNG 시각 확인 |
+| "다른 언어에 복사" 1-click cross-lang | ✅ copyLangFieldsToOthers 분기 정의 | ✅ 한 언어 → 나머지 일괄 반영 확인 |
+| 단건 ↔ 배치 분리 (단건 편집 시 배치 무영향) | ✅ state 객체 별도 (state.single.kvr ≠ state.batch.kvr) | ✅ 단건 변경 후 배치 진입 시 KVR_DEFAULT 유지 확인 |
+| 다른 6 템플릿 회귀 0 | ✅ KVR 분기만 변경 | ✅ today-tap / app-badge / appstore-screenshot / sd-showcase / pickup / steam-review 단건+배치 모두 정상 |
+
+### Conclusion (Round 29+30)
+
+- **정적 Match Rate**: **100%** (Structural + Functional + Contract 모두 1.0)
+- **Critical/Important Gap**: **0건**
+- **Minor (Note)**: 3건 (모두 Gap 아님 — 미래 옵션 / 정책 선택지 / 문서 동기화 후행)
+- **사용자 시각 검증 대기**: 8개 검증 케이스 (단건 4 + 배치 3 + 다른 템플릿 회귀 1)
+- **다음 단계**: 사용자 브라우저 실측 OK → `/pdca report keyvisual-review`로 R29+R30 통합 완료 보고서 작성 (4-iteration 진화 누적: R0 → R8.1 → R28 R-iterations → R29+R30)

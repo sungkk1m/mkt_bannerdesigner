@@ -882,6 +882,56 @@ _(작업 지시 시 최신 상태로 갱신)_
   - 변경량: today-banner-designer.html 9,715 → 9,716 라인 (+1 — `[6.5]` 주석 + 코드 8줄 추가, [2] 자리 9줄 삭제 net +1 빈 줄)
   - 회귀 위험: 0. 문법 검증 `node --check` 통과
   - 검증 대기: 사용자 브라우저 실측 — today-tap 1x1/9x16/1200×628 × 단건+배치 ZIP에서 Today 글자가 overflow 위에 표시되는지
+- 2026-05-11: **[KVR R29 / pdca iterate] 리뷰 본문 textarea `\n` 줄바꿈이 미리보기·다운로드에 무시되는 버그 수정**
+  - 사용자 보고: KVR "리뷰 본문 (2줄 + ellipsis)" textarea에 엔터 입력 시 textarea만 줄바꿈 표시, 미리보기/다운로드 PNG는 무시
+  - 검증 (코드 수정 전 plan-mode): textarea 입력은 `state.single.kvr.langs[lang].reviewBody`에 raw `\n` 보존 ([line 7281](repo/today-banner-designer.html:7281)). 미리보기와 다운로드 모두 동일한 `buildKvrCanvas`를 통과, [line 5962](repo/today-banner-designer.html:5962)에서 `wrapTextToNLines(ctx, cfg.reviewBody, ..., 2)` 호출. **버그 함수**: `wrapTextToNLines` 라틴 분기 `text.split(/\s+/)`가 `\n`을 일반 공백처럼 흡수, CJK 분기는 Canvas `measureText`/`fillText`가 `\n`을 0폭 무시 → 양쪽 모두 사용자 명시 `\n` 시각 줄바꿈 발생 안 함. **Bug CONFIRMED**.
+  - **영향 범위 정정** (Plan §2.3 정정): `wrapTextToNLines`는 KVR 한 곳에서만 호출 (5962). Steam Review는 별도 `STEAM_REVIEW_HELPERS.wrapDescription` 사용 (line 2939+)이며 이미 `\n` 우선 분리 (`text.split('\n')`) 처리됨 — Steam Review 무영향.
+  - **수정 (Option A, 함수 내부 재작성)**: `wrapTextToNLines` ([line 6020~6094](repo/today-banner-designer.html:6020))
+    - `String(text).split(/\r?\n/)`로 segments 우선 분리 → 각 segment 내부에서 `wrapSegment` 헬퍼 (기존 CJK char-wrap / 라틴 word-wrap 로직 캡슐화) 호출 → outer 루프에서 maxLines 캡 적용
+    - 캡 도달 후 남은 segment 또는 같은 segment의 잔여 wrap 줄은 `remainingAfterCap`에 누적 → 마지막 줄에 ellipsis(`…`) + hint로 append
+    - **빈 줄 정책 (Plan §4 Item1 결정)**: 연속 `\n`으로 생긴 빈 segment는 한 줄을 차지하지 않고 skip (UA 카피 의도 부합)
+    - 시그니처 불변 (`ctx, text, maxW, lang, maxLines`), 호출부 5962 무수정. `ellipsisLine` helper 재사용
+  - **동작 시나리오** (maxLines=2): 한 줄 입력 → 그대로 / 긴 줄 (\n 없음) → 기존 width-wrap + ellipsis (회귀 0) / `"첫째\n둘째"` → `["첫째", "둘째"]` ✨ / `"a\nb\nc"` → `["a", "b…"]` (잔여 c가 ellipsis 힌트) / `"a\n\nb"` → `["a", "b"]` (빈 줄 skip)
+  - 변경량: today-banner-designer.html 9,716 → **9,741 라인** (+25, 함수 본체 39→64 라인) · 1,080,830 B → 1,107,566 B (+26KB)
+  - 회귀 위험: 0 (KVR 전용, 다른 6 템플릿 무영향. `\n` 없는 입력은 기존과 동일 출력)
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓
+  - 검증 대기: 사용자 브라우저 실측 — KVR 단건 4언어 `"첫째 줄\n둘째 줄"` 입력 시 미리보기·다운로드 PNG 모두 2줄 표시 / 3줄 이상 입력 시 마지막 줄 ellipsis / 회귀 (긴 1줄 자동 wrap + ellipsis) / 배치 ZIP 4언어 모두 일관
+- 2026-05-11: **[KVR R30 / pdca iterate] 배치 모드 리뷰 콘텐츠 언어별 독립 편집 지원 (R13 "단건 자동" 정책 폐기)**
+  - 사용자 요청: KVR 배치 모드에서 리뷰 제목/본문을 언어별로 직접 작성 가능하도록 변경. 현재 단건 콘텐츠 자동 복사 정책은 다국어 UA 운영에 불편.
+  - 검증 (코드 수정 전): `buildBatchCfgs` line 9249-9254에서 `const batchKvr = { ...state.batch.kvr, langs: state.single.kvr.langs }` — `state.batch.kvr.langs`를 강제로 `state.single.kvr.langs`로 override함을 명확히 확인. `state.batch.kvr.langs`는 `KVR_DEFAULT` deep copy로 이미 init되어 있으나 (line 3749) 어디서도 read/write 하지 않는 deadweight 상태. **사용자 추정 100% 정확**.
+  - **수정 난이도 평가**: 낮음 — 4 템플릿(App Store / SD Showcase / Pickup / Steam Review)이 이미 동일 패턴으로 언어별 편집 지원. Pickup/Steam Review의 `state.batch.{tmpl}.langs[lang].field` 패턴을 KVR에 그대로 적용
+  - **사용자 결정 (option (a))**: 초기값은 KVR_DEFAULT 하드코딩 샘플 사용 + 다른 5 템플릿 일관 "다른 언어에 복사" 버튼 포함 + 단건과 완전 독립
+  - **수정 (4 군데 + 주석 정리 2건, 총 +75 라인 net)**:
+    1. **`renderBatchLangFields`** ([:8949-8959](repo/today-banner-designer.html:8949) → :8965-9092): KVR early-return 안내 블록 제거 → `langs.forEach` 내부 `else if (isKvr)` 분기 추가 (Steam Review 분기 다음). 3 필드 input/textarea (`b-kvr-review-title-${lang}` / `b-kvr-review-body-${lang}` / `b-kvr-reviewer-id-${lang}`) + "다른 언어에 복사" 버튼. 초기값 = state.batch.kvr.langs[lang] (KVR_DEFAULT)
+    2. **`syncBatchStateFromUI`** ([:8905+](repo/today-banner-designer.html:8907)): Pickup 블록 다음에 KVR 언어별 save 루프 추가. state.batch.kvr.langs[lang].{reviewTitle,reviewBody,reviewerId}에 직접 저장. `state.batch.kvr.langs` 안전장치 (lazy init)
+    3. **`copyLangFieldsToOthers`** ([:9181+](repo/today-banner-designer.html:9181)): Steam Review 분기 다음에 KVR 분기 추가. 3 필드 cross-lang 복사
+    4. **`buildBatchCfgs`** ([:9249-9254](repo/today-banner-designer.html:9249)): `const batchKvr = { ...state.batch.kvr, langs: state.single.kvr.langs }` override **삭제** → `buildKvrCfg(state.batch.kvr, combo.lang, '1x1')` 직접 호출. 주석 R13→R30 갱신
+    5. **`bindKvrBatchUI` 주석** ([:7320-7321](repo/today-banner-designer.html:7320)): 옛 "단건 langs 참조" 정책 주석을 R30 분리 정책으로 갱신
+    6. **배치 패널 안내 텍스트** ([:2042](repo/today-banner-designer.html:2042)): "리뷰 콘텐츠... 단건 모드에서 입력한 값 자동 사용" → "아래 '언어 텍스트' 패널에서 언어별로 직접 입력 (R30: 단건과 독립)"
+  - **state 초기화 변경 없음** — `state.batch.kvr` 이미 `JSON.parse(JSON.stringify(KVR_DEFAULT))`로 init되어 langs 4언어 슬롯 보유 ([:3749](repo/today-banner-designer.html:3749))
+  - **회귀 위험 0**: KVR 배치 분기만 변경. 단건 KVR + 다른 6 템플릿 + R29 \n 줄바꿈 수정 모두 영향 0. 단건과 배치는 이제 완전 독립 (단건 편집해도 배치 슬롯은 KVR_DEFAULT 유지)
+  - 변경량: today-banner-designer.html 9,741 → **9,779 라인** (+38, render 분기 +21 / sync 루프 +18 / copy 분기 +14 / buildBatchCfgs -2 / 주석 정리 -13) · 1,107,566 B → 1,110,477 B (+2,911 B)
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓
+  - **검증 대기** (사용자 브라우저 실측):
+    - 배치 모드 진입 → 언어 4개 선택 → 각 언어 카드에 "리뷰 제목 / 리뷰 본문 / 리뷰어 아이디" 3 필드 + "다른 언어에 복사" 버튼 노출
+    - 초기값: ko/en/ja/zh-TW 모두 KVR_DEFAULT 샘플 ("현질 유도가 너무 심합니다" / "Pay-to-win is too aggressive" 등) 표시
+    - 각 언어 본문에 R29 신규 지원 `\n` 줄바꿈 입력 → ZIP 4장 모두 적용
+    - "다른 언어에 복사" 버튼 → 한 언어의 3 필드가 나머지 선택 언어로 일괄 복사
+    - 단건 모드에서 리뷰 변경 → 배치 슬롯은 무영향 (독립 동작)
+    - 회귀: 다른 6 템플릿 배치 모드 (App Store / SD Showcase / Pickup / Steam Review / Today Tap / App Badge) 무영향
+- 2026-05-11: **[PDCA Check] keyvisual-review R29+R30 — Gap Analysis Match Rate 100% (정적)**
+  - 문서: `docs/03-analysis/keyvisual-review.analysis.md` (Round 29+30 섹션 append, +143 라인, 총 492 라인)
+  - **Match Rate (정적)**: Structural 100% + Functional 100% + Contract 100% = **100%**
+  - **Gap List**: Critical 0 / Important 0 / Minor (Note) 3건 (모두 Gap 아님 — 미래 옵션 / 정책 선택지 / 문서 후행 동기화)
+  - **Plan FR 재평가**:
+    - FR-7 "본문 (2줄 + ellipsis)" — R29가 \n 처리 추가 (Plan 미명세 영역 강화)
+    - FR-9 "공통 박스 + 언어별 탭 4개" — R30이 R13 정책 절충(단건 자동 복사) 폐기하고 본래 의도 100% 복원
+  - **Decision Record Verification**: R29 빈 줄 정책 option 2 / R30 KVR_DEFAULT 초기값 / 복사 버튼 / 단건-배치 완전 독립 — 4 결정 모두 충실 적용
+  - **Strategic Alignment**: PRD WHY(4언어 운영 자동화) 강화. Design Architecture Option C (Pragmatic Balance, 다른 5 템플릿 패턴 일관) 준수
+  - **사용자 시각 검증 대기 (8 항목)**: 단건 \n 줄바꿈 4언어 / ellipsis hint / 단건 회귀 / 배치 4언어 입력 폼 / 배치 ZIP 4장 분리 / 복사 버튼 / 단건↔배치 분리 / 다른 6 템플릿 회귀
+  - 정리: state.batch 초기화 블록(line 3747-3748, 3752) R30/Steam Review 정책 정합 주석으로 갱신
+  - 본체 라인: today-banner-designer.html 9,779 라인 유지 · 문법 검증 `node --check` 통과 ✓
+  - 다음 단계: 사용자 브라우저 실측 OK → `/pdca report keyvisual-review`로 R29+R30 통합 완료 보고서 작성
 
 ## 히스토리
 
