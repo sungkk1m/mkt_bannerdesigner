@@ -323,3 +323,4 @@ today-banner-designer.html (5,097 → 5,750라인 추정)
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
 | 0.1 | 2026-04-29 | Plan-Plus 14 결정 + Checkpoint 1 (1결정) → PDCA Plan 정식화. 16 FR / 5 NFR / 8 SC / 5 R / 4 Sessions | ksk@superplanet.net |
+| 0.2 | 2026-05-12 | **R5 Evolved Decision 추가**: r1 G2 후속 결정 `cellScale` 글로벌 슬라이더(50~150%) **폐기** → 슬롯별 `slotAdjustPerSize` (사이즈별 6 슬롯 × X/Y/Scale 개별) 진화. 사유: 12일 실사용 후 캐릭터별 자세/체형 차이로 글로벌 일괄 스케일 한계. R5 상세는 `docs/04-report/sd-showcase.report.md` §R5 Iteration. | ksk@superplanet.net |

@@ -955,6 +955,31 @@ _(작업 지시 시 최신 상태로 갱신)_
   - 변경량: today-banner-designer.html 9,779 라인 유지 (in-place 토큰 수정) · 문법 검증 `node --check` 통과 ✓
   - 회귀 위험: 0 (evalFs 토큰만 변경, 다른 토큰/템플릿 무영향)
   - **report 통합**: `docs/04-report/steam-review.report.md` r11 행 추가 + Key Tokens evalFs 갱신 (44 / 31) + Final Status iteration 11 (Iterations 10→11, in-place 비중 5/10 → 6/11)
+- 2026-05-12: **[SD Showcase R5 / pdca iterate] 슬롯별 X/Y/Scale 개별 조정 도입 + 글로벌 cellScale 폐기**
+  - 사용자 요청: SD 6장이 현재 글로벌 cellScale 슬라이더(50~150%)로만 일괄 크기 조정 가능 → 슬롯별 x/y/scale 개별 조정으로 진화. 기존 cellScale 폐기. 조정 범위는 클 필요 없음 (제안 권유).
+  - 사용자 결정 (AskUserQuestion 4건, 모두 Recommended 선택):
+    1. UI 노출 = 각 dropzone 아래 항상 노출 (X/Y/Scale number input 3개)
+    2. 사이즈 처리 = 사이즈별 분리 + 토글 UI (1x1 ↔ 1200×628 perSize 독립)
+    3. 조정 범위 = 중간 (1x1: x/y ±40px / 1200×628: x/y ±30px / scale 70~130% 공통, step x/y=2 · scale=5)
+    4. spacing 슬라이더 = 유지 (base gap 책임 분리)
+  - **변경 사항** (`today-banner-designer.html`, 6 Phase 일괄):
+    - **Phase 1 (state)**: `SD_SHOWCASE_DEFAULT.cellScale` 제거 → `slotAdjustPerSize: {'1x1':[...×6], '1200x628':[...×6]} + editingSize` ([:2696](repo/today-banner-designer.html:2696)). `state.batch.sd_cellScale` 제거 → `sd_slotAdjustPerSize + sd_editingSize` ([:3837](repo/today-banner-designer.html:3837)).
+    - **Phase 2 (HTML)**: 단건 cellScale 슬라이더 삭제(~6줄), 배치 동일 삭제. 단건/배치 dropzone 6개 각각 위에 사이즈 토글 라디오 + 각 dropzone 아래에 X/Y/Scale 3개 컴팩트 number input 추가 (~180줄 증가, 총 36 입력)
+    - **Phase 3 (이벤트)**: `bindSdShowcaseSingleUI` cellScale 핸들러 삭제, 사이즈 토글 핸들러 + 18 input 핸들러 추가. `ensureSdSlotAdjustPerSize` 안전장치 + `loadSdShowcaseSlotsAdjustToUI(mode)` 동기화 헬퍼 신규 (단건/배치 공용). 배치도 동일 패턴. `syncBatchStateFromUI`에서 cellScale 참조 제거.
+    - **Phase 4 (렌더)**: `buildSdShowcaseCfg`에 slotAdjust 평탄화 추가. `buildSdShowcaseCanvas` cellScale 변수 제거 → 슬롯별 `adj.{x,y,scale}` 사용. 1x1 그리드 분기 + 1200×628 좌·우 사이드 컬럼 분기 모두 `ctx.save/clip/restore`로 셀 경계 침범 방지. 1200 우측 컬럼 mirror 분기에서 `effectiveX = mirror ? -adj.x : adj.x` 부호 반전 (사용자 직관 보존). `buildBatchCfgs` SD Showcase 분기에서 combo.size 기준 slotAdjustPerSize 평탄화.
+    - **Phase 5 (정리)**: cellScale 코드 잔재 0건 (grep 검증). 8개 주석에만 "R5 폐기" 표기 남김. drawImageContain 공용 헬퍼 시그니처 무수정. 다른 6 템플릿 코드 무수정 (slotAdjust/cellScale leakage 0건 grep 검증)
+  - **변경량**: today-banner-designer.html 9,779 → **10,001 라인** (+222, 예상 +200줄 근접) · 1,110,477 B → 추정 +30~35 KB
+  - **회귀 위험 0**: SD Showcase 전용 분기만 변경. localStorage 미사용으로 마이그레이션 코드 불필요. 빈 슬롯에서도 X/Y/Scale 입력 무해 (state는 보관, 슬롯 채워지면 즉시 반영)
+  - **mirror 검증**: 1200×628 좌측 컬럼 slot 1 x=+30 → 미리보기에서 우측 이동 / 우측 컬럼 slot 4 x=+30 → 우측 이동 (사용자 직관 부합, 부호 반전 동작)
+  - **clip 검증**: scale=130%일 때 셀 경계 안에서만 그려져 옆 슬롯 침범 0
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓
+  - **검증 대기** (사용자 브라우저 실측):
+    - 단건 1x1: SD 6장 PNG 드롭 → 슬롯 1: x=+40/y=-20/scale=120 입력 → 1번만 우상단 이동·확대 + 옆 슬롯 미침범 + 다운로드 PNG 동일
+    - 단건 1200×628: 사이즈 토글 → 1x1 조정값과 분리 (모두 0 표시) → 우측 컬럼 slot 4 x=+30 → 우측 이동
+    - 사이즈 토글: 1x1에서 slot 1 x=+40 → 1200×628 토글 → slot 1 x=0 → 1x1 복귀 → slot 1 x=+40 복원
+    - cellScale UI에서 완전 제거됨 확인 (단건/배치)
+    - 배치 ZIP 4언어 × 2사이즈 = 8장: 1x1과 1200×628 각 perSize 조정값 반영
+    - 회귀: 다른 6 템플릿(today-tap, app-badge, appstore-screenshot, keyvisual-review, pickup, steam-review) 무영향
 - 2026-05-11: **[KVR R31 / pdca iterate] 키비주얼 BG 슬라이더 미세조정 범위 좁힘 (사용자 피드백 반영)**
   - 사용자 보고: KVR 키비주얼 크기/좌우/상하 슬라이더가 너무 큰 폭으로 움직여 불편 (R6에서 3배 확장한 후 R17 mockup 1.98x 확대로 실용 범위 좁아진 상태)
   - 사용자 결정 (AskUserQuestion 3건): 크기 50~250% step 1 / 상하 ±500px step 5 / 좌우 변경 없음 (±1500 step 10 유지)

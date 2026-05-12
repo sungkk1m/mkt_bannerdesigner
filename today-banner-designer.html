@@ -1119,46 +1119,95 @@
         </div>
 
         <div>
-          <div class="field-label">SD 캐릭터 6장 (3×2 그리드, 4언어×2사이즈 공유)</div>
-          <div class="grid grid-cols-3 gap-2">
-            <div id="s-sds-slot-1" class="dropzone dropzone-sm" data-target="sds-slot-1">
-              <p class="text-[11px] font-semibold text-gray-300">SD #1</p>
-              <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
-              <input type="file" accept="image/*" class="hidden" />
-              <button class="dropzone-remove" title="제거">×</button>
-            </div>
-            <div id="s-sds-slot-2" class="dropzone dropzone-sm" data-target="sds-slot-2">
-              <p class="text-[11px] font-semibold text-gray-300">SD #2</p>
-              <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
-              <input type="file" accept="image/*" class="hidden" />
-              <button class="dropzone-remove" title="제거">×</button>
-            </div>
-            <div id="s-sds-slot-3" class="dropzone dropzone-sm" data-target="sds-slot-3">
-              <p class="text-[11px] font-semibold text-gray-300">SD #3</p>
-              <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
-              <input type="file" accept="image/*" class="hidden" />
-              <button class="dropzone-remove" title="제거">×</button>
-            </div>
-            <div id="s-sds-slot-4" class="dropzone dropzone-sm" data-target="sds-slot-4">
-              <p class="text-[11px] font-semibold text-gray-300">SD #4</p>
-              <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
-              <input type="file" accept="image/*" class="hidden" />
-              <button class="dropzone-remove" title="제거">×</button>
-            </div>
-            <div id="s-sds-slot-5" class="dropzone dropzone-sm" data-target="sds-slot-5">
-              <p class="text-[11px] font-semibold text-gray-300">SD #5</p>
-              <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
-              <input type="file" accept="image/*" class="hidden" />
-              <button class="dropzone-remove" title="제거">×</button>
-            </div>
-            <div id="s-sds-slot-6" class="dropzone dropzone-sm" data-target="sds-slot-6">
-              <p class="text-[11px] font-semibold text-gray-300">SD #6</p>
-              <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
-              <input type="file" accept="image/*" class="hidden" />
-              <button class="dropzone-remove" title="제거">×</button>
+          <div class="flex items-center justify-between mb-2">
+            <div class="field-label" style="margin-bottom:0">SD 캐릭터 6장 (슬롯별 x/y/scale 미세 조정, R5)</div>
+            <div class="flex gap-2 text-[11px] items-center">
+              <span class="text-gray-400">편집 사이즈:</span>
+              <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="s-sds-editsize" value="1x1" checked /> 1×1</label>
+              <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="s-sds-editsize" value="1200x628" /> 1200×628</label>
             </div>
           </div>
-          <p class="text-[11px] text-gray-500 mt-1">정사각 PNG 권장 · 빈 슬롯은 자동 투명 처리 (reflow 없음)</p>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="space-y-1">
+              <div id="s-sds-slot-1" class="dropzone dropzone-sm" data-target="sds-slot-1">
+                <p class="text-[11px] font-semibold text-gray-300">SD #1</p>
+                <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
+                <input type="file" accept="image/*" class="hidden" />
+                <button class="dropzone-remove" title="제거">×</button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] text-gray-400">
+                <label class="flex flex-col"><span class="text-center">X</span><input id="s-sds-slot-1-x"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">Y</span><input id="s-sds-slot-1-y"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">%</span><input id="s-sds-slot-1-scale" type="number" min="70"  max="130" step="5" value="100" class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <div id="s-sds-slot-2" class="dropzone dropzone-sm" data-target="sds-slot-2">
+                <p class="text-[11px] font-semibold text-gray-300">SD #2</p>
+                <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
+                <input type="file" accept="image/*" class="hidden" />
+                <button class="dropzone-remove" title="제거">×</button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] text-gray-400">
+                <label class="flex flex-col"><span class="text-center">X</span><input id="s-sds-slot-2-x"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">Y</span><input id="s-sds-slot-2-y"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">%</span><input id="s-sds-slot-2-scale" type="number" min="70"  max="130" step="5" value="100" class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <div id="s-sds-slot-3" class="dropzone dropzone-sm" data-target="sds-slot-3">
+                <p class="text-[11px] font-semibold text-gray-300">SD #3</p>
+                <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
+                <input type="file" accept="image/*" class="hidden" />
+                <button class="dropzone-remove" title="제거">×</button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] text-gray-400">
+                <label class="flex flex-col"><span class="text-center">X</span><input id="s-sds-slot-3-x"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">Y</span><input id="s-sds-slot-3-y"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">%</span><input id="s-sds-slot-3-scale" type="number" min="70"  max="130" step="5" value="100" class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <div id="s-sds-slot-4" class="dropzone dropzone-sm" data-target="sds-slot-4">
+                <p class="text-[11px] font-semibold text-gray-300">SD #4</p>
+                <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
+                <input type="file" accept="image/*" class="hidden" />
+                <button class="dropzone-remove" title="제거">×</button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] text-gray-400">
+                <label class="flex flex-col"><span class="text-center">X</span><input id="s-sds-slot-4-x"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">Y</span><input id="s-sds-slot-4-y"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">%</span><input id="s-sds-slot-4-scale" type="number" min="70"  max="130" step="5" value="100" class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <div id="s-sds-slot-5" class="dropzone dropzone-sm" data-target="sds-slot-5">
+                <p class="text-[11px] font-semibold text-gray-300">SD #5</p>
+                <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
+                <input type="file" accept="image/*" class="hidden" />
+                <button class="dropzone-remove" title="제거">×</button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] text-gray-400">
+                <label class="flex flex-col"><span class="text-center">X</span><input id="s-sds-slot-5-x"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">Y</span><input id="s-sds-slot-5-y"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">%</span><input id="s-sds-slot-5-scale" type="number" min="70"  max="130" step="5" value="100" class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <div id="s-sds-slot-6" class="dropzone dropzone-sm" data-target="sds-slot-6">
+                <p class="text-[11px] font-semibold text-gray-300">SD #6</p>
+                <p class="text-[10px] text-gray-500">클릭 또는 드롭</p>
+                <input type="file" accept="image/*" class="hidden" />
+                <button class="dropzone-remove" title="제거">×</button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] text-gray-400">
+                <label class="flex flex-col"><span class="text-center">X</span><input id="s-sds-slot-6-x"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">Y</span><input id="s-sds-slot-6-y"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">%</span><input id="s-sds-slot-6-scale" type="number" min="70"  max="130" step="5" value="100" class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+              </div>
+            </div>
+          </div>
+          <p class="text-[11px] text-gray-500 mt-1">정사각 PNG 권장 · 빈 슬롯은 자동 투명 처리 · 슬롯별 X/Y/Scale 입력은 현재 편집 사이즈에만 적용 (사이즈 토글로 전환)</p>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -1174,12 +1223,7 @@
           </div>
         </div>
 
-        <!-- r1 G2: SD 셀 크기 슬라이더 -->
-        <div>
-          <div class="field-label">SD 캐릭터 크기 (<span id="s-sds-cellscale-label">100</span>%)</div>
-          <input id="s-sds-cellscale" type="range" min="50" max="150" step="5" value="100" class="w-full mt-2" />
-          <p class="text-[10px] text-gray-500 mt-1">50~150% · 위치는 그대로 두고 SD만 크기 조정 (중앙 정렬)</p>
-        </div>
+        <!-- R5: SD 캐릭터 크기 글로벌 슬라이더(50~150%) 폐기. 각 슬롯 dropzone 아래 X/Y/Scale 입력으로 진화. -->
 
         <!-- r2: SD 사이 간격 슬라이더 -->
         <div>
@@ -1879,11 +1923,7 @@
             <input id="b-sds-stroke" type="range" min="4" max="14" step="1" value="8" class="w-full mt-2" />
           </div>
         </div>
-        <!-- r1 G2: SD 셀 크기 슬라이더 (배치) -->
-        <div>
-          <div class="field-label">SD 캐릭터 크기 (<span id="b-sds-cellscale-label">100</span>%)</div>
-          <input id="b-sds-cellscale" type="range" min="50" max="150" step="5" value="100" class="w-full mt-2" />
-        </div>
+        <!-- R5: SD 캐릭터 크기 글로벌 슬라이더(50~150%) 폐기. 각 dropzone 아래 X/Y/Scale 입력으로 진화. -->
         <!-- r2: SD 사이 간격 슬라이더 (배치) -->
         <div>
           <div class="field-label">SD 사이 간격 (<span id="b-sds-spacing-label">20</span>px)</div>
@@ -1893,47 +1933,96 @@
           <input id="b-sds-showpill" type="checkbox" checked /> 브랜드 픽 라벨 표시
         </label>
         <div>
-          <div class="field-label">SD 캐릭터 6장 (4언어 × 2사이즈 공유)</div>
+          <div class="flex items-center justify-between mb-2">
+            <div class="field-label" style="margin-bottom:0">SD 캐릭터 6장 (R5: 슬롯별 X/Y/Scale 사이즈 분리)</div>
+            <div class="flex gap-2 text-[11px] items-center">
+              <span class="text-gray-400">편집 사이즈:</span>
+              <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="b-sds-editsize" value="1x1" checked /> 1×1</label>
+              <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="b-sds-editsize" value="1200x628" /> 1200×628</label>
+            </div>
+          </div>
           <div class="grid grid-cols-3 gap-2">
-            <div id="b-sds-slot-1" class="dropzone dropzone-sm" data-target="b-sds-slot-1">
-              <p class="text-[11px] font-semibold text-gray-300">SD #1</p>
-              <p class="text-[10px] text-gray-500">클릭/드롭</p>
-              <input type="file" accept="image/*" class="hidden" />
-              <button class="dropzone-remove" title="제거">×</button>
+            <div class="space-y-1">
+              <div id="b-sds-slot-1" class="dropzone dropzone-sm" data-target="b-sds-slot-1">
+                <p class="text-[11px] font-semibold text-gray-300">SD #1</p>
+                <p class="text-[10px] text-gray-500">클릭/드롭</p>
+                <input type="file" accept="image/*" class="hidden" />
+                <button class="dropzone-remove" title="제거">×</button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] text-gray-400">
+                <label class="flex flex-col"><span class="text-center">X</span><input id="b-sds-slot-1-x"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">Y</span><input id="b-sds-slot-1-y"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">%</span><input id="b-sds-slot-1-scale" type="number" min="70"  max="130" step="5" value="100" class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+              </div>
             </div>
-            <div id="b-sds-slot-2" class="dropzone dropzone-sm" data-target="b-sds-slot-2">
-              <p class="text-[11px] font-semibold text-gray-300">SD #2</p>
-              <p class="text-[10px] text-gray-500">클릭/드롭</p>
-              <input type="file" accept="image/*" class="hidden" />
-              <button class="dropzone-remove" title="제거">×</button>
+            <div class="space-y-1">
+              <div id="b-sds-slot-2" class="dropzone dropzone-sm" data-target="b-sds-slot-2">
+                <p class="text-[11px] font-semibold text-gray-300">SD #2</p>
+                <p class="text-[10px] text-gray-500">클릭/드롭</p>
+                <input type="file" accept="image/*" class="hidden" />
+                <button class="dropzone-remove" title="제거">×</button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] text-gray-400">
+                <label class="flex flex-col"><span class="text-center">X</span><input id="b-sds-slot-2-x"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">Y</span><input id="b-sds-slot-2-y"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">%</span><input id="b-sds-slot-2-scale" type="number" min="70"  max="130" step="5" value="100" class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+              </div>
             </div>
-            <div id="b-sds-slot-3" class="dropzone dropzone-sm" data-target="b-sds-slot-3">
-              <p class="text-[11px] font-semibold text-gray-300">SD #3</p>
-              <p class="text-[10px] text-gray-500">클릭/드롭</p>
-              <input type="file" accept="image/*" class="hidden" />
-              <button class="dropzone-remove" title="제거">×</button>
+            <div class="space-y-1">
+              <div id="b-sds-slot-3" class="dropzone dropzone-sm" data-target="b-sds-slot-3">
+                <p class="text-[11px] font-semibold text-gray-300">SD #3</p>
+                <p class="text-[10px] text-gray-500">클릭/드롭</p>
+                <input type="file" accept="image/*" class="hidden" />
+                <button class="dropzone-remove" title="제거">×</button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] text-gray-400">
+                <label class="flex flex-col"><span class="text-center">X</span><input id="b-sds-slot-3-x"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">Y</span><input id="b-sds-slot-3-y"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">%</span><input id="b-sds-slot-3-scale" type="number" min="70"  max="130" step="5" value="100" class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+              </div>
             </div>
-            <div id="b-sds-slot-4" class="dropzone dropzone-sm" data-target="b-sds-slot-4">
-              <p class="text-[11px] font-semibold text-gray-300">SD #4</p>
-              <p class="text-[10px] text-gray-500">클릭/드롭</p>
-              <input type="file" accept="image/*" class="hidden" />
-              <button class="dropzone-remove" title="제거">×</button>
+            <div class="space-y-1">
+              <div id="b-sds-slot-4" class="dropzone dropzone-sm" data-target="b-sds-slot-4">
+                <p class="text-[11px] font-semibold text-gray-300">SD #4</p>
+                <p class="text-[10px] text-gray-500">클릭/드롭</p>
+                <input type="file" accept="image/*" class="hidden" />
+                <button class="dropzone-remove" title="제거">×</button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] text-gray-400">
+                <label class="flex flex-col"><span class="text-center">X</span><input id="b-sds-slot-4-x"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">Y</span><input id="b-sds-slot-4-y"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">%</span><input id="b-sds-slot-4-scale" type="number" min="70"  max="130" step="5" value="100" class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+              </div>
             </div>
-            <div id="b-sds-slot-5" class="dropzone dropzone-sm" data-target="b-sds-slot-5">
-              <p class="text-[11px] font-semibold text-gray-300">SD #5</p>
-              <p class="text-[10px] text-gray-500">클릭/드롭</p>
-              <input type="file" accept="image/*" class="hidden" />
-              <button class="dropzone-remove" title="제거">×</button>
+            <div class="space-y-1">
+              <div id="b-sds-slot-5" class="dropzone dropzone-sm" data-target="b-sds-slot-5">
+                <p class="text-[11px] font-semibold text-gray-300">SD #5</p>
+                <p class="text-[10px] text-gray-500">클릭/드롭</p>
+                <input type="file" accept="image/*" class="hidden" />
+                <button class="dropzone-remove" title="제거">×</button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] text-gray-400">
+                <label class="flex flex-col"><span class="text-center">X</span><input id="b-sds-slot-5-x"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">Y</span><input id="b-sds-slot-5-y"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">%</span><input id="b-sds-slot-5-scale" type="number" min="70"  max="130" step="5" value="100" class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+              </div>
             </div>
-            <div id="b-sds-slot-6" class="dropzone dropzone-sm" data-target="b-sds-slot-6">
-              <p class="text-[11px] font-semibold text-gray-300">SD #6</p>
-              <p class="text-[10px] text-gray-500">클릭/드롭</p>
-              <input type="file" accept="image/*" class="hidden" />
-              <button class="dropzone-remove" title="제거">×</button>
+            <div class="space-y-1">
+              <div id="b-sds-slot-6" class="dropzone dropzone-sm" data-target="b-sds-slot-6">
+                <p class="text-[11px] font-semibold text-gray-300">SD #6</p>
+                <p class="text-[10px] text-gray-500">클릭/드롭</p>
+                <input type="file" accept="image/*" class="hidden" />
+                <button class="dropzone-remove" title="제거">×</button>
+              </div>
+              <div class="grid grid-cols-3 gap-1 text-[10px] text-gray-400">
+                <label class="flex flex-col"><span class="text-center">X</span><input id="b-sds-slot-6-x"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">Y</span><input id="b-sds-slot-6-y"     type="number" min="-40" max="40"  step="2" value="0"   class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+                <label class="flex flex-col"><span class="text-center">%</span><input id="b-sds-slot-6-scale" type="number" min="70"  max="130" step="5" value="100" class="input-base text-center" style="padding:2px 4px;height:24px;font-size:11px" /></label>
+              </div>
             </div>
           </div>
         </div>
-        <p class="text-[10px] text-gray-500">언어별 타이틀/픽 텍스트는 위 "언어별 입력" 영역에서 4개 언어 각각 입력 · KO 출력만 자동 고지문구 첨부 · 9:16 사이즈는 자동 비활성</p>
+        <p class="text-[10px] text-gray-500">언어별 타이틀/픽 텍스트는 위 "언어별 입력" 영역에서 4개 언어 각각 입력 · KO 출력만 자동 고지문구 첨부 · 9:16 사이즈는 자동 비활성 · 슬롯별 X/Y/Scale은 사이즈 토글로 1×1↔1200×628 분리 (R5)</p>
       </div>
 
       <!-- v1.7 R13: KVR (Key Visual + Review) 전용 배치 모드 패널 — 단건과 별도로 키비주얼/로고/슬라이더/공통 설정 입력 -->
@@ -2593,10 +2682,10 @@ const SDS_CANVAS_SPECS = {
 
 // SD Showcase 기본 상태 — 4언어 타이틀/픽, SD 슬롯 6개, 배경 흰색, 외곽선 8px, 픽 ON
 // 1080×1080은 1줄 기본, 1200×628은 2줄 기본 (R4.Q14 결정), EN은 3줄 균등 (R4.Q13 결정)
+// R5: cellScale 글로벌 슬라이더(50~150%) 폐기. 슬롯별 x/y/scale 개별 조정으로 진화 (slotAdjustPerSize).
 const SD_SHOWCASE_DEFAULT = {
   bgColor: '#FFFFFF',
   strokeWidth: 8,           // 4..14 슬라이더
-  cellScale: 100,           // r1 G2: SD 셀 크기 50~150% 슬라이더 (기본 100%)
   spacing: 20,              // r2: SD 사이 간격 슬라이더 (0~80px, 기본 20)
   showPill: true,
   langs: {
@@ -2606,6 +2695,14 @@ const SD_SHOWCASE_DEFAULT = {
     'zh-TW': { title: '鳥類\n塔防',                              pill: 'Underdark : Defense' },
   },
   slots: [null, null, null, null, null, null],  // 6 SD 이미지 (data URL)
+  // R5: 슬롯별 x/y/scale 개별 조정 (사이즈별 분리)
+  //   1x1:      x/y ±40px (셀폭 ~14%), scale 70~130% — 셀 297×263 기준
+  //   1200x628: x/y ±30px,            scale 70~130% — 사이드 컬럼 셀 211×167 기준
+  slotAdjustPerSize: {
+    '1x1':      [{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100}],
+    '1200x628': [{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100}],
+  },
+  editingSize: '1x1',       // UI 토글 — 현재 편집 중인 사이즈 (단건 패널)
 };
 
 // ===========================================================================
@@ -3737,12 +3834,17 @@ const state = {
     as_showIap: true,
     // 언어별 가변 텍스트는 langOverrides에 통합 저장 (rating/ratingCount/ranking/developer/description 등)
     // v1.6: SD Showcase 공통 설정 (배경색, 외곽선 두께, 픽 토글, 4언어×2사이즈 공유 SD 6슬롯)
+    // R5: sd_cellScale 폐기 → sd_slotAdjustPerSize (슬롯별 x/y/scale 사이즈별 분리)
     sd_bgColor: '#FFFFFF',
     sd_strokeWidth: 8,
-    sd_cellScale: 100,        // r1 G2: SD 셀 크기 50~150% 슬라이더
     sd_spacing:    20,        // r2: SD 사이 간격 슬라이더 (0~80)
     sd_showPill: true,
     sd_slots: [null, null, null, null, null, null],
+    sd_slotAdjustPerSize: {
+      '1x1':      [{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100}],
+      '1200x628': [{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100},{x:0,y:0,scale:100}],
+    },
+    sd_editingSize: '1x1',    // UI 토글 — 현재 편집 중인 사이즈 (배치 패널)
     // 언어별 SD Showcase 텍스트 (sds_title, sds_pill)도 langOverrides[lang]에 통합 저장
     // v1.7 R13 → R30: KVR 배치 전용 — 키비주얼/로고/슬라이더/평점/날짜/별색/헤드라인 + 콘텐츠 langs(reviewTitle/Body/reviewerId)
     // 모두 단건과 독립 입력 (R30부터 콘텐츠 langs도 분리. 다른 5 템플릿과 완전 일관)
@@ -5157,18 +5259,23 @@ async function buildAppStoreScreenshotCanvas(cfg) {
 function buildSdShowcaseCfg(stateNode, lang, size) {
   // 단건/배치 양쪽에서 호출 — stateNode는 state.single.sdshowcase 또는 batch에서 합성한 obj
   const langSlot = (stateNode.langs && stateNode.langs[lang]) || { title: '', pill: '' };
+  // R5: 슬롯별 X/Y/Scale 사이즈별 평탄화 (없으면 default 0/0/100)
+  const adjMap = stateNode.slotAdjustPerSize;
+  const slotAdjust = (adjMap && Array.isArray(adjMap[size]) && adjMap[size].length === 6)
+    ? adjMap[size].map(a => ({x: (a && +a.x) || 0, y: (a && +a.y) || 0, scale: (a && +a.scale) || 100}))
+    : Array.from({length:6}, () => ({x:0, y:0, scale:100}));
   return {
     template: 'sd-showcase',
     size: size,
     lang: lang,
     bgColor: stateNode.bgColor || '#FFFFFF',
     strokeWidth: typeof stateNode.strokeWidth === 'number' ? stateNode.strokeWidth : 8,
-    cellScale: typeof stateNode.cellScale === 'number' ? stateNode.cellScale : 100,
     spacing: typeof stateNode.spacing === 'number' ? stateNode.spacing : 20,
     showPill: stateNode.showPill !== false,
     title: langSlot.title || '',
     pill: langSlot.pill || '',
     slots: stateNode.slots || [null,null,null,null,null,null],
+    slotAdjust,
     scale: 1,
     format: 'png',
   };
@@ -5336,7 +5443,10 @@ async function buildSdShowcaseCanvas(cfg) {
 
   // [2] 자동 대비 팔레트
   const palette = getContrastPalette(cfg.bgColor);
-  const cellScale = (typeof cfg.cellScale === 'number' ? cfg.cellScale : 100) / 100;
+  // R5: cellScale 글로벌 변수 폐기. 슬롯별 cfg.slotAdjust[i].{x,y,scale} 사용.
+  const slotAdjust = Array.isArray(cfg.slotAdjust) && cfg.slotAdjust.length === 6
+    ? cfg.slotAdjust
+    : Array.from({length:6}, () => ({x:0, y:0, scale:100}));
   // r2: SD 사이 간격 슬라이더 (0~80) — 1080은 grid gap, 1200은 사이드 컬럼 vertical gap
   const spacing = Math.max(0, Math.min(80,
     typeof cfg.spacing === 'number' ? cfg.spacing : 20
@@ -5359,8 +5469,6 @@ async function buildSdShowcaseCanvas(cfg) {
     const cellH = (gs.h - gapY * (gs.rows - 1)) / gs.rows;
     const gridX0 = gs.x + gs.padX;
     const gridY0 = gs.y;
-    const drawW = cellW * cellScale;
-    const drawH = cellH * cellScale;
     for (let i = 0; i < 6; i++) {
       const img = cfg._slotImgs && cfg._slotImgs[i];
       if (!img) continue;
@@ -5368,9 +5476,19 @@ async function buildSdShowcaseCanvas(cfg) {
       const c = i % gs.cols;
       const cellX = gridX0 + c * (cellW + gapX);
       const cellY = gridY0 + r * (cellH + gapY);
-      const dx = cellX + (cellW - drawW) / 2;
-      const dy = cellY + (cellH - drawH) / 2;
+      // R5: 슬롯별 X/Y/Scale 적용. clip으로 옆 셀 침범 방지.
+      const adj = slotAdjust[i] || {x:0, y:0, scale:100};
+      const scaleF = Math.max(0.1, (+adj.scale || 100) / 100);
+      const drawW = cellW * scaleF;
+      const drawH = cellH * scaleF;
+      const dx = cellX + (cellW - drawW) / 2 + (+adj.x || 0);
+      const dy = cellY + (cellH - drawH) / 2 + (+adj.y || 0);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(cellX, cellY, cellW, cellH);
+      ctx.clip();
       drawImageContain(ctx, img, dx, dy, drawW, drawH);
+      ctx.restore();
     }
 
     // 타이틀 (titleSection 안에서 자동 축소 + 중앙 정렬)
@@ -5421,25 +5539,33 @@ async function buildSdShowcaseCanvas(cfg) {
     const sideCellH = (sideInnerH - spacing * 2) / 3;
     const baseSideW = sc.width * sc.imgScale;
     const baseSideH = sideCellH;
-    const sideDrawW = baseSideW * cellScale;
-    const sideDrawH = baseSideH * cellScale;
     const drawSideCol = (xStart, indices, mirror) => {
       indices.forEach((slotIdx, i) => {
         const img = cfg._slotImgs && cfg._slotImgs[slotIdx];
         if (!img) return;
         const cellY = contentY0 + sc.padTop + i * (sideCellH + spacing);
-        const dx = xStart + (sc.width - sideDrawW) / 2;
-        const dy = cellY + (sideCellH - sideDrawH) / 2;
+        // R5: 슬롯별 X/Y/Scale 적용. mirror 시 X 부호 반전(사용자 직관 보존). clip으로 옆 셀 침범 방지.
+        const adj = slotAdjust[slotIdx] || {x:0, y:0, scale:100};
+        const scaleF = Math.max(0.1, (+adj.scale || 100) / 100);
+        const sideDrawW = baseSideW * scaleF;
+        const sideDrawH = baseSideH * scaleF;
+        const effectiveX = mirror ? -(+adj.x || 0) : (+adj.x || 0);
+        const dx = xStart + (sc.width - sideDrawW) / 2 + effectiveX;
+        const dy = cellY + (sideCellH - sideDrawH) / 2 + (+adj.y || 0);
+        // clip 영역: 슬롯이 차지하는 cell rect (xStart, cellY, sc.width, sideCellH)
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(xStart, cellY, sc.width, sideCellH);
+        ctx.clip();
         if (mirror) {
           // 우측 컬럼: 좌우반전 — 박스 중심 기준으로 X축 뒤집기
-          ctx.save();
           ctx.translate(2 * dx + sideDrawW, 0);
           ctx.scale(-1, 1);
           drawImageContain(ctx, img, dx, dy, sideDrawW, sideDrawH);
-          ctx.restore();
         } else {
           drawImageContain(ctx, img, dx, dy, sideDrawW, sideDrawH);
         }
+        ctx.restore();
       });
     };
     drawSideCol(leftColX,  [0, 1, 2], false);  // 좌측 (slots 1~3, 원본)
@@ -7148,14 +7274,7 @@ function bindSdShowcaseSingleUI() {
     if (strokeLabel) strokeLabel.textContent = strokeEl.value;
     refreshSinglePreview();
   });
-  // r1 G2: SD 셀 크기 슬라이더 (50~150%)
-  const cellEl = document.getElementById('s-sds-cellscale');
-  const cellLabel = document.getElementById('s-sds-cellscale-label');
-  if (cellEl) cellEl.addEventListener('input', () => {
-    state.single.sdshowcase.cellScale = parseInt(cellEl.value, 10) || 100;
-    if (cellLabel) cellLabel.textContent = cellEl.value;
-    refreshSinglePreview();
-  });
+  // R5: cellScale 글로벌 슬라이더 폐기 → 슬롯별 X/Y/Scale로 진화
   // r2: SD 사이 간격 슬라이더 (0~80)
   const spEl = document.getElementById('s-sds-spacing');
   const spLabel = document.getElementById('s-sds-spacing-label');
@@ -7165,6 +7284,90 @@ function bindSdShowcaseSingleUI() {
     if (spLabel) spLabel.textContent = spEl.value;
     refreshSinglePreview();
   });
+
+  // R5: 편집 사이즈 토글 (1x1 ↔ 1200x628) + 슬롯별 X/Y/Scale 입력 18개
+  ensureSdSlotAdjustPerSize(state.single.sdshowcase);
+  document.querySelectorAll('input[name="s-sds-editsize"]').forEach(radioEl => {
+    radioEl.addEventListener('change', () => {
+      if (!radioEl.checked) return;
+      state.single.sdshowcase.editingSize = radioEl.value;
+      loadSdShowcaseSlotsAdjustToUI('single');
+    });
+  });
+  for (let i = 0; i < 6; i++) {
+    ['x','y','scale'].forEach(prop => {
+      const el = document.getElementById(`s-sds-slot-${i+1}-${prop}`);
+      if (!el) return;
+      el.addEventListener('input', () => {
+        const sds = state.single.sdshowcase;
+        ensureSdSlotAdjustPerSize(sds);
+        const size = sds.editingSize || '1x1';
+        const v = parseInt(el.value, 10);
+        sds.slotAdjustPerSize[size][i][prop] = isNaN(v) ? (prop === 'scale' ? 100 : 0) : v;
+        refreshSinglePreview();
+      });
+    });
+  }
+}
+
+// R5: SD Showcase slotAdjustPerSize 안전장치 + UI 동기화 헬퍼 (단건/배치 공용)
+function ensureSdSlotAdjustPerSize(stateObj) {
+  if (!stateObj) return;
+  if (!stateObj.slotAdjustPerSize) {
+    stateObj.slotAdjustPerSize = {
+      '1x1':      Array.from({length:6}, () => ({x:0, y:0, scale:100})),
+      '1200x628': Array.from({length:6}, () => ({x:0, y:0, scale:100})),
+    };
+  } else {
+    ['1x1','1200x628'].forEach(sz => {
+      if (!Array.isArray(stateObj.slotAdjustPerSize[sz])) {
+        stateObj.slotAdjustPerSize[sz] = Array.from({length:6}, () => ({x:0, y:0, scale:100}));
+      }
+      for (let i = 0; i < 6; i++) {
+        const a = stateObj.slotAdjustPerSize[sz][i];
+        if (!a || typeof a !== 'object') stateObj.slotAdjustPerSize[sz][i] = {x:0, y:0, scale:100};
+      }
+    });
+  }
+  if (!stateObj.editingSize) stateObj.editingSize = '1x1';
+}
+
+// R5: 슬롯 X/Y/Scale 18개 input 값 + min/max를 현재 편집 사이즈로 동기화
+// mode='single' → s-sds-slot-*-*, mode='batch' → b-sds-slot-*-*
+function loadSdShowcaseSlotsAdjustToUI(mode) {
+  const prefix = mode === 'batch' ? 'b' : 's';
+  const stateObj = mode === 'batch'
+    ? { slotAdjustPerSize: state.batch.sd_slotAdjustPerSize, editingSize: state.batch.sd_editingSize }
+    : state.single.sdshowcase;
+  if (mode === 'batch') {
+    if (!state.batch.sd_slotAdjustPerSize) {
+      state.batch.sd_slotAdjustPerSize = {
+        '1x1':      Array.from({length:6}, () => ({x:0, y:0, scale:100})),
+        '1200x628': Array.from({length:6}, () => ({x:0, y:0, scale:100})),
+      };
+      stateObj.slotAdjustPerSize = state.batch.sd_slotAdjustPerSize;
+    }
+    if (!state.batch.sd_editingSize) state.batch.sd_editingSize = '1x1';
+    stateObj.editingSize = state.batch.sd_editingSize;
+  } else {
+    ensureSdSlotAdjustPerSize(stateObj);
+  }
+  const size = stateObj.editingSize || '1x1';
+  const xyMax = (size === '1x1') ? 40 : 30;
+  const adjArr = stateObj.slotAdjustPerSize[size] || [];
+  // size 토글 라디오 동기화
+  document.querySelectorAll(`input[name="${prefix}-sds-editsize"]`).forEach(r => {
+    r.checked = (r.value === size);
+  });
+  for (let i = 0; i < 6; i++) {
+    const adj = adjArr[i] || {x:0, y:0, scale:100};
+    const xEl = document.getElementById(`${prefix}-sds-slot-${i+1}-x`);
+    const yEl = document.getElementById(`${prefix}-sds-slot-${i+1}-y`);
+    const sEl = document.getElementById(`${prefix}-sds-slot-${i+1}-scale`);
+    if (xEl) { xEl.min = -xyMax; xEl.max = xyMax; xEl.value = adj.x; }
+    if (yEl) { yEl.min = -xyMax; yEl.max = xyMax; yEl.value = adj.y; }
+    if (sEl) { sEl.value = adj.scale; }
+  }
 }
 
 // v1.6: 언어 전환 시 SD Showcase 입력 필드 + 공통 설정을 state에서 복원
@@ -7189,14 +7392,7 @@ function loadSdShowcaseSlotToUI(lang) {
     strokeEl.value = sw;
     if (strokeLabel) strokeLabel.textContent = String(sw);
   }
-  // r1 G2: cellScale 복원
-  const cellEl = document.getElementById('s-sds-cellscale');
-  const cellLabel = document.getElementById('s-sds-cellscale-label');
-  if (cellEl) {
-    const cs = sds.cellScale || 100;
-    cellEl.value = cs;
-    if (cellLabel) cellLabel.textContent = String(cs);
-  }
+  // R5: cellScale 복원 폐기. 슬롯별 X/Y/Scale은 loadSdShowcaseSlotsAdjustToUI에서 사이즈 토글 기준 복원.
   // r2: spacing 복원
   const spEl = document.getElementById('s-sds-spacing');
   const spLabel = document.getElementById('s-sds-spacing-label');
@@ -7205,6 +7401,8 @@ function loadSdShowcaseSlotToUI(lang) {
     spEl.value = sp;
     if (spLabel) spLabel.textContent = String(sp);
   }
+  // R5: 슬롯별 X/Y/Scale 18개 입력 + 사이즈 토글 동기화
+  loadSdShowcaseSlotsAdjustToUI('single');
 }
 
 // ===========================================================================
@@ -8649,14 +8847,7 @@ function bindBatchMode() {
     if (sdsStrokeLabel) sdsStrokeLabel.textContent = sdsStrokeEl.value;
     syncBatchStateFromUI();
   });
-  // r1 G2: 배치 SD 셀 크기 슬라이더
-  const sdsCellEl = document.getElementById('b-sds-cellscale');
-  const sdsCellLabel = document.getElementById('b-sds-cellscale-label');
-  if (sdsCellEl) sdsCellEl.addEventListener('input', () => {
-    state.batch.sd_cellScale = parseInt(sdsCellEl.value, 10) || 100;
-    if (sdsCellLabel) sdsCellLabel.textContent = sdsCellEl.value;
-    syncBatchStateFromUI();
-  });
+  // R5: 배치 cellScale 슬라이더 폐기. 슬롯별 X/Y/Scale로 진화.
   // r2: 배치 SD 사이 간격 슬라이더
   const sdsSpEl = document.getElementById('b-sds-spacing');
   const sdsSpLabel = document.getElementById('b-sds-spacing-label');
@@ -8671,6 +8862,34 @@ function bindBatchMode() {
     state.batch.sd_showPill = sdsShowEl.checked;
     syncBatchStateFromUI();
   });
+
+  // R5: 배치 — 편집 사이즈 토글 + 슬롯별 X/Y/Scale 18개 핸들러
+  document.querySelectorAll('input[name="b-sds-editsize"]').forEach(radioEl => {
+    radioEl.addEventListener('change', () => {
+      if (!radioEl.checked) return;
+      state.batch.sd_editingSize = radioEl.value;
+      loadSdShowcaseSlotsAdjustToUI('batch');
+    });
+  });
+  for (let i = 0; i < 6; i++) {
+    ['x','y','scale'].forEach(prop => {
+      const el = document.getElementById(`b-sds-slot-${i+1}-${prop}`);
+      if (!el) return;
+      el.addEventListener('input', () => {
+        if (!state.batch.sd_slotAdjustPerSize) {
+          state.batch.sd_slotAdjustPerSize = {
+            '1x1':      Array.from({length:6}, () => ({x:0, y:0, scale:100})),
+            '1200x628': Array.from({length:6}, () => ({x:0, y:0, scale:100})),
+          };
+        }
+        const size = state.batch.sd_editingSize || '1x1';
+        const v = parseInt(el.value, 10);
+        state.batch.sd_slotAdjustPerSize[size][i][prop] = isNaN(v) ? (prop === 'scale' ? 100 : 0) : v;
+      });
+    });
+  }
+  // 초기 UI 동기화 (state default → 18 입력)
+  loadSdShowcaseSlotsAdjustToUI('batch');
 
   // Plan FR-07/08: 2단계 분리 - 프리뷰 (이미지 변환 없음) / ZIP export (변환 + 다운로드)
   document.getElementById('b-preview').addEventListener('click', handleBatchPreview);
@@ -8869,15 +9088,13 @@ function syncBatchStateFromUI() {
   if (asShowCta) state.batch.as_showCta    = asShowCta.checked;
   if (asShowIap) state.batch.as_showIap    = asShowIap.checked;
 
-  // v1.6: SD Showcase 공통 설정 (배경색, 외곽선 두께, 픽 토글, 셀 크기, r2 spacing)
+  // v1.6 + R5: SD Showcase 공통 설정 (배경색, 외곽선 두께, 픽 토글, r2 spacing) — cellScale은 R5 폐기
   const sdsBg     = document.getElementById('b-sds-bgcolor');
   const sdsStroke = document.getElementById('b-sds-stroke');
-  const sdsCell   = document.getElementById('b-sds-cellscale');
   const sdsSp     = document.getElementById('b-sds-spacing');
   const sdsShow   = document.getElementById('b-sds-showpill');
   if (sdsBg)     state.batch.sd_bgColor    = sdsBg.value;
   if (sdsStroke) state.batch.sd_strokeWidth = parseInt(sdsStroke.value, 10) || 8;
-  if (sdsCell)   state.batch.sd_cellScale  = parseInt(sdsCell.value, 10) || 100;
   if (sdsSp) {
     const v = parseInt(sdsSp.value, 10);
     state.batch.sd_spacing = isNaN(v) ? 20 : v;
@@ -9266,7 +9483,12 @@ function buildBatchCfgs() {
     const tmpl = batchTmpl || 'today-tap';
     const langOverride = state.batch.langOverrides[combo.lang] || {};
     // v1.6: SD Showcase 분기 — 1x1 + 1200×628 (combo.size 그대로 사용)
+    // R5: cellScale 평탄화 폐기. slotAdjustPerSize에서 combo.size에 맞는 슬롯별 X/Y/Scale 평탄화.
     if (tmpl === 'sd-showcase') {
+      const adjMap = state.batch.sd_slotAdjustPerSize;
+      const slotAdjust = (adjMap && Array.isArray(adjMap[combo.size]) && adjMap[combo.size].length === 6)
+        ? adjMap[combo.size].map(a => ({x: (a && +a.x) || 0, y: (a && +a.y) || 0, scale: (a && +a.scale) || 100}))
+        : Array.from({length:6}, () => ({x:0, y:0, scale:100}));
       return {
         _combo: combo,
         template: 'sd-showcase',
@@ -9274,12 +9496,12 @@ function buildBatchCfgs() {
         lang: combo.lang,
         bgColor: state.batch.sd_bgColor || '#FFFFFF',
         strokeWidth: typeof state.batch.sd_strokeWidth === 'number' ? state.batch.sd_strokeWidth : 8,
-        cellScale: typeof state.batch.sd_cellScale === 'number' ? state.batch.sd_cellScale : 100,  // r1 G2
         spacing: typeof state.batch.sd_spacing === 'number' ? state.batch.sd_spacing : 20,        // r2
         showPill: state.batch.sd_showPill !== false,
         title: langOverride.sds_title !== undefined ? langOverride.sds_title : ((SD_SHOWCASE_DEFAULT.langs[combo.lang] || {}).title || ''),
         pill:  langOverride.sds_pill  !== undefined ? langOverride.sds_pill  : ((SD_SHOWCASE_DEFAULT.langs[combo.lang] || {}).pill  || ''),
         slots: state.batch.sd_slots || [null,null,null,null,null,null],
+        slotAdjust,
       };
     }
     // v1.7: Key Visual + iPhone Review 분기 — 1080×1080 전용 + 4언어 자동 출력

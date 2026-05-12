@@ -422,3 +422,109 @@
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
 | 1.0 | 2026-04-30 | 완료 리포트 — Plan-Plus + Plan + Do(4 sessions) + Check(r0~r4) 통합. Match Rate 100%, 18/18 SC+N, 23/23 Decisions followed. Cancelled 2건(폰트/그리드 270×300) 트래킹 | self-report + ksk@superplanet.net |
+| 1.1 | 2026-05-12 | **R5 iteration 추가** — 글로벌 `cellScale` 슬라이더(50~150%) 폐기 → 슬롯별 `slotAdjustPerSize` (사이즈별 6 슬롯 × X/Y/Scale) 개별 조정. r1 G2 결정 사항 evolved. 6,105 → 10,001 라인 (+3,896 누적, R5 단독 +222). | self-report + ksk@superplanet.net |
+
+---
+
+## R5 Iteration (2026-05-12) — Per-Slot X/Y/Scale 개별 조정 도입
+
+### R5.1 Context (왜 R5인가)
+
+v1.6.0 완료 후 약 12일간 SD Showcase가 실사용된 후, UA Manager 김성권이 다음과 같은 한계를 보고:
+
+> "현재 SD 캐릭터 6장은 일괄 SD 캐릭터 크기를 변경하도록 설정되어 있습니다. SD 캐릭터 별로 x/y/scale 조정 가능하도록 기능을 변경해야합니다. 다만 조정 범위는 클 필요는 없어서, 그 수준은 제안해주세요. 기존 SD 캐릭터 크기를 조정하는 것은 폐기해주세요."
+
+**근본 원인**: r1 G2 결정 (cellScale 글로벌 슬라이더 50~150%)은 6장 캐릭터의 통일성 가정을 전제로 했으나, 실사용에서는 캐릭터별 자세·체형·정렬 편차가 발생하여 글로벌 일괄 스케일로는 시각 균형 맞추기 불가능. UA 디자인 마무리 단계에서 슬롯별 미세 조정 필요성 발생.
+
+### R5.2 Decisions (사용자 4건 결정 — AskUserQuestion)
+
+| # | 항목 | 선택 | 채택 사유 |
+|---|------|------|---------|
+| R5-D1 | UI 노출 방식 | 각 dropzone 아래 항상 노출 (X/Y/Scale 3 number input × 6) | 즉시 접근, 슬롯-컨트롤 인접 → 빠른 미세조정 workflow |
+| R5-D2 | 사이즈 처리 | 사이즈별 분리 + 토글 UI (`slotAdjustPerSize['1x1' \| '1200x628']`) | 1x1 그리드 셀(297×263)과 1200×628 사이드 컬럼 셀(211×167)의 슬롯 기하학적 의미가 근본적으로 다름 → perSize 분리 필수 (Pickup R3 패턴 일관) |
+| R5-D3 | 조정 범위 | 중간 — 1x1: x/y ±40px / 1200×628: x/y ±30px / scale 70~130% 공통 (step x/y=2, scale=5) | "클 필요 없음" 사용자 명시 + 가시적 효과 균형. 셀 폭의 ~13~15%이면 인접 슬롯과 겹침 직전 |
+| R5-D4 | spacing 슬라이더 | 유지 (현행 0~80px) | base gap vs 슬롯별 미세조정 책임 분리. "6장 모두 5px씩 좁히기" 같은 일괄 작업 보존 |
+
+추가 구현 결정 5건:
+- R5-D5: 단건/배치 **분리** (KVR R30 정책 일관)
+- R5-D6: `drawImageContain` 공용 헬퍼 시그니처 **무수정** (호출 측에서 dx/dy/draw{W,H} 미리 합산)
+- R5-D7: 1200×628 우측 컬럼 mirror 분기에서 x offset **부호 반전 보정** (`effectiveX = -adj.x` — 사용자 직관 보존)
+- R5-D8: 셀 경계 안 `ctx.save/clip/restore` — 옆 슬롯 침범 방지
+- R5-D9: localStorage 미사용 → 마이그레이션 코드 불필요
+
+### R5.3 Decision Record Chain — r1 G2 진화
+
+R5는 PDCA 사이클 안에서 **이전 결정의 명시적 폐기/진화**를 보여주는 첫 사례:
+
+```
+r1 G2 (2026-04-29): cellScale 글로벌 슬라이더 50~150%
+  ↓ 12일 실사용 후 한계 발견
+R5 D1~D9 (2026-05-12): slotAdjustPerSize 슬롯별 개별 조정
+  → cellScale 코드 잔재 0건 (grep 검증), 주석 8건만 "R5 폐기" 표기 남김
+```
+
+Outcome: PDCA Plan의 "결정은 진화 가능하다"는 원칙 + Pickup R2의 "디자이너 PNG 의존성 의도적 제거" 패턴과 같은 종류의 **Evolved Decision**으로 기록.
+
+### R5.4 Implementation Summary (6 Phase 일괄 적용)
+
+| Phase | 영역 | 변경 |
+|---|---|---|
+| 1 | 데이터 모델 | `SD_SHOWCASE_DEFAULT.cellScale` 제거 → `slotAdjustPerSize: {'1x1':[...×6], '1200x628':[...×6]} + editingSize` ([:2696](repo/today-banner-designer.html:2696)). `state.batch.sd_cellScale` → `sd_slotAdjustPerSize + sd_editingSize` ([:3843](repo/today-banner-designer.html:3843)) |
+| 2 | HTML UI | 단건/배치 cellScale 슬라이더 삭제 (~12줄). dropzone 6개 위에 사이즈 토글 라디오 + 각 dropzone 아래 X/Y/Scale 컴팩트 number input × 18 (~180줄). 총 단건+배치 = 36 입력 |
+| 3 | 이벤트 핸들러 | cellScale 핸들러 단건/배치 삭제. 사이즈 토글 + 18 input 핸들러 단건/배치 추가. `ensureSdSlotAdjustPerSize` 안전장치 + `loadSdShowcaseSlotsAdjustToUI(mode)` 공용 헬퍼 신규. syncBatchStateFromUI에서 cellScale 참조 제거 |
+| 4 | 렌더 | `buildSdShowcaseCfg`에 slotAdjust 평탄화 추가 ([:5263-5278](repo/today-banner-designer.html:5263)). `buildSdShowcaseCanvas` cellScale 변수 제거 → 슬롯별 `adj.{x,y,scale}` ([:5446-5448](repo/today-banner-designer.html:5446)). 1x1 그리드 + 1200×628 좌·우 사이드 모두 `ctx.save/clip/restore` 셀 경계 침범 방지. 1200 우측 mirror 분기에서 `effectiveX = mirror ? -adj.x : adj.x` 부호 반전. `buildBatchCfgs` SD Showcase 분기에서 combo.size 기준 slotAdjustPerSize 평탄화 ([:9486-9504](repo/today-banner-designer.html:9486)) |
+| 5 | 잔재 정리 | cellScale 코드 잔재 **0건** (grep 검증). 8개 주석에만 "R5 폐기" 표기 남김. drawImageContain 공용 헬퍼 시그니처 무수정. 다른 6 템플릿 코드 무수정 (slotAdjust/cellScale leakage 0건) |
+| 6 | 문서 | CLAUDE.md 현황 2026-05-12 항목 추가 + Plan 문서 r1 G2 갱신 표기 + 본 Report R5 섹션 |
+
+### R5.5 변경량
+
+| Metric | Value |
+|---|---|
+| 파일 | `today-banner-designer.html` 1개 + `CLAUDE.md` |
+| 라인 변화 | 9,779 → **10,001 라인** (+222줄, R5 단독) |
+| 누적 변화 (v1.6 시작점부터) | 5,097 → 10,001 (+4,904 누적, +96%) |
+| 회귀 위험 | **0** (SD Showcase 분기 전용 변경) |
+| JS 문법 검증 | ✅ `node --check` 통과 |
+| cellScale 코드 잔재 | 0건 |
+| 다른 6 템플릿 leakage | 0건 (today-tap, app-badge, appstore-screenshot, keyvisual-review, pickup, steam-review) |
+
+### R5.6 안전장치 (Risk Mitigation)
+
+| ID | 위험 | 완화 |
+|---|---|---|
+| R5-R1 | 1200×628 우측 컬럼 mirror에서 x 부호 미보정 시 사용자 직관 위배 | Phase 4 명시: `effectiveX = mirror ? -adj.x : adj.x` |
+| R5-R2 | 슬롯 x offset이 셀 경계 침범 → 옆 슬롯 위 겹침 | Phase 4 명시: `ctx.save → ctx.rect(cellX, cellY, cellW, cellH) → ctx.clip → drawImageContain → ctx.restore` |
+| R5-R3 | scale=130%일 때 셀 경계 밖 잘림 | 의도된 동작 (sd-showcase 규약). 사용자 안내 텍스트로 명시 |
+| R5-R4 | UI 폭이 길어짐 (각 dropzone 아래 3 input × 6) | text-[10px] 라벨 + 24px height + 컴팩트 padding (2px 4px)로 시각 부담 최소 |
+| R5-R5 | 사이즈 토글 누락 → 잘못된 사이즈 조정값 수정 | 현재 편집 사이즈를 라디오 + 텍스트 라벨 ("편집 사이즈:")로 명시 |
+| R5-R6 | 빈 슬롯에서도 X/Y/Scale 입력 가능 | 허용 (state 보관, 슬롯 채워지면 즉시 반영) |
+| R5-R7 | cellScale 잔재(state 필드, 변수)가 남아 dead-path | Phase 5에서 grep 일괄 정리 + 검증 |
+| R5-R8 | 18 핸들러 한 번에 추가 → 회귀 | 일괄 수정 후 `node --check` 통과 + grep으로 SD Showcase 격리 확인 |
+| R5-R9 | `state.batch.sd_slotAdjustPerSize` 미초기화 시 런타임 에러 | `loadSdShowcaseSlotsAdjustToUI('batch')` + 핸들러 양쪽에 lazy init 안전장치 |
+
+### R5.7 검증 시나리오 (브라우저 실측 대기 — 7건)
+
+| # | 시나리오 | 합격 기준 |
+|---|---|---|
+| 1 | 단건 1x1: SD 6장 드롭 → slot 1: x=+40/y=-20/scale=120 입력 | 1번만 우상단 이동·확대 + 옆 슬롯 미침범 + 다운로드 PNG 동일 |
+| 2 | 단건 1200×628: 사이즈 토글 | 1x1 조정값과 분리 (모두 0 표시) — perSize 검증 |
+| 3 | mirror 검증 | 좌측 slot 1 x=+30 → 우측 이동 / 우측 slot 4 x=+30 → 우측 이동 (둘 다 사용자 직관 방향) |
+| 4 | 사이즈 토글 round-trip | 1x1: slot 1 x=+40 → 1200×628: x=0 → 1x1 복귀: x=+40 복원 |
+| 5 | cellScale UI 폐기 확인 | "SD 캐릭터 크기" 슬라이더(50~150%)가 단건/배치 모두에서 사라짐 |
+| 6 | spacing 동작 | spacing=0 vs spacing=80 6장 일괄 간격 변화 (현행 유지) + 슬롯별 x offset과 합산 적용 |
+| 7 | 배치 ZIP | 4언어 × 2사이즈 = 8 PNG에 1x1과 1200×628 각 perSize 조정값 반영 |
+| 회귀 | 다른 6 템플릿 | today-tap, app-badge, appstore-screenshot, keyvisual-review, pickup, steam-review 단건/배치 모두 무영향 |
+
+### R5.8 Lessons Learned
+
+- **L-R5-1 (Evolved Decision)**: PDCA 사이클 안에서 "이전 결정의 의도적 폐기"가 자연스럽게 처리되어야 한다는 것을 R5가 첫 사례로 보여줌. cellScale은 r1 G2에서 "옳은" 결정이었으나 12일 실사용 후 한계 발견 → 명시적 evolved (Pickup R2 디자이너 PNG 의존성 폐기 패턴과 같은 종류).
+- **L-R5-2 (Plan-Mode + AskUserQuestion 효율)**: Plan mode에서 코드 수정 전에 Explore 1회 + Plan agent 1회 + AskUserQuestion 4건으로 **모든 설계 결정 사전 합의 후 6 Phase 일괄 수정**. 회귀 위험 0 달성.
+- **L-R5-3 (perSize 패턴 확산)**: Pickup R3에서 도입된 perSize 분리 패턴이 SD Showcase R5에 자연 적용. 향후 다른 multi-size 템플릿(Steam Review 등)에도 유사 R-iteration 발생 시 같은 패턴 재사용 예상.
+- **L-R5-4 (clip + mirror 부호 보정)**: Canvas 좌표계의 `ctx.scale(-1, 1)` 환경에서 사용자 입력값의 시각적 방향과 코드 방향이 어긋날 수 있음. 명시적 `effectiveX = mirror ? -adj.x : adj.x` 분기로 직관 보존. 향후 mirror 사용 템플릿(KVR 등)에서도 동일 패턴 권고.
+
+### R5.9 Open Items (미래 검토)
+
+- 슬롯 개별 회전(rotate) — 요구 없음, Out of Scope 유지
+- 드래그 앤 위치 조정 GUI — 입력 기반으로 충분, deferred
+- 슬롯 비어있을 때 X/Y/Scale 입력 disabled — UX 개선 후보 (현행은 허용, state 보관)
+- 사이즈 토글 + 라디오 시각 강조 (굵게/색) — 사용자 피드백 따라 결정
