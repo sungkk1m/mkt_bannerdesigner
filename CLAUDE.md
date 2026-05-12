@@ -994,6 +994,24 @@ _(작업 지시 시 최신 상태로 갱신)_
   - state 호환성: state.{single,batch}.kvr.bgScale/bgY는 브라우저 세션 일회성. 새 max 안에 디폴트 들어옴
   - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓ · today-banner-designer.html 9,779 라인 유지
   - 검증 대기 (사용자 브라우저 실측): KVR 단건 모드 크기 슬라이더 max 250% / 상하 ±500px 5단위 / 좌우 ±1500px 10단위 유지 / 배치 동일 / 다른 6 템플릿 회귀 0
+- 2026-05-13: **[SD Showcase R6 / pdca iterate] 슬롯 X/Y/Scale 36 number input → range 슬라이더 (좌우 핸들 + inline 라벨)**
+  - 사용자 피드백: R5에서 도입한 슬롯별 X/Y/Scale 36 number input(단건 18 + 배치 18)이 직접 숫자 입력/화살표 클릭만 지원 → "너무 불편" → 다른 컨트롤(spacing/stroke)처럼 좌우 핸들 슬라이더로 변경 요청
+  - 사용자 결정 (AskUserQuestion 2건 + plan 시각화 비교): UI 레이아웃 = Option ① 컴팩트 (현재 grid-cols-3 유지) / 값 표시 = 라벨 안 inline ("X 10") / R5 perSize·clip·mirror·cellScale 정리 모두 보존
+  - **변경 사항** (`today-banner-designer.html`, 6 영역 일괄 in-place 수정):
+    - HTML 단건 input 18개 ([:1138~1206](repo/today-banner-designer.html:1138)): `type="number"` + `class="input-base ..." style="..."` → `type="range"` + `class="w-full"`. 라벨 span에 `<span id="s-sds-slot-{i}-{prop}-label">{0|100}</span>` 추가 (Python regex 일괄 치환)
+    - HTML 배치 input 18개 ([:1953~2020](repo/today-banner-designer.html:1953)): 단건과 동일 패턴 (`s-` → `b-`)
+    - JS `bindSdShowcaseSingleUI` ([:7297](repo/today-banner-designer.html:7297)): `input` 이벤트 핸들러에 `labelEl.textContent = String(finalV)` 1줄 추가 (실시간 라벨 갱신)
+    - JS `bindSdShowcaseBatchUI` ([:8878](repo/today-banner-designer.html:8878)): 동일 패턴 (`s-` → `b-`)
+    - JS `loadSdShowcaseSlotsAdjustToUI` ([:7366](repo/today-banner-designer.html:7366)): for loop 안에서 라벨 동기화 ['x','y','scale'].forEach 패턴으로 재작성 (사이즈 토글 1x1 ±40 / 1200 ±30 자동 적용 시 라벨도 함께 갱신)
+    - 안내 텍스트 2곳: 단건 [:1210](repo/today-banner-designer.html:1210) + 배치 [:2025](repo/today-banner-designer.html:2025) "입력" → "슬라이더" + R6 표기
+  - **무수정 영역** (회귀 위험 0): `SD_SHOWCASE_DEFAULT.slotAdjustPerSize` / `state.batch.sd_slotAdjustPerSize` / `buildSdShowcaseCfg` slotAdjust 평탄화 / `buildSdShowcaseCanvas` 1x1·1200×628 분기 (clip + mirror 부호 반전) / `drawImageContain` / `buildBatchCfgs` SD Showcase 분기 / 사이즈 토글 라디오 핸들러 / cellScale 정리 잔재
+  - **검증**:
+    - JS 문법 (`node --check` via 인라인 스크립트 추출): 통과 ✓
+    - SD slot range inputs: 36개 (단건 18 + 배치 18) ✓ / Label spans: 36개 ✓ / 잔여 number input: 0개 ✓ / cellScale UI 잔재: 0 ✓
+    - 다른 6 템플릿 (today-tap, app-badge, appstore-screenshot, keyvisual-review, pickup, steam-review) dropzone/drawImageContain 호출 그대로
+  - **변경량**: today-banner-designer.html 9,779 → **10,012 라인** (+233, 라벨 span 36개 inline 추가 + 핸들러 라벨 갱신 + R6 주석) · 1,110,477 B → 1,129,287 B (+18KB)
+  - **회귀 위험 0**: SD Showcase HTML/JS 핸들러 토큰 교체 + 라벨 동기화만 변경. state/Canvas 빌더/perSize/clip/mirror 모두 무수정
+  - 검증 대기 (사용자 브라우저 실측 6건): 슬라이더 드래그 라벨 실시간 갱신 / 1200×628 사이즈 토글 시 min/max ±30 적용 / 사이즈 토글 round-trip / min/max 스냅 / 배치 ZIP perSize 분리 / 다른 6 템플릿 회귀 0
 
 ## 히스토리
 

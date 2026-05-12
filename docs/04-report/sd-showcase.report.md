@@ -528,3 +528,91 @@ Outcome: PDCA Plan의 "결정은 진화 가능하다"는 원칙 + Pickup R2의 "
 - 드래그 앤 위치 조정 GUI — 입력 기반으로 충분, deferred
 - 슬롯 비어있을 때 X/Y/Scale 입력 disabled — UX 개선 후보 (현행은 허용, state 보관)
 - 사이즈 토글 + 라디오 시각 강조 (굵게/색) — 사용자 피드백 따라 결정
+
+---
+
+## R6 Iteration — 슬롯 조정 UI를 슬라이더(좌우 핸들)로 변경 (2026-05-13)
+
+> **Status**: Code complete, awaiting user browser verification
+> **Trigger**: R5의 36 number input(단건 18 + 배치 18)이 직접 숫자 입력/화살표 클릭만 지원 → 사용자 피드백 "너무 불편" → 다른 컨트롤(spacing/stroke)처럼 좌우 핸들 슬라이더화
+
+### R6.1 Context
+
+R5에서 도입한 슬롯별 X/Y/Scale UI는 정확한 값 입력에는 적합했으나 **빠른 시각적 미세조정에 불리**. 사용자가 spacing/stroke 슬라이더 같은 직관적 핸들 드래그 방식을 요청. number 입력 36개를 range 슬라이더 36개로 1:1 교체하면서 라벨에 inline 값 표시 추가.
+
+### R6.2 Decisions (사용자 확정)
+
+| ID | 항목 | 결정 | 이유 |
+|---|---|---|---|
+| R6-D1 | input type | `number` → `range` 1:1 교체 | 사용자 명시 "좌우 핸들" |
+| R6-D2 | UI 레이아웃 | Option ① 컴팩트 (현재 grid-cols-3 유지) | 다른 컨트롤 일관 + 패널 높이 영향 0 + 슬라이더 폭 ~75px 사용 가능 |
+| R6-D3 | 현재값 표시 | 라벨 안 inline ("X 10") | spacing/stroke 패턴 + AskUserQuestion 사용자 확정 |
+| R6-D4 | min/max/step | R5 그대로 유지 (1x1 ±40 step2 / 1200 ±30 step2 / scale 70~130 step5) | R5 결정 보존, 회귀 위험 0 |
+| R6-D5 | 사이즈 토글 동작 | R5 로직 그대로 (range도 min/max 동일 지원) | 코드 1:1 적용 가능 |
+| R6-D6 | 단건/배치 | 양쪽 동일 패턴 분리 적용 | R30 정책 (각각 분리) |
+| R6-D7 | state / Canvas 빌더 | 무수정 | parseInt + state 갱신 + 렌더 흐름 동일 |
+
+### R6.3 Decision Record Chain (PRD → Plan → Design → R5 → R6)
+
+| Source | Decision | Status |
+|---|---|---|
+| Plan r1 G2 | "cellScale 글로벌 슬라이더 50~150%로 일괄 SD 크기 조정" | ✅ R5에서 의도적 폐기 |
+| R5 (2026-05-12) | "슬롯별 X/Y/Scale 36 number input + perSize 분리" | ✅ R6에서 부분 진화 (number → range UI만, 데이터 모델/검증 흐름 보존) |
+| R6 (이번) | "number → range 슬라이더 + inline 라벨" | ✅ R6 in-place 구현 (state/Canvas/clip/mirror/perSize 모두 무수정) |
+
+### R6.4 Implementation Summary
+
+| 변경 영역 | 위치 | 변경 |
+|---|---|---|
+| HTML 단건 input 18개 | [today-banner-designer.html:1138~1206](repo/today-banner-designer.html:1138) | `type="number"` + `class="input-base ..." style="..."` → `type="range"` + `class="w-full"`. 라벨 span에 `<span id="s-sds-slot-{i}-{prop}-label">{default}</span>` 추가 |
+| HTML 배치 input 18개 | [today-banner-designer.html:1953~2020](repo/today-banner-designer.html:1953) | 단건과 동일 패턴 (`s-` → `b-`) |
+| JS `bindSdShowcaseSingleUI` | [today-banner-designer.html:7297~](repo/today-banner-designer.html:7297) | `input` 이벤트 핸들러에 `labelEl.textContent = String(finalV)` 1줄 추가 |
+| JS `bindSdShowcaseBatchUI` | [today-banner-designer.html:8878~](repo/today-banner-designer.html:8878) | 동일 패턴 (`s-` → `b-`) |
+| JS `loadSdShowcaseSlotsAdjustToUI` | [today-banner-designer.html:7366~](repo/today-banner-designer.html:7366) | 슬라이더 value + min/max 갱신 시 라벨 동기화 추가 (사이즈 토글 시 호출됨) |
+| 안내 텍스트 (단건/배치 2곳) | line 1210 / 2025 | "입력" → "슬라이더" + R6 표기 |
+
+### R6.5 변경량
+
+- `today-banner-designer.html`: 9,779 → **10,012 라인** (+233, 라벨 span 36개 inline 추가 + R6 주석 + 핸들러 1줄씩 추가)
+- 자산: 없음
+- state/Canvas/drawImageContain/사이즈 토글/perSize/clip/mirror/cellScale 잔재: **모두 무수정**
+
+### R6.6 Risk Mitigation (실시 결과)
+
+| ID | 위험 | 결과 |
+|---|---|---|
+| R-1 | 슬라이더 폭 75px에서 미세조정 어려움 | step 2/5 보존 → X/Y 40칸, Scale 12칸으로 사용 가능. 사용자 실측 후 필요시 R7에서 조정 |
+| R-2 | 라벨 span 18개 추가로 DOM 사이즈 증가 | 미미 (-683 byte, 오히려 감소 — `style="..."` 길이가 `class="w-full"`보다 컸음) |
+| R-3 | parseInt(range.value) NaN 가능성 | range는 항상 valid number — 안전장치(isNaN 가드)로 유지 |
+| R-4 | 사이즈 토글 시 slider min/max 갱신 누락 | `loadSdShowcaseSlotsAdjustToUI` 동기화 로직 보존 |
+| R-5 | 회귀 (다른 6 템플릿) | grep 검증 — today-tap dropzone 3개 / drawImageContain 9곳 그대로 / cellScale 0건 / range 36개 정확 |
+
+### R6.7 검증 (정적)
+
+- **JS 문법 검증**: 인라인 `<script>` 추출 → `node --check` 통과 ✓
+- **카운트 검증**:
+  - SD slot range inputs: 36개 ✓ (단건 18 + 배치 18)
+  - Label spans: 36개 ✓
+  - 잔여 number input (SD slot): 0개 ✓
+  - cellScale UI 잔재: 0개 ✓ (R5 정리 유지)
+  - cfg.slotAdjust 참조: 4건 (Canvas 빌더 1x1 + 1200×628 좌·우) ✓
+  - slotAdjustPerSize 참조: 23건 (state·핸들러·빌더) ✓
+- **회귀**: 다른 6 템플릿 dropzone/drawImageContain 호출 불변
+
+### R6.8 검증 (브라우저 실측 대기 — 6건)
+
+| # | 시나리오 | 합격 기준 |
+|---|---|---|
+| 1 | 슬라이더 드래그 | X 슬라이더 드래그 → 라벨 "X 10" → "X 20" 실시간 갱신 + 미리보기 즉시 반영 |
+| 2 | 1200×628 사이즈 토글 | 슬라이더 min/max ±30 자동 적용 (1x1 ±40과 분리) + 라벨 0 표시 |
+| 3 | 사이즈 토글 round-trip | 1x1 X+40 → 1200 X=0 → 1x1 복귀 시 X+40 + 라벨 40 |
+| 4 | 슬라이더 끝 도달 | min/max 경계값(-40, +40 또는 70, 130)에서 자연 스냅 |
+| 5 | 배치 ZIP | 단건 동일 슬라이더 동작 + 배치 ZIP 8장에 perSize 조정값 반영 |
+| 6 | 회귀 (6 템플릿) | today-tap / app-badge / appstore-screenshot / keyvisual-review / pickup / steam-review 모두 무영향 |
+
+### R6.9 Lessons Learned
+
+- **L-R6-1 (UI-only iteration)**: state/Canvas/렌더 흐름 무수정 + HTML 입력 type만 1:1 교체 → 회귀 위험 0의 가장 안전한 R-iteration 패턴. 다른 템플릿에서 number→range 전환 시 동일 패턴 적용 가능.
+- **L-R6-2 (Python regex 일괄 + edge case 수동 보완)**: 36개 input + 36개 label을 정규식 한 번에 치환했으나 공백 0개 케이스(Scale row)에서 공백 결여 발생 → 사후 `replace_all` 1회로 12개 일괄 정상화. 정규식 그루핑은 일관된 공백 가정 시 가장 안전.
+- **L-R6-3 (Plan 시각화)**: AskUserQuestion preview의 ASCII art 렌더링이 환경에 따라 가독성 떨어질 수 있음. Plan 파일 자체에 mockup을 충실히 담아 ExitPlanMode 검토 시점에 비교 가능하게 하는 패턴이 더 안전.
+
