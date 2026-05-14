@@ -994,6 +994,46 @@ _(작업 지시 시 최신 상태로 갱신)_
   - state 호환성: state.{single,batch}.kvr.bgScale/bgY는 브라우저 세션 일회성. 새 max 안에 디폴트 들어옴
   - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓ · today-banner-designer.html 9,779 라인 유지
   - 검증 대기 (사용자 브라우저 실측): KVR 단건 모드 크기 슬라이더 max 250% / 상하 ±500px 5단위 / 좌우 ±1500px 10단위 유지 / 배치 동일 / 다른 6 템플릿 회귀 0
+- 2026-05-14: **[batch-preview-scale R2 / pdca iterate] 배치 슬라이더 max 90% → 300% 확장 (사용자 검증 후 단일 토큰 수정)**
+  - 사용자 요청: "현재 배치 생성 미리보기 크기가 20~90% 정도만 지원하는 것으로 확인됩니다. 해당 수준이 맞는지 검증해주세요. 만일 20~90% 정도만 지원하는 것이 맞다면, 미리보기 크기를 키우기 위해 20~300%까지 크기를 키워주세요."
+  - 검증: grep 1회로 `#b-preview-scale` (line 2400) min=20/max=90/default=45 확인 — 사용자 인식 100% 정확
+  - 수정: `today-banner-designer.html:2400` `max="90"` → **`max="300"`** (1 토큰만 변경, in-place)
+  - **무수정 영역 (회귀 위험 0)**:
+    - `applyBatchPreviewScale()` ([:8534+](repo/today-banner-designer.html:8534)): R1에서 이미 `marginBottom = -(1-scale)*naturalH` 식으로 scale<1·scale>1 양방향 자동 처리 설계 → scale=3.0 시 `+2*naturalH` 양수 margin으로 자식 확장 공간 자동 확보. 코드 수정 불필요
+    - transform-origin: top left → 우측·하단 확장 → 부모 `main.overflow-auto`가 자동 스크롤
+    - 라벨 `w-10` 40px + `text-xs` → "300%" 4글자 표시 가능
+    - state.ui.batchPreviewScale default 0.45 유지 (사용자 요청 없음, 회귀 0)
+    - 단건 슬라이더 `#s-preview-scale` ([:1711](repo/today-banner-designer.html:1711)) max=90 유지 (사용자가 "배치 생성 미리보기"만 명시 지정)
+  - 변경량: today-banner-designer.html 10,055 라인 유지 (1 토큰 수정, in-place)
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓
+  - 다운로드 결과물 무영향: `build*Canvas`/`canvasToDataURL`/ZIP 경로 모두 무수정 → 원본 1080×1080 등 사이즈 100% 유지
+  - **검증 대기** (사용자 브라우저 실측):
+    - 배치 프리뷰 생성 → 슬라이더 우측 끝까지 드래그 → 라벨 "300%" 표시 + 모든 썸네일 ~3배 확대
+    - 100% 부근 (THUMB_W=220px 기준 ≈ 220*0.45*(100/45)=489px → 실제 표시 사이즈) — 사이즈 검토 편의 증가
+    - 200% 이상에서 그리드 폭이 main 영역 넘어 → 가로 스크롤 발생 (정상)
+    - 슬라이더 다운로드 영향 0 — 임의 썸네일 다운로드 시 원본 사이즈 PNG 출력
+    - 단건 모드 슬라이더 동작 무영향 (max=90 유지)
+    - 회귀: 다른 6 템플릿(today-tap/app-badge/appstore-screenshot/sd-showcase/keyvisual-review/pickup/steam-review) 배치 동작 무영향
+- 2026-05-13: **[batch-preview-scale / pdca iterate] 배치 모드 미리보기 크기 슬라이더 추가 (단건 모드 패턴 미러링)**
+  - 사용자 요청: "모든 템플릿 배치 모드에서, 프리뷰 생성한 크기를 단건 편집 모드처럼 크기를 좌우 핸들로 조정할 수 있을지 검증"
+  - 사용자 결정 (AskUserQuestion 3건): UI = 현재 단건 슬라이더와 동일 (좌우 핸들 = range thumb) / 적용 단위 = 배치 그리드 전체 공통 1개 / 다운로드 영향 = 없음 (시각 표시만)
+  - **수정 5곳 일괄 (`today-banner-designer.html`, +43 라인)**:
+    1. HTML 배치 main 헤더 ([:2391-2403](repo/today-banner-designer.html:2391)): 단건과 동일한 `<div class="mb-4 flex items-center justify-between">` 구조로 재구성 + `#b-preview-scale` (range 20~90 default 45) + `#b-preview-scale-label`
+    2. state.ui ([:3865](repo/today-banner-designer.html:3865)): `previewScale: 0.45` 옆에 `batchPreviewScale: 0.45` 추가. **state.batch가 아닌 state.ui 선택 이유**: 단건과 동일 위치로 코드 일관성 + syncBatchStateFromUI 무수정으로 회귀 위험 0 (Plan은 state.batch 명시했으나 구현 단계에서 더 안전한 위치로 조정)
+    3. `applyBatchPreviewScale()` 신설 ([:8534+](repo/today-banner-designer.html:8534)): `#b-thumbs`에 `transform: scale(${s}) + transform-origin: top left` 적용 + `marginBottom: -(1-s)*naturalH px` (scale<1 빈 공간 제거, scale>1 자동 양수로 확장 공간 확보) + 라벨 갱신. 측정 전 transform/marginBottom 초기화하여 이전 scale 잔재 배제
+    4. `bindBatchMode()` 진입부 ([:8761~](repo/today-banner-designer.html:8761)): 단건 슬라이더 바인딩과 동일한 패턴으로 `b-preview-scale` input 이벤트 → state 갱신 + 라벨 + applyBatchPreviewScale 호출
+    5. `handleBatchPreview()` 말미 ([:9705](repo/today-banner-designer.html:9705)): 썸네일 렌더 완료 후 `applyBatchPreviewScale()` 1줄 호출 (재생성 후에도 직전 scale 유지)
+  - **회귀 위험 0**: `#b-thumbs` 컨테이너에만 transform 적용. `buildBatchCfgs`/`renderBanner`/`downloadBatchItem`/`handleBatchExportZip`/`canvasToDataURL`/`build*Canvas` 모두 무수정 → **다운로드 결과물 원본 사이즈(1080×1080 등) 100% 유지**. 단건 슬라이더 동작 무영향 (별도 ID/state 필드)
+  - state 영속성: state.ui는 localStorage 비저장 (단건 모드와 동일). 페이지 새로고침 시 단건·배치 모두 45%로 리셋되는 것이 기존 동작
+  - 변경량: today-banner-designer.html 10,012 → **10,055 라인** (+43)
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓
+  - **검증 대기** (사용자 브라우저 실측):
+    - 배치 탭 → "🖼 프리뷰 생성" 클릭 → 우측 상단에 슬라이더 + "45%" 라벨 노출
+    - 슬라이더 20% ↔ 90% 드래그 → 모든 썸네일 동시 비례 축소/확대, 라벨 실시간 갱신
+    - 슬라이더 20%일 때 임의 썸네일 "⬇ 다운로드" → PNG 원본 사이즈(예: 1080×1080) 그대로 출력
+    - ZIP 일괄 다운로드 → ZIP 내 파일들 모두 원본 사이즈 유지
+    - 단건 모드 슬라이더 동작 무영향 (회귀 0)
+    - 다른 6 템플릿(today-tap, app-badge, appstore-screenshot, sd-showcase, keyvisual-review, pickup, steam-review 등) 배치 동작 무영향
 - 2026-05-13: **[SD Showcase R6 / pdca iterate] 슬롯 X/Y/Scale 36 number input → range 슬라이더 (좌우 핸들 + inline 라벨)**
   - 사용자 피드백: R5에서 도입한 슬롯별 X/Y/Scale 36 number input(단건 18 + 배치 18)이 직접 숫자 입력/화살표 클릭만 지원 → "너무 불편" → 다른 컨트롤(spacing/stroke)처럼 좌우 핸들 슬라이더로 변경 요청
   - 사용자 결정 (AskUserQuestion 2건 + plan 시각화 비교): UI 레이아웃 = Option ① 컴팩트 (현재 grid-cols-3 유지) / 값 표시 = 라벨 안 inline ("X 10") / R5 perSize·clip·mirror·cellScale 정리 모두 보존

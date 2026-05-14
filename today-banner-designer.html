@@ -2389,9 +2389,17 @@
     </aside>
 
     <main class="p-8 overflow-auto" style="background: radial-gradient(circle at 30% 20%, #141824 0%, #0b0c10 70%);">
-      <div class="mb-4">
-        <h2 class="text-sm font-semibold">배치 결과</h2>
-        <p class="text-xs text-gray-500 mt-1">규격 × 언어 조합별로 생성된 배너가 아래에 표시됩니다</p>
+      <div class="mb-4 flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-semibold">배치 결과</h2>
+          <p class="text-xs text-gray-500 mt-1">규격 × 언어 조합별로 생성된 배너가 아래에 표시됩니다</p>
+        </div>
+        <!-- v2.0 batch-preview-scale: 단건 모드와 동일한 슬라이더 (시각 표시만, 다운로드 무영향) -->
+        <div class="flex items-center gap-2">
+          <label class="text-xs text-gray-400">미리보기 크기</label>
+          <input type="range" id="b-preview-scale" min="20" max="300" value="45" class="w-28" />
+          <span id="b-preview-scale-label" class="text-xs text-gray-400 w-10">45%</span>
+        </div>
       </div>
       <div id="b-thumbs" class="thumb-grid">
         <div class="text-gray-500 text-sm col-span-full text-center py-16">좌측 입력을 완료하고 "일괄 생성"을 누르세요</div>
@@ -3854,7 +3862,7 @@ const state = {
     // v1.9: Steam Review 배치 전용 (키비주얼/슬라이더 + 콘텐츠 langs 모두 배치 별도, syncBatchStateFromUI에서 state.batch.steam.langs 저장)
     steam: JSON.parse(JSON.stringify(STEAM_REVIEW_DEFAULT)),
   },
-  ui: { previewScale: 0.45 },
+  ui: { previewScale: 0.45, batchPreviewScale: 0.45 },
 };
 
 // ===========================================================================
@@ -8522,6 +8530,26 @@ function applyPreviewScale() {
   container.parentElement.style.paddingBottom = (size.h * scale) + 'px';
 }
 
+// v2.0 batch-preview-scale: 배치 그리드 전체에 동일 비율 scale 적용 (시각 표시만)
+// - DOM/Canvas 빌더 무수정, 다운로드 결과물 영향 없음
+// - transform-origin: top left + 음수/양수 marginBottom으로 빈 공간 자연 보정 (scale<1: 빈 공간 제거, scale>1: 자식 visual 확장 공간 확보)
+function applyBatchPreviewScale() {
+  const container = document.getElementById('b-thumbs');
+  if (!container) return;
+  const scale = state.ui.batchPreviewScale;
+  // transform 초기화 후 자연 높이 측정 (이전 scale 잔재가 측정값을 왜곡하지 않도록)
+  container.style.transform = '';
+  container.style.marginBottom = '';
+  const naturalH = container.scrollHeight;
+  container.style.transform = `scale(${scale})`;
+  container.style.transformOrigin = 'top left';
+  // scaled visual이 차지하는 실제 박스 = naturalH * scale
+  // 기존 박스 모델은 naturalH 그대로이므로 (1-scale)*naturalH 만큼의 빈 공간이 발생 (scale>1이면 음수 → 자식 확장 공간 확보)
+  container.style.marginBottom = `${-(1 - scale) * naturalH}px`;
+  const label = document.getElementById('b-preview-scale-label');
+  if (label) label.textContent = Math.round(scale * 100) + '%';
+}
+
 // bugfix Plan FR-06: Canvas 경로로 전환 (롤백은 USE_CANVAS_EXPORT=false)
 async function handleSingleDownload() {
   const statusEl = document.getElementById('s-status');
@@ -8730,6 +8758,18 @@ function buildFilename({ prefix, size, lang, ext }) {
 // 7. BATCH 모드 이벤트 바인딩
 // ===========================================================================
 function bindBatchMode() {
+  // v2.0 batch-preview-scale: 단건 모드와 동일한 슬라이더 바인딩 (state.ui.batchPreviewScale)
+  const bScaleSlider = document.getElementById('b-preview-scale');
+  const bScaleLabel = document.getElementById('b-preview-scale-label');
+  if (bScaleSlider) {
+    bScaleSlider.addEventListener('input', () => {
+      const v = parseInt(bScaleSlider.value, 10) / 100;
+      state.ui.batchPreviewScale = v;
+      if (bScaleLabel) bScaleLabel.textContent = bScaleSlider.value + '%';
+      applyBatchPreviewScale();
+    });
+  }
+
   document.querySelectorAll('.b-size, .b-lang').forEach(cb => {
     cb.addEventListener('change', () => {
       cb.closest('.check-pill').classList.toggle('selected', cb.checked);
@@ -9660,6 +9700,9 @@ function handleBatchPreview() {
   const btnZip = document.getElementById('b-export-zip');
   btnZip.disabled = false;
   btnZip.style.opacity = '1';
+
+  // v2.0 batch-preview-scale: 썸네일 렌더 완료 후 슬라이더 값 반영 (재생성 후에도 직전 scale 유지)
+  applyBatchPreviewScale();
 }
 
 // Plan FR-08 (banner-bugfix) + bugfix FR-06: 개별 다운로드, Canvas 경로
