@@ -365,7 +365,8 @@
 
   .thumb-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    /* v2.0 batch-preview-scale R4: 1fr stretch 제거 — 컬럼을 220px 고정으로 두어 thumb-card 우측 검정 영역 노출 버그 해결 */
+    grid-template-columns: repeat(auto-fill, 220px);
     gap: 12px;
   }
   .thumb-card {
@@ -2392,7 +2393,8 @@
       <div class="mb-4 flex items-center justify-between">
         <div>
           <h2 class="text-sm font-semibold">배치 결과</h2>
-          <p class="text-xs text-gray-500 mt-1">규격 × 언어 조합별로 생성된 배너가 아래에 표시됩니다</p>
+          <!-- v2.0 batch-preview-scale R3: placeholder를 #b-thumbs 바깥으로 이동 (이전에는 thumbs 내부 자식이라 transform: scale 영향 받음) -->
+          <p class="text-xs text-gray-500 mt-1">규격 × 언어 조합별로 생성된 배너가 아래에 표시됩니다<span id="b-placeholder-hint"> · 좌측 입력을 완료하고 "일괄 생성"을 누르세요</span></p>
         </div>
         <!-- v2.0 batch-preview-scale: 단건 모드와 동일한 슬라이더 (시각 표시만, 다운로드 무영향) -->
         <div class="flex items-center gap-2">
@@ -2401,9 +2403,7 @@
           <span id="b-preview-scale-label" class="text-xs text-gray-400 w-10">45%</span>
         </div>
       </div>
-      <div id="b-thumbs" class="thumb-grid">
-        <div class="text-gray-500 text-sm col-span-full text-center py-16">좌측 입력을 완료하고 "일괄 생성"을 누르세요</div>
-      </div>
+      <div id="b-thumbs" class="thumb-grid"></div>
     </main>
   </div>
 </section>
@@ -9666,6 +9666,9 @@ function handleBatchPreview() {
   const barEl    = document.getElementById('b-progress');
   thumbsEl.innerHTML = '';
   barEl.style.width = '0%';
+  // v2.0 batch-preview-scale R3: 썸네일 생성 시 placeholder hint hide (재진입에도 hidden 유지)
+  const placeholderHint = document.getElementById('b-placeholder-hint');
+  if (placeholderHint) placeholderHint.style.display = 'none';
 
   const THUMB_W = 220; // 썸네일 폭 고정, 높이는 비율 따라 계산
   cfgs.forEach((cfg, i) => {

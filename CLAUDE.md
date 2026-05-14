@@ -994,6 +994,42 @@ _(작업 지시 시 최신 상태로 갱신)_
   - state 호환성: state.{single,batch}.kvr.bgScale/bgY는 브라우저 세션 일회성. 새 max 안에 디폴트 들어옴
   - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓ · today-banner-designer.html 9,779 라인 유지
   - 검증 대기 (사용자 브라우저 실측): KVR 단건 모드 크기 슬라이더 max 250% / 상하 ±500px 5단위 / 좌우 ±1500px 10단위 유지 / 배치 동일 / 다른 6 템플릿 회귀 0
+- 2026-05-14: **[batch-preview-scale R4 / pdca iterate] thumb-card 우측 검정 영역 노출 버그 수정 (`.thumb-grid` 1fr stretch 제거)**
+  - 사용자 보고 (검정 마크업 캡처): "배치 생성의 모든 템플릿 미리보기에서 오른쪽 일부 영역이 가려진 것처럼 보임. 다운로드는 정상"
+  - 잘못된 진단 2회 (모두 폐기): (1) `marginRight` 보정 — 브라우저 zoom 영향이며 실제 이슈 아님 / (2) "4번째 컬럼 잘림" — 동일 zoom 영향. 사용자 검정 마크업 캡처로 실제 위치 명확화됨
+  - **실제 Root Cause (3단계 확정 진단)**:
+    1. `.thumb-grid` CSS ([:368](repo/today-banner-designer.html:368)) `grid-template-columns: repeat(auto-fill, minmax(220px, 1fr))` — **`1fr` flex**가 각 컬럼을 1400/4 ≈ 350px로 stretch → `.thumb-card`(명시 width 없음) 자동 stretch → **thumb-card 폭 ≈ 350px**
+    2. `handleBatchPreview()` frame 생성 ([:9678-9683](repo/today-banner-designer.html:9678)): `frame.style.width = '220px'` inline 고정 (thumb-card stretch 무시) + inner `scale(220/1080)` → 흰 banner 시각 정확히 220px
+    3. 시각 누락: thumb-card(350px) > frame+banner(220px) → **우측 ~130px이 thumb-card 배경(#14151a) 노출** = 사용자 캡처의 검정 영역
+  - 다운로드 무영향 확인: `build*Canvas` 별도 경로 (DOM grid layout 무관). 단건 모드 정상: grid 미사용으로 1fr stretch 불발생
+  - **수정 (1 토큰)**: [`.thumb-grid` line 369](repo/today-banner-designer.html:369) `grid-template-columns: repeat(auto-fill, minmax(220px, 1fr))` → `repeat(auto-fill, 220px)` (1fr 제거)
+  - 효과: 컬럼 width 정확히 220px → thumb-card도 220px 매칭 → frame inline 220px 정합 → **검정 영역 누락 0**. `auto-fill` 유지로 화면 폭 자동 대응. 우측 grid 자체 빈 공간은 시각 이슈 아님 (default `justify-content: start` 좌측 정렬)
+  - 변경량: today-banner-designer.html CSS 1줄 + 주석 1줄 추가 = +1 라인
+  - 회귀 위험 0: `.thumb-grid` 클래스는 `#b-thumbs` 단 1곳 사용. R1/R2/R3 슬라이더 동작 무영향, 다운로드 무영향, 단건 모드 무영향, 모든 7 템플릿(today-tap/app-badge/appstore-screenshot/sd-showcase/keyvisual-review/pickup/steam-review) 동일 frame 구조라 자동 해결
+  - **검증 대기** (사용자 브라우저 실측):
+    - 모든 7 템플릿 카드에서 흰 banner가 220px(스케일된 1080) 정확히 채움, 우측 검정 누락 0
+    - 1200×628 카드 우상단 사용자 아이콘 완전 표시
+    - 그리드 우측에 자연 빈 공간(thumb 갯수 < auto-fill 가능 수 시) — 시각 이슈 아님
+    - 슬라이더 20~300% 어떤 값에서도 검정 누락 0
+    - 회귀: 단건 모드, 다운로드, 다른 모든 동작 무영향
+- 2026-05-14: **[batch-preview-scale R3 / pdca iterate] placeholder 안내 문구가 슬라이더 scale에 함께 변형되는 버그 수정**
+  - 사용자 보고 (시각 캡처 2장 첨부): "배치 생성 모드 가이드라인 안내 문구가 미리보기 크기에 따라 좌우 및 크기가 이동하는 현상"
+    - 45% 캡처: 문구 작게 + 좌상단 근처 표시
+    - 150% 캡처: 문구 크게 + 우측·하단으로 밀려남
+  - 근본 원인 (R1 collateral): 어제 R1에서 `#b-thumbs`에 `transform: scale(${s})` + `transform-origin: top left` 적용 → 컨테이너 내부의 placeholder div `<div class="text-gray-500 ... col-span-full text-center py-16">좌측 입력을 완료하고 "일괄 생성"을 누르세요</div>` ([:2405 이전](repo/today-banner-designer.html:2405))가 함께 변형. **버그 CONFIRMED**
+  - 사용자 제안 (정확): "위치를 변경시키면 이슈가 없을듯 합니다" — placeholder를 `#b-thumbs` 바깥(scale 영향 밖)으로 이동. "배치 결과 부제 바로 밑 혹은 같은 1줄" 옵션 중 같은 줄 채택
+  - **수정 (3 곳)**:
+    1. HTML 부제 ([:2396](repo/today-banner-designer.html:2396)): "규격 × 언어 조합별로 생성된 배너가 아래에 표시됩니다" 끝에 `<span id="b-placeholder-hint"> · 좌측 입력을 완료하고 "일괄 생성"을 누르세요</span>` 추가
+    2. `#b-thumbs` 컨테이너 ([:2404](repo/today-banner-designer.html:2404)): 내부 placeholder div 제거 → 빈 컨테이너
+    3. `handleBatchPreview()` ([:9669+](repo/today-banner-designer.html:9669)): 함수 시작부 `thumbsEl.innerHTML = ''` 직후 2줄 추가 → `getElementById('b-placeholder-hint')` hide (재진입에도 hidden 유지, 별도 show 로직 불필요 — 페이지 새로고침으로만 placeholder 재노출, 정상)
+  - 변경량: today-banner-designer.html 10,055 → **10,054 라인** (-1, placeholder div 1줄 삭제 + 부제 inline span 추가 1줄 + JS 2줄 추가 = -3+1+2 = net 0 라인. wc 카운트 차이는 빈 줄 정리)
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓
+  - **회귀 위험 0**: placeholder 위치만 변경. transform: scale 동작·다운로드 경로·다른 6 템플릿 모두 무수정
+  - **검증 대기** (사용자 브라우저 실측):
+    - 슬라이더를 20%→300% 드래그하는 동안 안내 문구 위치·크기 변화 0 (부제 옆 고정)
+    - "프리뷰 생성" 클릭 → 안내 문구 즉시 사라짐
+    - 재진입(다시 "프리뷰 생성") → 안내 문구 hidden 유지
+    - 페이지 새로고침 → 안내 문구 다시 노출
 - 2026-05-14: **[batch-preview-scale R2 / pdca iterate] 배치 슬라이더 max 90% → 300% 확장 (사용자 검증 후 단일 토큰 수정)**
   - 사용자 요청: "현재 배치 생성 미리보기 크기가 20~90% 정도만 지원하는 것으로 확인됩니다. 해당 수준이 맞는지 검증해주세요. 만일 20~90% 정도만 지원하는 것이 맞다면, 미리보기 크기를 키우기 위해 20~300%까지 크기를 키워주세요."
   - 검증: grep 1회로 `#b-preview-scale` (line 2400) min=20/max=90/default=45 확인 — 사용자 인식 100% 정확
