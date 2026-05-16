@@ -917,6 +917,7 @@
         <option value="keyvisual-review">Key Visual + Review</option>
         <option value="pickup">Pickup</option>
         <option value="steam-review">Steam Review</option>
+        <option value="ask-me-anything">Ask Me Anything (무물보)</option>
       </select>
     </div>
     <div class="flex items-center gap-1">
@@ -1552,14 +1553,103 @@
         <p class="text-[11px] text-gray-500">* 1080×1080 + 1200×628 지원 (9:16 미지원) · 평가 라벨/플레이시간/리뷰어 아이콘/따봉/별 = 하드코딩 (편집 불가) · 한국어 4번째 태그 디폴트 = 확률형 아이템 포함 (한국 규제)</p>
       </div>
 
+      <!-- v1.10: Ask Me Anything (AMA / 무물보) 단건 패널 -->
+      <div class="space-y-3" data-tmpl="ask-me-anything" style="display:none;">
+        <!-- 키비주얼 아트 (4언어 공통, 풀 배경) -->
+        <div>
+          <div class="field-label">키비주얼 아트 (4언어 공통, 풀 배경. PNG/JPG 권장)</div>
+          <div id="s-drop-ama-keyart" class="dropzone" data-target="ama-keyart">
+            <p class="text-sm">클릭 또는 파일을 여기에 드롭</p>
+            <p class="text-[11px] mt-1">한 장만 업로드 → 4언어 모두 동일 적용 · cover-fit + 슬라이더 미세조정</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <div>
+              <div class="field-label">크기 (<span id="s-ama-keyart-scale-label">100</span>%)</div>
+              <input id="s-ama-keyart-scale" type="range" min="50" max="250" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">좌우 (<span id="s-ama-keyart-x-label">0</span>px)</div>
+              <input id="s-ama-keyart-x" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">상하 (<span id="s-ama-keyart-y-label">0</span>px)</div>
+              <input id="s-ama-keyart-y" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 다국어 텍스트 (현재 언어, 헤더 라벨은 언어별 고정 안내) -->
+        <div class="border border-[#262932] rounded-lg p-3 space-y-2">
+          <p class="text-xs font-semibold text-gray-300">텍스트 (현재 언어 입력 → 언어 전환 시 각 언어별 별도 저장)</p>
+          <div>
+            <div class="field-label">헤더 라벨 (언어별 고정 — 편집 불가)</div>
+            <input id="s-ama-header" class="input-base" value="무물보" disabled style="opacity:0.6;cursor:not-allowed;" />
+            <p class="text-[11px] text-gray-500 mt-1">KO=무물보 · EN=ask me anything · JA=質問箱 · zh-TW=歡迎提問</p>
+          </div>
+          <div>
+            <div class="field-label">질문 (가운데 정렬, Enter로 줄바꿈)</div>
+            <textarea id="s-ama-question" class="input-base" rows="3" placeholder="형 요새 재밌어보이는&#10;게임 추천해줘"></textarea>
+          </div>
+          <div>
+            <div class="field-label">자막 (우하단 검정 박스, auto-width)</div>
+            <input id="s-ama-subtitle" class="input-base" placeholder="열렙 ㄱㄱ" />
+          </div>
+          <!-- R2: 자막 박스 X/Y/Scale 슬라이더 (4언어 공통) -->
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <div>
+              <div class="field-label">자막 크기 (<span id="s-ama-subtitle-scale-label">100</span>%)</div>
+              <input id="s-ama-subtitle-scale" type="range" min="50" max="200" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">자막 좌우 (<span id="s-ama-subtitle-x-label">0</span>px)</div>
+              <input id="s-ama-subtitle-x" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">자막 상하 (<span id="s-ama-subtitle-y-label">0</span>px)</div>
+              <input id="s-ama-subtitle-y" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+          </div>
+
+          <!-- R3: 질문 박스(card) X/Y/Scale + header/body 폰트 슬라이더 (4언어 공통) -->
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <div>
+              <div class="field-label">질문 박스 크기 (<span id="s-ama-card-scale-label">100</span>%)</div>
+              <input id="s-ama-card-scale" type="range" min="50" max="200" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">질문 박스 좌우 (<span id="s-ama-card-x-label">0</span>px)</div>
+              <input id="s-ama-card-x" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">질문 박스 상하 (<span id="s-ama-card-y-label">0</span>px)</div>
+              <input id="s-ama-card-y" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <div>
+              <div class="field-label">헤더 폰트 (검정 영역, base 26px) (<span id="s-ama-card-header-fs-label">100</span>%)</div>
+              <input id="s-ama-card-header-fs" type="range" min="50" max="200" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">질문 폰트 (흰 영역, base 32px) (<span id="s-ama-card-body-fs-label">100</span>%)</div>
+              <input id="s-ama-card-body-fs" type="range" min="50" max="200" step="1" value="100" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-gray-500">* 1080×1920 (9:16) 전용 · 헤더 라벨 = 언어별 고정 · 질문 + 자막 = 언어별 편집 · 질문 박스(card)와 자막 박스 = 4언어 공통 슬라이더 (X/Y/Scale + 폰트 별도) · KO 한정 우하단 "*확률형 아이템 포함" 자동 노출 (z-order TOPMOST, 키비주얼 위)</p>
+      </div>
+
       <!-- 공통: 고지 문구 (Today Tap / App Badge 만 사용) -->
-      <div data-tmpl-hide="appstore-screenshot,sd-showcase,keyvisual-review,pickup,steam-review">
+      <div data-tmpl-hide="appstore-screenshot,sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything">
         <div class="field-label">고지 문구 (우상단, 비우면 미표시)</div>
         <input id="s-disclaimer" class="input-base" value="*확률형 아이템 포함" />
         <p class="text-[11px] text-gray-500 mt-1">언어 변경 시 자동으로 기본값이 채워집니다 (한국어만 기본값 존재)</p>
       </div>
 
-      <div class="space-y-3" data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review">
+      <div class="space-y-3" data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything">
         <!-- App Badge 전용: 게임 로고(BI) 업로드 -->
         <div data-tmpl="app-badge" style="display:none;">
           <div class="field-label">게임 로고 / BI (투명 PNG 권장)</div>
@@ -1801,7 +1891,7 @@
             <input id="b-ab-logo-y" type="range" min="-200" max="200" step="1" value="0" class="w-full" />
           </div>
         </div>
-        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review">
+        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything">
           <div class="field-label" id="b-keyart-label">키아트 / 배경 이미지</div>
           <div id="b-drop-keyart" class="dropzone" data-target="b-keyart">
             <p class="text-sm">클릭 또는 드롭</p>
@@ -1820,7 +1910,7 @@
             <button class="dropzone-remove" title="제거">×</button>
           </div>
         </div>
-        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review">
+        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything">
           <div class="field-label">앱 아이콘</div>
           <div id="b-drop-icon" class="dropzone" data-target="b-icon">
             <p class="text-sm">클릭 또는 드롭</p>
@@ -2309,6 +2399,83 @@
         <p class="text-[10px] text-gray-500">* 1080×1080 + 1200×628 (9:16 자동 비활성) · 4언어 텍스트(타이틀/설명/태그×4/리뷰×4)는 아래 언어별 입력란에서 따로 입력 · 평가 라벨/플레이시간/리뷰어 아이콘은 하드코딩 (편집 불가)</p>
       </div>
 
+      <!-- v1.10: Ask Me Anything 배치 공통 설정 (배치 전용 슬롯 — 단건과 별도) -->
+      <div class="border border-[#262932] rounded-lg p-3 space-y-3" data-tmpl="ask-me-anything" style="display:none;">
+        <p class="text-xs font-semibold text-gray-300">Ask Me Anything 공통 설정 (배치 전용 — 단건과 별도 슬롯)</p>
+
+        <!-- 키비주얼 (1장 공유, 4언어 적용) -->
+        <div>
+          <div class="field-label">키비주얼 아트 (4언어 공통, 풀 배경)</div>
+          <div id="b-drop-ama-keyart" class="dropzone" data-target="b-ama-keyart">
+            <p class="text-sm">클릭 또는 드롭</p>
+            <p class="text-[11px] mt-1">한 장만 업로드 → 4언어 모두 동일 적용 · cover-fit + 슬라이더 미세조정</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <div>
+              <div class="field-label">크기 (<span id="b-ama-keyart-scale-label">100</span>%)</div>
+              <input id="b-ama-keyart-scale" type="range" min="50" max="250" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">좌우 (<span id="b-ama-keyart-x-label">0</span>px)</div>
+              <input id="b-ama-keyart-x" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">상하 (<span id="b-ama-keyart-y-label">0</span>px)</div>
+              <input id="b-ama-keyart-y" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <!-- R2: 자막 박스 X/Y/Scale 슬라이더 (4언어 공통) -->
+        <div>
+          <div class="field-label">자막 박스 위치/크기 (4언어 공통)</div>
+          <div class="grid grid-cols-3 gap-2 mt-1">
+            <div>
+              <div class="field-label">자막 크기 (<span id="b-ama-subtitle-scale-label">100</span>%)</div>
+              <input id="b-ama-subtitle-scale" type="range" min="50" max="200" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">자막 좌우 (<span id="b-ama-subtitle-x-label">0</span>px)</div>
+              <input id="b-ama-subtitle-x" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">자막 상하 (<span id="b-ama-subtitle-y-label">0</span>px)</div>
+              <input id="b-ama-subtitle-y" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+          </div>
+
+          <!-- R3: 질문 박스(card) X/Y/Scale + header/body 폰트 슬라이더 (4언어 공통) -->
+          <div class="grid grid-cols-3 gap-2 mt-1">
+            <div>
+              <div class="field-label">질문 박스 크기 (<span id="b-ama-card-scale-label">100</span>%)</div>
+              <input id="b-ama-card-scale" type="range" min="50" max="200" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">질문 박스 좌우 (<span id="b-ama-card-x-label">0</span>px)</div>
+              <input id="b-ama-card-x" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">질문 박스 상하 (<span id="b-ama-card-y-label">0</span>px)</div>
+              <input id="b-ama-card-y" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-1">
+            <div>
+              <div class="field-label">헤더 폰트 (검정, base 26px) (<span id="b-ama-card-header-fs-label">100</span>%)</div>
+              <input id="b-ama-card-header-fs" type="range" min="50" max="200" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">질문 폰트 (흰, base 32px) (<span id="b-ama-card-body-fs-label">100</span>%)</div>
+              <input id="b-ama-card-body-fs" type="range" min="50" max="200" step="1" value="100" class="w-full" />
+            </div>
+          </div>
+        </div>
+
+        <p class="text-[10px] text-gray-500">* 1080×1920 (9:16) 전용 · 4언어 텍스트(질문/자막)는 아래 언어별 입력란에서 따로 입력 · 헤더 라벨은 언어별 고정 (편집 불가) · 질문 박스(card)와 자막 박스 = 4언어 공통 슬라이더 (X/Y/Scale + 폰트 별도) · KO 한정 우하단 "*확률형 아이템 포함" 자동 노출</p>
+      </div>
+
       <!-- Today Tap 전용: 오버플로우 위치 조정 -->
       <div class="border border-[#262932] rounded-lg p-3 space-y-2" data-tmpl="today-tap">
         <div class="flex items-center justify-between">
@@ -2460,7 +2627,7 @@ const AS_LANG_PACK = {
 // v1.5: + appstore-screenshot 추가 (App Store Connect 스크린샷 모방)
 // v1.6: + sd-showcase 추가 (SD 캐릭터 6장 쇼케이스 배너, 1200×628 + 1080×1080)
 // ===========================================================================
-const TEMPLATE_KEYS = ['today-tap', 'app-badge', 'appstore-screenshot', 'sd-showcase', 'keyvisual-review', 'pickup', 'steam-review'];
+const TEMPLATE_KEYS = ['today-tap', 'app-badge', 'appstore-screenshot', 'sd-showcase', 'keyvisual-review', 'pickup', 'steam-review', 'ask-me-anything'];
 
 // 헤드라인 프리셋 (언어별 기본 문구) — 사용자 custom 선택 시 비활성
 // v1.3 r2 Gap G1: 기본값은 단일 라인 (레퍼런스 일치, 1:1 / 9:16)
@@ -3569,6 +3736,55 @@ const PICKUP_HELPERS = {
   },
 };
 
+// ===========================================================================
+// v1.10: Ask Me Anything (AMA / 무물보) — 8번째 템플릿
+// 1080×1920 전용. 4언어 (ko/en/ja/zh-TW). 헤더 라벨 언어별 고정, 질문/자막 사용자 편집,
+// KO 고지문구는 캔버스 최하단 우측 (mockup 위 z-order).
+// ===========================================================================
+const AMA_LANG_PACK = {
+  'ko':    { header: '무물보',          disclaimer: '*확률형 아이템 포함', label: '한국어' },
+  'en':    { header: 'ask me anything', disclaimer: '',                    label: 'English' },
+  'ja':    { header: '質問箱',          disclaimer: '',                    label: '日本語' },
+  'zh-TW': { header: '歡迎提問',         disclaimer: '',                    label: '繁體中文' },
+};
+
+const AMA_DEFAULT = {
+  keyart: null,
+  keyartScale: 100,
+  keyartX: 0,
+  keyartY: 0,
+  // R2 (2026-05-15): 자막 박스 사용자 X/Y/Scale 조정 (4언어 공통, 단건과 배치 각각 별도 슬롯)
+  subtitleX: 0,        // ±500 (음수=좌측 이동)
+  subtitleY: 0,        // ±500 (음수=위로 이동)
+  subtitleScale: 100,  // 50~200 (박스/폰트/패딩 균일 스케일)
+  // R3 (2026-05-16): 질문 박스(card) X/Y/Scale + 폰트(header 검정영역 / body 흰영역) 별도 슬라이더
+  cardX: 0,                  // ±500 (음수=좌측 이동)
+  cardY: 0,                  // ±500 (음수=위로 이동)
+  cardScale: 100,            // 50~200 (카드 전체 균일 스케일링 — header+body 통째)
+  cardHeaderFontScale: 100,  // 50~200 (검정 영역 라벨 폰트, base 26px)
+  cardBodyFontScale: 100,    // 50~200 (흰 영역 질문 폰트, base 32px, line-height 비례)
+  langs: {
+    'ko':    { question: '형 요새 재밌어보이는\n게임 추천해줘',          subtitle: '열렙 ㄱㄱ' },
+    'en':    { question: "what's a good game to play rn",              subtitle: 'Hardcore Leveling Warrior' },
+    'ja':    { question: '最近の激アツ＆激ヤバ\nゲームを教えて！',      subtitle: '「モーレツ戦士」でしょ！' },
+    'zh-TW': { question: '哥,\n最近有什麼好玩的遊戲推薦嗎？',           subtitle: '熱練戰士gogo' },
+  },
+};
+
+const AMA_CANVAS = {
+  width: 1080,
+  height: 1920,
+  // Top card (centered, 검정 헤더 + 흰 본문 둥근 사각형)
+  card: { x: 180, y: 120, w: 720, headerH: 80, bodyH: 180, radius: 24, headerFs: 26, bodyFs: 32, bodyLineH: 44 },
+  // Subtitle (우하단 검정 박스 + 흰 텍스트, auto-width)
+  // R1 (2026-05-15): rotation 추가 — 살짝 기울어진 마케팅 스티커 효과 (우상단이 위로 올라감, 시계반대방향)
+  // R2 (2026-05-15): fs 48 → 72 (+50% 사용자 요청) · X/Y/Scale 슬라이더 base
+  // R3 (2026-05-16): 박스 키움 + 둥근 모서리 — h 72→120 / padX 24→40 / padY 신규 20 / radius 신규 16 (fs 72 유지, 사용자 "자막 사이즈 그대로")
+  subtitle: { y: 1600, h: 120, rightMargin: 60, padX: 40, padY: 20, fs: 72, radius: 16, rotationDeg: -6 },
+  // KO 고지문구 (최하단 우측, z-order TOPMOST)
+  disclaimer: { rightMargin: 60, baseline: 1900, fs: 22, color: '#666' },
+};
+
 const PRESETS = {
   underdark:  { title: '언더다크 : 디펜스',  subtitle: '성큰 디펜스' },
   necomancer: { title: '네코맨서: 타워 디펜스', subtitle: '오컬트 타워 디펜스' },
@@ -3794,6 +4010,8 @@ const state = {
     pickup: JSON.parse(JSON.stringify(PICKUP_DEFAULT)),
     // v1.9: Steam Review 전용 필드 (키비주얼 공유 + 4언어 슬롯 × {title, description, tags×4, reviews×4})
     steam: JSON.parse(JSON.stringify(STEAM_REVIEW_DEFAULT)),
+    // v1.10: Ask Me Anything 전용 필드 (1080×1920 only, 키비주얼 + 4언어 question/subtitle)
+    ama: JSON.parse(JSON.stringify(AMA_DEFAULT)),
   },
   batch: {
     // r3 FR-18/19: 기본값 변경 (9:16→1200x628, 2개 언어→4개 언어)
@@ -3861,6 +4079,8 @@ const state = {
     pickup: JSON.parse(JSON.stringify(PICKUP_DEFAULT)),
     // v1.9: Steam Review 배치 전용 (키비주얼/슬라이더 + 콘텐츠 langs 모두 배치 별도, syncBatchStateFromUI에서 state.batch.steam.langs 저장)
     steam: JSON.parse(JSON.stringify(STEAM_REVIEW_DEFAULT)),
+    // v1.10: Ask Me Anything 배치 전용 (키비주얼/슬라이더 + 4언어 question/subtitle, 1080×1920 only)
+    ama: JSON.parse(JSON.stringify(AMA_DEFAULT)),
   },
   ui: { previewScale: 0.45, batchPreviewScale: 0.45 },
 };
@@ -4217,6 +4437,10 @@ function renderBanner(cfg) {
   // v1.9: Steam Review 분기
   if (cfg.template === 'steam-review') {
     return buildSteamReviewBanner(cfg);
+  }
+  // v1.10: Ask Me Anything 분기
+  if (cfg.template === 'ask-me-anything') {
+    return buildAmaBanner(cfg);
   }
   const banner = document.createElement('div');
   banner.className = `banner size-${cfg.size}`;
@@ -6781,6 +7005,221 @@ function buildPickupFilename(s) {
   return `${prefix}_pickup_${lang}_${sizeStr}.${ext}`;
 }
 
+// ===========================================================================
+// v1.10: Ask Me Anything (AMA / 무물보) — Canvas 빌더 + DOM 미리보기 + 파일명
+// 1080×1920 only. 4언어 (ko/en/ja/zh-TW). 헤더 라벨 고정, 질문/자막 편집, KO 고지문구 우하단.
+// ===========================================================================
+function buildAmaCfg(stateNode, lang) {
+  const lp = AMA_LANG_PACK[lang] || AMA_LANG_PACK['en'];
+  const slot = (stateNode.langs && stateNode.langs[lang]) || { question: '', subtitle: '' };
+  return {
+    template: 'ask-me-anything',
+    lang: lang,
+    size: '9x16',
+    // user image + transform
+    keyart: stateNode.keyart,
+    keyartScale: stateNode.keyartScale || 100,
+    keyartX: stateNode.keyartX || 0,
+    keyartY: stateNode.keyartY || 0,
+    // R2: 자막 박스 transform (4언어 공통)
+    subtitleX:     (typeof stateNode.subtitleX     === 'number') ? stateNode.subtitleX     : 0,
+    subtitleY:     (typeof stateNode.subtitleY     === 'number') ? stateNode.subtitleY     : 0,
+    subtitleScale: (typeof stateNode.subtitleScale === 'number') ? stateNode.subtitleScale : 100,
+    // R3: 질문 박스(card) transform + 폰트 별도 슬라이더 (4언어 공통)
+    cardX:               (typeof stateNode.cardX               === 'number') ? stateNode.cardX               : 0,
+    cardY:               (typeof stateNode.cardY               === 'number') ? stateNode.cardY               : 0,
+    cardScale:           (typeof stateNode.cardScale           === 'number') ? stateNode.cardScale           : 100,
+    cardHeaderFontScale: (typeof stateNode.cardHeaderFontScale === 'number') ? stateNode.cardHeaderFontScale : 100,
+    cardBodyFontScale:   (typeof stateNode.cardBodyFontScale   === 'number') ? stateNode.cardBodyFontScale   : 100,
+    // language-specific texts
+    header: lp.header,
+    question: slot.question || '',
+    subtitle: slot.subtitle || '',
+    disclaimer: lp.disclaimer || '',
+    // for filename
+    prefix: stateNode.prefix,
+    format: stateNode.format,
+  };
+}
+
+async function prepAmaCfgImages(cfg) {
+  cfg._keyartImg = cfg.keyart ? await loadCachedImage(cfg.keyart) : null;
+  return cfg;
+}
+
+async function buildAmaCanvas(cfg) {
+  if (!cfg._keyartImg && cfg.keyart) {
+    await prepAmaCfgImages(cfg);
+  }
+  const W = AMA_CANVAS.width;
+  const H = AMA_CANVAS.height;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const ff = (typeof getFontFamilyForLang === 'function') ? getFontFamilyForLang(cfg.lang) : 'sans-serif';
+
+  // [1] Background fill (white) — placeholder when no keyart
+  ctx.fillStyle = '#f5f5f7';
+  ctx.fillRect(0, 0, W, H);
+
+  // [2] Keyart (cover-fit + user x/y/scale transform, full-bleed)
+  if (cfg._keyartImg) {
+    const img = cfg._keyartImg;
+    const iw = img.naturalWidth || img.width;
+    const ih = img.naturalHeight || img.height;
+    if (iw > 0 && ih > 0) {
+      const base = Math.max(W / iw, H / ih);            // cover-fit base scale
+      const s = base * ((cfg.keyartScale || 100) / 100);
+      const dw = iw * s;
+      const dh = ih * s;
+      const dx = (W - dw) / 2 + (cfg.keyartX || 0);
+      const dy = (H - dh) / 2 + (cfg.keyartY || 0);
+      ctx.drawImage(img, dx, dy, dw, dh);
+    }
+  }
+
+  // [3]~[5] Top card (rounded rect with internal split: black header + white body)
+  // R3 (2026-05-16): cardX/Y/Scale (전체 카드 균일) + headerFontScale + bodyFontScale (폰트만 추가 조정)
+  const c = AMA_CANVAS.card;
+  const cardTotalH = c.headerH + c.bodyH;
+  const cCardScale  = (cfg.cardScale || 100) / 100;
+  const cHeaderFsScale = (cfg.cardHeaderFontScale || 100) / 100;
+  const cBodyFsScale   = (cfg.cardBodyFontScale   || 100) / 100;
+  const cardCx = c.x + c.w / 2;
+  const cardCy = c.y + cardTotalH / 2;
+
+  ctx.save();
+  // 카드 중심 기준으로 X/Y 이동 + Scale (전체 카드 박스 균일 — 사용자 결정 3번)
+  ctx.translate(cardCx + (cfg.cardX || 0), cardCy + (cfg.cardY || 0));
+  ctx.scale(cCardScale, cCardScale);
+  ctx.translate(-cardCx, -cardCy);
+
+  // [3] Body (white, full rounded)
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.roundRect(c.x, c.y, c.w, cardTotalH, c.radius);
+  ctx.fill();
+
+  // Header strip (black, clipped to rounded card so top corners are rounded)
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(c.x, c.y, c.w, cardTotalH, c.radius);
+  ctx.clip();
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillRect(c.x, c.y, c.w, c.headerH);
+  ctx.restore();
+
+  // [4] Header label (white, centered) — R3: cardHeaderFontScale 적용
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `400 ${c.headerFs * cHeaderFsScale}px ${ff}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(cfg.header || '', c.x + c.w / 2, c.y + c.headerH / 2);
+
+  // [5] Question (black, multi-line by \n, centered both axes) — R3: cardBodyFontScale 적용
+  ctx.fillStyle = '#000000';
+  const scaledBodyFs    = c.bodyFs    * cBodyFsScale;
+  const scaledBodyLineH = c.bodyLineH * cBodyFsScale;
+  ctx.font = `500 ${scaledBodyFs}px ${ff}`;
+  const lines = String(cfg.question || '').split(/\r?\n/);
+  const linesCount = Math.max(1, lines.length);
+  const totalLineH = linesCount * scaledBodyLineH;
+  const startY = c.y + c.headerH + (c.bodyH - totalLineH) / 2 + scaledBodyLineH / 2;
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i], c.x + c.w / 2, startY + i * scaledBodyLineH);
+  }
+
+  ctx.restore();  // R3: card transform group end
+
+  // [6][7] Subtitle black box + white text (bottom-right, auto-width)
+  // R1 (2026-05-15): rotation 추가 — 살짝 기울어진 마케팅 스티커 효과 (우상단 위로, 시계반대)
+  // R2 (2026-05-15): user X/Y/Scale 슬라이더 — Scale은 폰트+패딩+높이 균일 / X/Y는 박스 중심 translate
+  // R3 (2026-05-16): 박스 키움(h 72→120) + 둥근 모서리(roundRect, radius 16) — fs 72 유지 (사용자 "자막 사이즈 그대로")
+  const sb = AMA_CANVAS.subtitle;
+  const sScale = (cfg.subtitleScale || 100) / 100;
+  const sFs    = sb.fs     * sScale;
+  const sPadX  = sb.padX   * sScale;
+  const sBoxH  = sb.h      * sScale;
+  const sRadius = (sb.radius || 0) * sScale;  // R3 둥근 모서리
+  ctx.font = `700 ${sFs}px ${ff}`;
+  const subText = String(cfg.subtitle || '');
+  const subMetrics = ctx.measureText(subText);
+  const sbW = subMetrics.width + sPadX * 2;
+  // 기본 앵커: 우하단 (rightMargin 적용) + 사용자 X 오프셋
+  let sbX = W - sbW - sb.rightMargin + (cfg.subtitleX || 0);
+  if (sbX < 60) sbX = 60;  // 좌측 끝 60px 안전장치
+  const sbY = sb.y + (cfg.subtitleY || 0);
+  const sbCx = sbX + sbW / 2;     // 회전 + 변환 중심
+  const sbCy = sbY + sBoxH / 2;
+  const angle = (sb.rotationDeg || 0) * Math.PI / 180;
+
+  ctx.save();
+  ctx.translate(sbCx, sbCy);
+  ctx.rotate(angle);
+  // [6] black box (로컬 좌표계 원점이 박스 중심) — R3: roundRect
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.roundRect(-sbW / 2, -sBoxH / 2, sbW, sBoxH, sRadius);
+  ctx.fill();
+  // [7] white text
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(subText, 0, 0);
+  ctx.restore();
+
+  // [8] KO disclaimer (TOPMOST, bottom-right canvas edge — must remain visible above keyart)
+  if (cfg.lang === 'ko' && cfg.disclaimer) {
+    const dc = AMA_CANVAS.disclaimer;
+    ctx.font = `400 ${dc.fs}px ${ff}`;
+    ctx.fillStyle = dc.color;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(cfg.disclaimer, W - dc.rightMargin, dc.baseline);
+  }
+
+  // Reset state hygiene (next caller convenience)
+  ctx.textAlign = 'start';
+  ctx.textBaseline = 'alphabetic';
+
+  return canvas;
+}
+
+function buildAmaBanner(cfg) {
+  const wrap = document.createElement('div');
+  wrap.className = 'banner tmpl-ama size-9x16';
+  wrap.setAttribute('data-lang', cfg.lang || 'ko');
+  wrap.style.position = 'relative';
+  wrap.style.background = '#0a0a0a';
+  wrap.style.overflow = 'hidden';
+  // Async render Canvas → <img> (KVR/Pickup/Steam Review와 동일 패턴)
+  (async () => {
+    try {
+      await prepAmaCfgImages(cfg);
+      const canvas = await buildAmaCanvas(cfg);
+      const dataURL = canvasToDataURL(canvas, 'png', 90);
+      const img = document.createElement('img');
+      img.src = dataURL;
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'contain';
+      img.style.display = 'block';
+      wrap.appendChild(img);
+    } catch (e) {
+      console.warn('buildAmaBanner render failed:', e);
+    }
+  })();
+  return wrap;
+}
+
+function buildAmaFilename(s) {
+  const prefix = (s.prefix && String(s.prefix).trim()) || 'banner';
+  const lang = s.lang || 'ko';
+  const ext = (s.format === 'jpg' || s.format === 'jpeg') ? 'jpg' : 'png';
+  return `${prefix}_ama_${lang}_1080x1920.${ext}`;
+}
+
 // bugfix Plan FR-01/02/05: Canvas 직접 합성 핵심
 async function buildBannerCanvas(cfg) {
   // v1.3: 템플릿 분기
@@ -6806,6 +7245,10 @@ async function buildBannerCanvas(cfg) {
   // v1.9: Steam Review 분기
   if (cfg.template === 'steam-review') {
     return buildSteamReviewCanvas(cfg);
+  }
+  // v1.10: Ask Me Anything 분기
+  if (cfg.template === 'ask-me-anything') {
+    return buildAmaCanvas(cfg);
   }
   const spec = CANVAS_SPECS[cfg.size];
   const pixelRatio = Math.max(1, cfg.scale || 1);
@@ -7128,6 +7571,10 @@ function bindSingleMode() {
     if (state.single.template === 'steam-review') {
       loadSteamReviewSlotToUI(lang);
     }
+    // v1.10: AMA 입력 필드를 해당 언어 슬롯에서 복원
+    if (state.single.template === 'ask-me-anything') {
+      loadAmaSlotToUI(lang);
+    }
     state.single.lang = lang;
     syncSingleStateFromUI();
     refreshSinglePreview();
@@ -7232,6 +7679,9 @@ function bindSingleMode() {
 
   // v1.9: Steam Review 전용 UI 바인딩
   bindSteamReviewSingleUI();
+
+  // v1.10: AMA 전용 UI 바인딩
+  bindAmaSingleUI();
 }
 
 // v1.6: SD Showcase 단건 모드 이벤트 바인딩 (Plan FR-07)
@@ -8012,6 +8462,132 @@ function loadSteamReviewSlotToUI(lang) {
   });
 }
 
+// ===========================================================================
+// v1.10: Ask Me Anything — Single 모드 UI 바인딩
+// ===========================================================================
+function bindAmaSingleUI() {
+  // 키비주얼 dropzone
+  setupDropzone('s-drop-ama-keyart', (dataURL) => {
+    updateStateImage(state.single.ama, 'keyart', dataURL);
+    refreshSinglePreview();
+  });
+  // 슬라이더 6개 — 키비주얼 3 + 자막 박스 3 (R2: 자막 X/Y/Scale 신규)
+  const sliderSpecs = [
+    ['s-ama-keyart-scale',   's-ama-keyart-scale-label',   'keyartScale'],
+    ['s-ama-keyart-x',       's-ama-keyart-x-label',       'keyartX'],
+    ['s-ama-keyart-y',       's-ama-keyart-y-label',       'keyartY'],
+    ['s-ama-subtitle-scale', 's-ama-subtitle-scale-label', 'subtitleScale'],
+    ['s-ama-subtitle-x',     's-ama-subtitle-x-label',     'subtitleX'],
+    ['s-ama-subtitle-y',     's-ama-subtitle-y-label',     'subtitleY'],
+    // R3: 질문 박스(card) X/Y/Scale + header/body 폰트 슬라이더
+    ['s-ama-card-scale',     's-ama-card-scale-label',     'cardScale'],
+    ['s-ama-card-x',         's-ama-card-x-label',         'cardX'],
+    ['s-ama-card-y',         's-ama-card-y-label',         'cardY'],
+    ['s-ama-card-header-fs', 's-ama-card-header-fs-label', 'cardHeaderFontScale'],
+    ['s-ama-card-body-fs',   's-ama-card-body-fs-label',   'cardBodyFontScale'],
+  ];
+  sliderSpecs.forEach(([elId, labelId, prop]) => {
+    const el = document.getElementById(elId);
+    const label = document.getElementById(labelId);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const v = parseInt(el.value, 10);
+      state.single.ama[prop] = v;
+      if (label) label.textContent = String(v);
+      refreshSinglePreview();
+    });
+  });
+  // 텍스트 입력 (질문/자막, 현재 언어 슬롯에 저장)
+  const questionEl = document.getElementById('s-ama-question');
+  const subtitleEl = document.getElementById('s-ama-subtitle');
+  if (questionEl) {
+    questionEl.addEventListener('input', () => {
+      const lang = state.single.lang;
+      state.single.ama.langs[lang] = state.single.ama.langs[lang] || { question: '', subtitle: '' };
+      state.single.ama.langs[lang].question = questionEl.value;
+      refreshSinglePreview();
+    });
+  }
+  if (subtitleEl) {
+    subtitleEl.addEventListener('input', () => {
+      const lang = state.single.lang;
+      state.single.ama.langs[lang] = state.single.ama.langs[lang] || { question: '', subtitle: '' };
+      state.single.ama.langs[lang].subtitle = subtitleEl.value;
+      refreshSinglePreview();
+    });
+  }
+}
+
+// 언어 전환 시 AMA 입력 필드를 state에서 복원 (헤더 라벨 + 질문 + 자막)
+function loadAmaSlotToUI(lang) {
+  const ama = state.single.ama;
+  if (!ama) return;
+  const lp = AMA_LANG_PACK[lang] || AMA_LANG_PACK['en'];
+  const slot = (ama.langs && ama.langs[lang]) || { question: '', subtitle: '' };
+  const headerEl = document.getElementById('s-ama-header');
+  const questionEl = document.getElementById('s-ama-question');
+  const subtitleEl = document.getElementById('s-ama-subtitle');
+  if (headerEl)   headerEl.value   = lp.header || '';
+  if (questionEl) questionEl.value = slot.question || '';
+  if (subtitleEl) subtitleEl.value = slot.subtitle || '';
+  // 슬라이더 6개 — 키비주얼 3 + 자막 박스 3 (4언어 공통, 사용자 X/Y/Scale 보존)
+  const sliders = [
+    ['s-ama-keyart-scale',   's-ama-keyart-scale-label',   'keyartScale',   100],
+    ['s-ama-keyart-x',       's-ama-keyart-x-label',       'keyartX',       0],
+    ['s-ama-keyart-y',       's-ama-keyart-y-label',       'keyartY',       0],
+    ['s-ama-subtitle-scale', 's-ama-subtitle-scale-label', 'subtitleScale', 100],
+    ['s-ama-subtitle-x',     's-ama-subtitle-x-label',     'subtitleX',     0],
+    ['s-ama-subtitle-y',     's-ama-subtitle-y-label',     'subtitleY',     0],
+    // R3: 질문 박스(card) X/Y/Scale + header/body 폰트 슬라이더
+    ['s-ama-card-scale',     's-ama-card-scale-label',     'cardScale',           100],
+    ['s-ama-card-x',         's-ama-card-x-label',         'cardX',               0],
+    ['s-ama-card-y',         's-ama-card-y-label',         'cardY',               0],
+    ['s-ama-card-header-fs', 's-ama-card-header-fs-label', 'cardHeaderFontScale', 100],
+    ['s-ama-card-body-fs',   's-ama-card-body-fs-label',   'cardBodyFontScale',   100],
+  ];
+  sliders.forEach(([elId, labelId, prop, def]) => {
+    const el = document.getElementById(elId);
+    const label = document.getElementById(labelId);
+    if (el) {
+      const v = (typeof ama[prop] === 'number') ? ama[prop] : def;
+      el.value = v;
+      if (label) label.textContent = String(v);
+    }
+  });
+}
+
+// AMA 배치 모드 UI 바인딩 (배치 전용 슬롯 — 단건과 독립)
+function bindAmaBatchUI() {
+  setupDropzone('b-drop-ama-keyart', (dataURL) => {
+    updateStateImage(state.batch.ama, 'keyart', dataURL);
+  });
+  // 슬라이더 6개 — 키비주얼 3 + 자막 박스 3 (R2: 자막 X/Y/Scale 신규)
+  const sliderSpecs = [
+    ['b-ama-keyart-scale',   'b-ama-keyart-scale-label',   'keyartScale'],
+    ['b-ama-keyart-x',       'b-ama-keyart-x-label',       'keyartX'],
+    ['b-ama-keyart-y',       'b-ama-keyart-y-label',       'keyartY'],
+    ['b-ama-subtitle-scale', 'b-ama-subtitle-scale-label', 'subtitleScale'],
+    ['b-ama-subtitle-x',     'b-ama-subtitle-x-label',     'subtitleX'],
+    ['b-ama-subtitle-y',     'b-ama-subtitle-y-label',     'subtitleY'],
+    // R3: 질문 박스(card) X/Y/Scale + header/body 폰트 슬라이더
+    ['b-ama-card-scale',     'b-ama-card-scale-label',     'cardScale'],
+    ['b-ama-card-x',         'b-ama-card-x-label',         'cardX'],
+    ['b-ama-card-y',         'b-ama-card-y-label',         'cardY'],
+    ['b-ama-card-header-fs', 'b-ama-card-header-fs-label', 'cardHeaderFontScale'],
+    ['b-ama-card-body-fs',   'b-ama-card-body-fs-label',   'cardBodyFontScale'],
+  ];
+  sliderSpecs.forEach(([elId, labelId, prop]) => {
+    const el = document.getElementById(elId);
+    const label = document.getElementById(labelId);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const v = parseInt(el.value, 10);
+      state.batch.ama[prop] = v;
+      if (label) label.textContent = String(v);
+    });
+  });
+}
+
 // v1.3: App Badge 단건 모드 이벤트 바인딩
 function bindAppBadgeSingleUI() {
   // 로고 dropzone
@@ -8215,6 +8791,11 @@ function applyTemplateSwitch(newTemplate) {
       Array.from(sizeSel.options).forEach(opt => {
         opt.disabled = (opt.value === '9x16');
       });
+    } else if (newTemplate === 'ask-me-anything') {
+      // v1.10: AMA 9:16 (1080×1920) 전용 — appstore-screenshot 패턴 일관
+      sizeSel.value = '9x16';
+      sizeSel.disabled = true;
+      state.single.size = '9x16';
     } else {
       sizeSel.disabled = false;
       // 다른 템플릿 복귀 시 모든 option 활성화
@@ -8282,6 +8863,17 @@ function applyTemplateSwitch(newTemplate) {
           pill.style.opacity = cb.disabled ? '0.4' : '1';
         }
       });
+    } else if (newTemplate === 'ask-me-anything') {
+      // v1.10: AMA 9:16 (1080×1920) 전용 — appstore-screenshot 패턴 일관
+      bSizeBoxes.forEach(cb => {
+        cb.checked = (cb.value === '9x16');
+        cb.disabled = (cb.value !== '9x16');
+        const pill = cb.closest('.check-pill');
+        if (pill) {
+          pill.classList.toggle('selected', cb.checked);
+          pill.style.opacity = cb.disabled ? '0.4' : '1';
+        }
+      });
     } else {
       bSizeBoxes.forEach(cb => {
         cb.disabled = false;
@@ -8309,6 +8901,10 @@ function applyTemplateSwitch(newTemplate) {
   // v1.9: Steam Review로 전환 시 현재 언어 슬롯과 공통 설정을 UI에 반영 (Session 3에서 정의)
   if (newTemplate === 'steam-review' && typeof loadSteamReviewSlotToUI === 'function') {
     loadSteamReviewSlotToUI(state.single.lang);
+  }
+  // v1.10: AMA로 전환 시 현재 언어 슬롯을 UI에 반영
+  if (newTemplate === 'ask-me-anything' && typeof loadAmaSlotToUI === 'function') {
+    loadAmaSlotToUI(state.single.lang);
   }
   // App Badge로 전환이고, 헤드라인이 비어있으면 기본 프리셋 주입 (Q22)
   if (newTemplate === 'app-badge') {
@@ -8507,6 +9103,8 @@ function refreshSinglePreview() {
     cfg = buildPickupCfg(state.single.pickup, state.single.lang, state.single.size, 'single');
   } else if (state.single.template === 'steam-review') {
     cfg = buildSteamReviewCfg(state.single.steam, state.single.lang, state.single.size, 'single');
+  } else if (state.single.template === 'ask-me-anything') {
+    cfg = buildAmaCfg(state.single.ama, state.single.lang);
   } else {
     cfg = state.single;
   }
@@ -8514,7 +9112,7 @@ function refreshSinglePreview() {
   container.appendChild(banner);
   applyPreviewScale();
   const size = SIZE_PACK[state.single.size];
-  const tmplLabelMap = { 'app-badge': 'App Badge', 'appstore-screenshot': 'App Store Screenshot', 'today-tap': 'Today Tap', 'sd-showcase': 'SD Showcase', 'keyvisual-review': 'Key Visual + Review', 'pickup': 'Pickup', 'steam-review': 'Steam Review' };
+  const tmplLabelMap = { 'app-badge': 'App Badge', 'appstore-screenshot': 'App Store Screenshot', 'today-tap': 'Today Tap', 'sd-showcase': 'SD Showcase', 'keyvisual-review': 'Key Visual + Review', 'pickup': 'Pickup', 'steam-review': 'Steam Review', 'ask-me-anything': 'Ask Me Anything (무물보)' };
   const tmplLabel = tmplLabelMap[state.single.template] || 'Today Tap';
   document.getElementById('s-preview-meta').textContent =
     `${tmplLabel} · ${size.label} · ${size.w}×${size.h}px · ${LANG_PACK[state.single.lang].label}`;
@@ -8564,6 +9162,7 @@ async function handleSingleDownload() {
     const isKvr = state.single.template === 'keyvisual-review';
     const isPickup = state.single.template === 'pickup';  // v1.8
     const isSteam = state.single.template === 'steam-review';  // v1.9
+    const isAma = state.single.template === 'ask-me-anything';  // v1.10
     let filename;
     if (isAppBadge) filename = buildAppBadgeFilename(state.single);
     else if (isAppStore) filename = buildAppStoreFilename(state.single);
@@ -8605,6 +9204,15 @@ async function handleSingleDownload() {
         prefix: slugify(steamLang.title || '') || 'steam-review',
         lang: state.single.lang,
         size: state.single.size,
+        format: state.single.format,
+      });
+    }
+    else if (isAma) {
+      // v1.10: AMA prefix: 현재 언어 자막 slug, 빈 문자열 시 'ama' fallback
+      const amaLang = state.single.ama.langs[state.single.lang] || {};
+      filename = buildAmaFilename({
+        prefix: slugify(amaLang.subtitle || '') || 'ama',
+        lang: state.single.lang,
         format: state.single.format,
       });
     }
@@ -8654,6 +9262,13 @@ async function handleSingleDownload() {
       const cfg = buildSteamReviewCfg(state.single.steam, state.single.lang, state.single.size, 'single');
       const cfgWithImgs = await prepSteamReviewCfgImages(cfg);
       const canvas = await buildSteamReviewCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
+    } else if (isAma) {
+      // v1.10: AMA 경로 (1080×1920 only)
+      await ensureFontsLoaded();
+      const cfg = buildAmaCfg(state.single.ama, state.single.lang);
+      const cfgWithImgs = await prepAmaCfgImages(cfg);
+      const canvas = await buildAmaCanvas(cfgWithImgs);
       dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
     } else if (USE_CANVAS_EXPORT) {
       await ensureFontsLoaded();
@@ -9020,6 +9635,7 @@ function bindBatchMode() {
   bindKvrBatchUI();          // v1.7 R13: KVR 배치 전용 UI (별도 슬롯/슬라이더)
   bindPickupBatchUI();       // v1.8: Pickup 배치 전용 UI (R3 perSize 마이그레이션 포함, collateral deletion 후 복원)
   bindSteamReviewBatchUI();  // v1.9: Steam Review 배치 전용 UI (별도 슬롯/슬라이더)
+  bindAmaBatchUI();          // v1.10: AMA 배치 전용 UI (별도 슬롯/슬라이더)
 }
 
 function loadBatchOverflowSliders() {
@@ -9211,6 +9827,21 @@ function syncBatchStateFromUI() {
       if (revEl) slot.reviews[i] = revEl.value;
     }
   });
+
+  // v1.10: AMA 언어별 텍스트 (state.batch.ama.langs에 직접 저장)
+  if (state.batch.ama) {
+    if (!state.batch.ama.langs) state.batch.ama.langs = {};
+    state.batch.langs.forEach(lang => {
+      if (!state.batch.ama.langs[lang]) {
+        state.batch.ama.langs[lang] = { question: '', subtitle: '' };
+      }
+      const slot = state.batch.ama.langs[lang];
+      const qEl = document.getElementById(`b-ama-question-${lang}`);
+      const sEl = document.getElementById(`b-ama-subtitle-${lang}`);
+      if (qEl) slot.question = qEl.value;
+      if (sEl) slot.subtitle = sEl.value;
+    });
+  }
 }
 
 function renderBatchLangFields() {
@@ -9231,6 +9862,7 @@ function renderBatchLangFields() {
   const isKvr = tmpl === 'keyvisual-review';
   const isPickup = tmpl === 'pickup';  // v1.8
   const isSteam = tmpl === 'steam-review';  // v1.9
+  const isAma = tmpl === 'ask-me-anything';  // v1.10
 
   // v1.7 R30: KVR 배치도 다른 템플릿(Pickup/Steam Review 등)과 일관된 언어별 입력 폼 제공
   // 초기값은 state.batch.kvr.langs (KVR_DEFAULT deep copy로 init됨)
@@ -9341,6 +9973,23 @@ function renderBatchLangFields() {
         <textarea id="b-steam-review-${lang}-1" class="input-base text-sm" rows="2" placeholder="리뷰 슬롯 1 (4.8 hrs)">${escapeHTML(revVal1)}</textarea>
         <textarea id="b-steam-review-${lang}-2" class="input-base text-sm" rows="2" placeholder="리뷰 슬롯 2 (6.4 hrs)">${escapeHTML(revVal2)}</textarea>
         <textarea id="b-steam-review-${lang}-3" class="input-base text-sm" rows="2" placeholder="리뷰 슬롯 3 (203.4 hrs)">${escapeHTML(revVal3)}</textarea>
+      `;
+    } else if (isAma) {
+      // v1.10: AMA 언어별 입력 — question / subtitle (2 필드, state.batch.ama.langs)
+      const amaDefault = (AMA_DEFAULT.langs && AMA_DEFAULT.langs[lang]) || { question: '', subtitle: '' };
+      const amaSlot = (state.batch.ama && state.batch.ama.langs && state.batch.ama.langs[lang]) || amaDefault;
+      const lp = AMA_LANG_PACK[lang] || AMA_LANG_PACK['en'];
+      const getVal = (id, fallback) => existing[id] !== undefined ? existing[id] : (fallback || '');
+      const questionVal = getVal(`b-ama-question-${lang}`, amaSlot.question);
+      const subtitleVal = getVal(`b-ama-subtitle-${lang}`, amaSlot.subtitle);
+      group.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-200 font-semibold">${pack.label}</span>
+          <button type="button" class="text-[10px] text-indigo-400 hover:underline" data-copy-from="${lang}" title="이 언어의 질문/자막을 다른 선택 언어에 복사">다른 언어에 복사</button>
+        </div>
+        <div class="text-[11px] text-gray-500">헤더 라벨 (고정): ${escapeHTML(lp.header)}${lp.disclaimer ? ' · 고지: ' + escapeHTML(lp.disclaimer) : ''}</div>
+        <textarea id="b-ama-question-${lang}" class="input-base text-sm" rows="3" placeholder="질문 (${pack.label}, Enter로 줄바꿈)">${escapeHTML(questionVal)}</textarea>
+        <input id="b-ama-subtitle-${lang}" class="input-base text-sm" placeholder="자막 (${pack.label}, 우하단 검정 박스)" value="${escapeHTML(subtitleVal)}" />
       `;
     } else if (isKvr) {
       // v1.7 R30: KVR 언어별 입력 — reviewTitle / reviewBody / reviewerId (3 필드, state.batch.kvr.langs)
@@ -9461,6 +10110,17 @@ function copyLangFieldsToOthers(srcLang) {
         if (rv) rv.value = srcReviews[i];
       }
     });
+  } else if (tmpl === 'ask-me-anything') {
+    // v1.10: AMA — question / subtitle (2필드)
+    const srcQuestion = document.getElementById(`b-ama-question-${srcLang}`)?.value || '';
+    const srcSubtitle = document.getElementById(`b-ama-subtitle-${srcLang}`)?.value || '';
+    langs.forEach(lang => {
+      if (lang === srcLang) return;
+      const q = document.getElementById(`b-ama-question-${lang}`);
+      const s = document.getElementById(`b-ama-subtitle-${lang}`);
+      if (q) { q.value = srcQuestion; copied++; }
+      if (s) s.value = srcSubtitle;
+    });
   } else if (tmpl === 'keyvisual-review') {
     // v1.7 R30: KVR — reviewTitle / reviewBody / reviewerId (3필드)
     const srcTitle    = document.getElementById(`b-kvr-review-title-${srcLang}`)?.value || '';
@@ -9574,6 +10234,13 @@ function buildBatchCfgs() {
     // 키비주얼/슬라이더/언어별 텍스트 모두 state.batch.steam에서 자동 사용
     if (tmpl === 'steam-review') {
       const cfg = buildSteamReviewCfg(state.batch.steam, combo.lang, combo.size, 'batch');
+      cfg._combo = combo;
+      return cfg;
+    }
+    // v1.10: AMA 분기 — 1080×1920 (9:16) 전용
+    // 키비주얼/슬라이더/언어별 question·subtitle 모두 state.batch.ama에서 자동 사용
+    if (tmpl === 'ask-me-anything') {
+      const cfg = buildAmaCfg(state.batch.ama, combo.lang);
       cfg._combo = combo;
       return cfg;
     }
@@ -9724,6 +10391,7 @@ async function downloadBatchItem(idx) {
     const isKvr = cfg.template === 'keyvisual-review';
     const isPickup = cfg.template === 'pickup';  // v1.8
     const isSteam = cfg.template === 'steam-review';  // v1.9
+    const isAma = cfg.template === 'ask-me-anything';  // v1.10
     const sdsSizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
     const filename = isAB
       ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
@@ -9737,7 +10405,9 @@ async function downloadBatchItem(idx) {
               ? `${state.batch.prefix}_pickup_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
               : isSteam
                 ? `${state.batch.prefix}_steam-review_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
-                : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+                : isAma
+                  ? `${state.batch.prefix}_ama_${cfg.lang}_1080x1920.${ext}`
+                  : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
     let dataURL;
     if (isAB) {
       await ensureFontsLoaded();
@@ -9773,6 +10443,12 @@ async function downloadBatchItem(idx) {
       await ensureFontsLoaded();
       const cfgWithImgs = await prepSteamReviewCfgImages({ ...cfg, scale: state.batch.scale, format: state.batch.format });
       const canvas = await buildSteamReviewCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
+    } else if (isAma) {
+      // v1.10: AMA 단일 다운로드
+      await ensureFontsLoaded();
+      const cfgWithImgs = await prepAmaCfgImages({ ...cfg, scale: state.batch.scale, format: state.batch.format });
+      const canvas = await buildAmaCanvas(cfgWithImgs);
       dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
     } else if (USE_CANVAS_EXPORT) {
       await ensureFontsLoaded();
@@ -9874,6 +10550,11 @@ async function handleBatchExportZip() {
           loadCachedImage(STEAM_REVIEW_ASSETS.thumbsUp),
         ])
       : [null, null, null, null, null, null];
+    // v1.10: AMA — 키비주얼 사전 디코드 (4언어 공유)
+    const hasAma = cfgs.some(c => c.template === 'ask-me-anything');
+    const amaKeyartImg = hasAma
+      ? await loadCachedImage(state.batch.ama.keyart)
+      : null;
 
     statusEl.textContent = `0 / ${total} 변환 중...`;
     for (let i = 0; i < cfgs.length; i++) {
@@ -9884,6 +10565,7 @@ async function handleBatchExportZip() {
       const isKvr = cfg.template === 'keyvisual-review';
       const isPickup = cfg.template === 'pickup';  // v1.8
       const isSteam = cfg.template === 'steam-review';  // v1.9
+      const isAma = cfg.template === 'ask-me-anything';  // v1.10
       try {
         let canvas;
         if (isAB) {
@@ -9939,6 +10621,13 @@ async function handleBatchExportZip() {
             _kvImg: strKvImg,
             _imgs: { reviewerIcons: [strRi0, strRi1, strRi2, strRi3], thumbsUp: strThumb },
           });
+        } else if (isAma) {
+          // v1.10: AMA — 키비주얼 공유 (1회 decode)
+          canvas = await buildAmaCanvas({
+            ...cfg,
+            scale: state.batch.scale,
+            _keyartImg: amaKeyartImg,
+          });
         } else {
           canvas = await buildBannerCanvas({
             ...cfg,
@@ -9961,7 +10650,9 @@ async function handleBatchExportZip() {
                 ? `${state.batch.prefix}_keyvisual-review_${cfg.lang}_1080x1080.${ext}`
                 : isPickup
                   ? `${state.batch.prefix}_pickup_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
-                  : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+                  : isAma
+                    ? `${state.batch.prefix}_ama_${cfg.lang}_1080x1920.${ext}`
+                    : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
         zip.file(filename, dataURL.split(',')[1], { base64: true });
       } catch (err) {
         console.error(err);

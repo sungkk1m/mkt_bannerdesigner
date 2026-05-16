@@ -994,6 +994,108 @@ _(작업 지시 시 최신 상태로 갱신)_
   - state 호환성: state.{single,batch}.kvr.bgScale/bgY는 브라우저 세션 일회성. 새 max 안에 디폴트 들어옴
   - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓ · today-banner-designer.html 9,779 라인 유지
   - 검증 대기 (사용자 브라우저 실측): KVR 단건 모드 크기 슬라이더 max 250% / 상하 ±500px 5단위 / 좌우 ±1500px 10단위 유지 / 배치 동일 / 다른 6 템플릿 회귀 0
+- 2026-05-16: **[PDCA Report] Ask Me Anything v1.10 → R3 — 사이클 완료 (4 iterations, Plan SC 18/18 + Decision Followed 18/18 = 100% static)**
+  - 문서: `docs/04-report/ask-me-anything.report.md` (Executive Summary + Iteration Journey + Plan SC 18/18 + Decision Record 18/18 + Lessons 5)
+  - **8 templates total**: today-tap, app-badge, appstore-screenshot, sd-showcase, keyvisual-review, pickup, steam-review, **ask-me-anything**
+  - **변경량 누적**: today-banner-designer.html 10,058 → **10,749 라인** (+691, 8번째 템플릿 전체 통합 패치 18곳 + R1·R2·R3 정밀 보정)
+  - **Lessons**: L-1 "하단/밑에" 표현 모호 → R2→R3 정정 사이클 비용 / L-2 PDCA Check Phase = 코드 수정 0 가치 입증 (R3 정정) / L-3 카드 전체 균일 Scale 패턴 (translate+scale+translate) / L-4 in-place 토큰 수정 (R1·R3 박스 키움 코드 4줄+roundRect 1줄) / L-5 8 템플릿 일관 패턴 (pickup/steam-review/sd-showcase 미러링 → 회귀 위험 0)
+- 2026-05-16: **[Ask Me Anything R3 / pdca iterate] 질문 박스(card) X/Y/Scale + header/body 폰트 슬라이더 5개 + 자막 박스 키움(h 72→120, padX 24→40, padY 신규 20) + 둥근 모서리(radius 16)**
+  - 사용자 R2 오해 정정: R2에서 "하단의 답변 텍스트" + "밑에 상자"를 자막 박스로 해석했으나 실제 의도는 질문 박스(상단 무물보 카드). 사용자 명시적 정정으로 R3 진행
+  - 사용자 결정 5건 (R3): (1) 자막 사이즈 그대로 두고 질문 박스 폰트(검정 영역=header 26px / 흰 영역=body 32px) 슬라이더 / (2) X/Y/Scale 슬라이더 자막+질문 박스 모두 / (3) 질문 박스 Scale=카드 전체 균일 / (4) 자막 박스 회전 -6° 유지 / (5) 자막 박스 검정 영역 키우고 rounded 처리 (첨부 이미지 매칭)
+  - **PDCA Check 단계** (코드 수정 0): 현재 R2 구현이 자막 박스에 적용됐음 정확 분석 + 사용자 의도(질문 박스) 차이 보고 → 5건 구체적 수정 지시 수신 → R3 일괄 구현
+  - **변경 사항** (10 영역, ~+90 라인):
+    1. **AMA_CANVAS.subtitle 박스 키움 + rounded** (line 3724): h **72→120** / padX **24→40** / padY 신규 **20** / radius 신규 **16** / fs 72 유지 (사용자 "자막 사이즈 그대로") / rotationDeg -6 유지
+    2. **AMA_DEFAULT 신규 5개 필드** (line 3699+): `cardX/Y/Scale: 0/0/100` + `cardHeaderFontScale: 100` + `cardBodyFontScale: 100` (4언어 공통, 단건/배치 각각 별도 슬롯)
+    3. **buildAmaCfg pump** (line 6966+): 5개 신규 필드 cfg 펌프 (typeof number 가드)
+    4. **buildAmaCanvas [3]~[5] 재작성** (line 7030+, ~+15 라인): `ctx.save + translate(cardCx+X, cardCy+Y) + scale(cardScale) + translate(-cardCx, -cardCy)` 그룹으로 카드 전체(header strip + body + 라벨 + 질문 텍스트) 균일 변환. header/body 폰트는 그 위에 별도 스케일 곱셈 (`c.headerFs × cHeaderFsScale`, `c.bodyFs × cBodyFsScale`, `c.bodyLineH × cBodyFsScale`)
+    5. **buildAmaCanvas [6][7]** (line 7083+): `ctx.fillRect → ctx.beginPath + roundRect + fill` (sRadius = sb.radius × sScale, R2 scale에 비례)
+    6. **단건 HTML 패널** (line 1611+): 자막 슬라이더 직후 질문 박스 슬라이더 5개 추가 (`s-ama-card-{scale|x|y|header-fs|body-fs}`, grid-cols-3 + grid-cols-2)
+    7. **배치 HTML 패널** (line 2446+): 동일 패턴 (`b-ama-card-*` prefix)
+    8. **bindAmaSingleUI sliderSpecs** (line 8397+): +5 entry (cardScale/X/Y/HeaderFontScale/BodyFontScale)
+    9. **loadAmaSlotToUI sliders** (line 8453+): +5 entry (언어 전환 시 state 복원)
+    10. **bindAmaBatchUI sliderSpecs** (line 8485+): +5 entry (state.batch.ama 갱신)
+  - **현재 폰트 pt 확인 보고**: header 라벨(검정 영역)=26px / body 질문(흰 영역)=32px+line-height 44px / 자막=72px (R2에서 +50%, R3에서 그대로 유지)
+  - **Plan SC**: 18/18 Met (100% static) — 자막 박스 R1 회전 / R2 폰트 +50% / R2 X/Y/Scale / R3 박스 키움 / R3 rounded / 질문 박스 R3 X/Y/Scale 카드 전체 균일 / 질문 박스 R3 header·body 폰트 별도 슬라이더 / 다른 7 템플릿 회귀 0
+  - **Decision Followed**: 18/18 (100%)
+  - 변경량: today-banner-designer.html ~10,659 → **10,749 라인** (+90) · 신규 슬라이더 10개 (단건 5 + 배치 5)
+  - 회귀 위험 0 (AMA 전용. 슬라이더 default 0/0/100/100/100 시 transform identity + 폰트 1.0× → R2와 시각 100% 동일. 자막 박스 base 상수 변경은 R2 scale 로직과 자연 호환)
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓
+- 2026-05-15: **[Ask Me Anything R2 / pdca iterate] 자막 박스 폰트 +50% (48→72px) + X/Y/Scale 슬라이더 추가**
+  - 사용자 보고 (2건):
+    1. 하단 답변 텍스트(자막 박스 — `Hardcore Leveling Warrior` / `열렙 ㄱㄱ` / `「モーレツ戦士」でしょ！` / `熱練戰士gogo`)가 너무 작음 → 폰트 50% 키우기
+    2. 자막 박스 X/Y/Scale 사용자 미세조정 가능하도록
+  - **수정** (`today-banner-designer.html`):
+    1. **AMA_CANVAS.subtitle.fs**: 48 → **72** (+50% 정확) — 기본값 변경, 추가 키 추가 없음
+    2. **AMA_DEFAULT**: `subtitleX: 0` / `subtitleY: 0` / `subtitleScale: 100` 추가 (4언어 공통, 단건/배치 각각 별도 슬롯)
+    3. **buildAmaCfg**: subtitleX/Y/Scale을 cfg에 펌프 (typeof number 가드 + 0/100 default)
+    4. **buildAmaCanvas [6][7] 블록 재작성**: Scale 적용 (`sFs = sb.fs × sScale` / `sPadX = sb.padX × sScale` / `sBoxH = sb.h × sScale`) + X/Y offset (`sbX = W - sbW - rightMargin + subtitleX` / `sbY = sb.y + subtitleY`) — 폰트/패딩/높이 균일 스케일링, 좌측 끝 60px 안전장치 유지, R1 회전 패턴 그대로
+    5. **단건 HTML 패널**: 자막 입력 아래에 3 슬라이더 추가 (`s-ama-subtitle-{scale|x|y}` + label spans). Scale 50~200% step 1 / X·Y ±500px step 5
+    6. **배치 HTML 패널**: 키비주얼 슬라이더 아래에 별도 자막 슬라이더 블록 추가 (`b-ama-subtitle-*` prefix, 동일 범위)
+    7. **bindAmaSingleUI**: sliderSpecs 3 → **6** (키비주얼 3 + 자막 3), input 이벤트 → state.single.ama 갱신 + label 동기화 + refreshSinglePreview
+    8. **loadAmaSlotToUI**: sliders 3 → **6** (언어 전환 시 자막 슬라이더 값도 state에서 복원 — 4언어 공통이라 값 변동 없음)
+    9. **bindAmaBatchUI**: sliderSpecs 3 → **6** (state.batch.ama 갱신)
+  - **시각 효과 검증**:
+    - 기본 폰트 72px = 48px × 1.5 정확 (사용자 요청 +50% 부합)
+    - 박스 폭 자동 확대: 같은 텍스트 기준 padX 변화 없음(스케일 1.0), 자동 measureText로 폭 재계산. KO `열렙 ㄱㄱ` 짧음 OK, EN `Hardcore Leveling Warrior` 길어도 좌측 끝 60px 안전장치로 좌측 침범 방지
+    - 박스 높이: 기본 h 72 × scale 1.0 = 72 그대로 (현재 디폴트), 박스 fillRect 음수 좌표 보정으로 정상 그려짐
+    - Scale 200% 케이스 (한계 테스트): fs 144 / padX 48 / boxH 144. EN 자막 박스 측정 시 폭 ~880px이라 우측 margin 60 + 좌측 안전장치 60 = 캔버스 1080 안에서 자동 클램프
+    - R1 회전 -6° 영향: Scale up → 좌하단/우상단 코너 더 벌어짐. Scale 100%+rotation -6° 기본 케이스에서 좌하단 y ≈ 1698, KO 고지문구 1900까지 200px 여유 유지
+  - **회전 중심 정합**: 회전 중심은 `sbX + sbW/2, sbY + sBoxH/2`로 동적 계산. Scale 변화 시에도 박스 중심 기준 회전 보장
+  - **다른 7 템플릿 무영향**: AMA 분기 내부 토큰만 변경 (AMA_CANVAS, AMA_DEFAULT, buildAmaCfg, buildAmaCanvas, bindAma*, loadAmaSlotToUI). 기존 회귀 위험 0
+  - **추후 미세조정**: `AMA_CANVAS.subtitle.fs` (72) 값으로 다른 4언어 자막 균형 추가 조정 가능. 회전과 독립 변수라 자유 결합 가능
+  - 변경량: today-banner-designer.html ~+70 라인 (HTML 패널 sliders + bind 핸들러 + Canvas Scale 로직)
+  - 문법 검증: `node --check` 통과 ✓
+  - DOM 미리보기/단건 다운로드/배치 ZIP 자동 반영 (Canvas 결과물 그대로 사용)
+- 2026-05-15: **[Ask Me Anything R1 / pdca iterate] 우하단 자막 박스 살짝 기울어진 형태 적용 (회전 -6°, 우상단 위로)**
+  - 사용자 보고: 자막 박스(예: `Hardcore Leveling Warrior`, `열렙 ㄱㄱ`, `「モーレツ戦士」でしょ！`, `熱練戰士gogo`)가 너무 수평 → 레퍼런스처럼 살짝 기울어진 형태 + 우상단이 위로
+  - **수정 (2 토큰)**:
+    - `AMA_CANVAS.subtitle` 상수에 `rotationDeg: -6` 필드 추가 (음수 = 시계반대 = 우상단 위로)
+    - `buildAmaCanvas` [6][7] 블록 재작성: `ctx.save() + translate(박스 중심) + rotate(angle) + fillRect/fillText (로컬 좌표계 0,0 기준) + ctx.restore()` 패턴. 회전 중심 = 박스 중앙 (sbX+sbW/2, sbY+sb.h/2)
+  - **시각 효과 검증**:
+    - -6° 회전 + 박스 폭 ~400~500px → 우상단 코너 약 ~26px 위로 / 좌하단 코너 약 ~26px 아래로
+    - 좌하단 y ≈ 1672 + 26 = 1698 → KO 고지문구(baseline=1900) 위 공간 충분 (200px 여유, 침범 0)
+    - 4언어 모두 동일 회전 일관 적용 (subText 폭 자동 차이만 영향)
+  - **회전 중심 정책**: 박스 정중앙 — 사용자 입력 길이 변화에도 시각적으로 안정 (오른쪽 끝/왼쪽 끝 기준이 아님)
+  - **추후 미세조정**: `AMA_CANVAS.subtitle.rotationDeg` 값만 바꾸면 0(수평) ~ ±10° 자유 조정 가능. 0이면 회전 비활성과 동일
+  - 변경량: today-banner-designer.html ~+15 라인 (block 재작성: 14줄 → 26줄, net +12)
+  - 회귀 위험 0 (AMA buildAmaCanvas 내부 토큰만 변경. 다른 7 템플릿 + AMA 다른 단계 모두 무영향. 디폴트 코드 흐름 유지: rotation=0 시 시각 100% 동일)
+  - 문법 검증: `node --check` 통과 ✓
+  - DOM 미리보기/배치 ZIP 자동 반영 (Canvas 결과물을 그대로 사용)
+- 2026-05-15: **[Ask Me Anything v1.10 / pdca plan+do] 신규 8번째 템플릿 "Ask Me Anything (무물보)" 추가 — 1080×1920 Q&A 스타일 광고 배너 (4언어 ZIP 자동)**
+  - 워크플로우: `/pdca plan plus` → AskUserQuestion 4건 사용자 결정 → 단일 세션 일괄 구현 (steam-review/pickup 패턴 미러링)
+  - **사용자 결정 4건** (AskUserQuestion): 헤더 라벨 = 언어별 고정 (이미지 그대로) / 질문·자막 기본값 = 이미지 샘플 프리필 / KO 고지문구 위치 = 자막 박스 아래 캔버스 최하단 우측 / Batch 모드 = 4개 언어 동시 생성 지원
+  - **Locked Spec**: 9:16 (1080×1920) 전용, 4언어 (ko/en/ja/zh-TW), 헤더 라벨 언어별 고정·편집 불가, 질문 가운데정렬·`\n` 줄바꿈, 자막 우하단 검정 박스 auto-width, KO 한정 `*확률형 아이템 포함` 자동 (z-order TOPMOST), 키비주얼 1장 cover-fit + X/Y/Scale 슬라이더
+  - **Default texts (4언어 프리필)**:
+    - ko: header `무물보` / question `형 요새 재밌어보이는\n게임 추천해줘` / subtitle `열렙 ㄱㄱ`
+    - en: header `ask me anything` / question `what's a good game to play rn` / subtitle `Hardcore Leveling Warrior`
+    - ja: header `質問箱` / question `最近の激アツ＆激ヤバ\nゲームを教えて！` / subtitle `「モーレツ戦士」でしょ！`
+    - zh-TW: header `歡迎提問` / question `哥,\n最近有什麼好玩的遊戲推薦嗎？` / subtitle `熱練戰士gogo`
+  - **변경량**: today-banner-designer.html 10,058 → **약 10,521 라인** (+~463) · 단일 HTML 정책 유지
+  - **신규 함수 5개**: `buildAmaCfg(stateNode, lang)`, `prepAmaCfgImages`, `buildAmaCanvas` (8단계 그리기: bg → keyart(transform) → top card rounded → header strip clip → header label → question multi-line → subtitle auto-width box → KO disclaimer TOPMOST), `buildAmaBanner` (async wrapper), `buildAmaFilename`
+  - **신규 함수 3개 (UI)**: `bindAmaSingleUI`, `loadAmaSlotToUI(lang)`, `bindAmaBatchUI`
+  - **신규 상수 3개**: `AMA_LANG_PACK` (4언어 헤더 라벨 + KO disclaimer), `AMA_DEFAULT` (이미지 샘플 프리필), `AMA_CANVAS` (1080×1920 좌표 — card x=180 y=120 w=720 + subtitle y=1600 + disclaimer baseline=1900)
+  - **통합 패치 18곳**: TEMPLATE_KEYS / 헤더 드롭다운 option / state.{single,batch}.ama init / renderBanner switch / buildBannerCanvas switch / refreshSinglePreview cfg+tmplLabelMap / applyTemplateSwitch (단건 size lock 9x16 + 배치 체크박스 9x16 only, appstore 패턴 일관) + loadAmaSlotToUI 호출 / bindSingleMode 끝 / bindBatchMode 끝 / 단건 언어 전환 핸들러 / 단건 HTML 패널 / 배치 HTML 패널 / renderBatchLangFields isAma 분기 (2 필드: question textarea + subtitle input + 헤더 라벨 표시 + 복사 버튼) / copyLangFieldsToOthers / syncBatchStateFromUI / handleSingleDownload isAma 분기 (filename + Canvas) / buildBatchCfgs isAma 분기 / downloadBatchItem 단건 다운로드 + filename ladder / handleBatchExportZip hasAma 사전 디코드 + isAma ZIP 루프 + filename ladder / data-tmpl-hide 4곳 (`,ask-me-anything` append: appstore-screenshot,sd-showcase,keyvisual-review,pickup,steam-review → +ask-me-anything)
+  - **파일명 패턴**: `{prefix}_ama_{lang}_1080x1920.{ext}` (예: `banner_ama_ko_1080x1920.png`)
+  - **Canvas 그리기 z-order** (low → high): bg(#f5f5f7 placeholder) → keyart(cover-fit + user x/y/scale) → top card rounded body (white) → header strip (clip to rounded, black) → header label (white centered) → question (black centered, `\n` 분리) → subtitle box (black auto-width, min left 60px) → subtitle text (white centered) → KO disclaimer (#666 22px right-aligned baseline=1900, TOPMOST)
+  - **검증**:
+    - JS 문법 (`node --check` via 인라인 스크립트 추출): 통과 ✓
+    - 14개 핵심 심볼 무결성: AMA_DEFAULT/LANG_PACK/CANVAS·buildAmaCfg/Canvas/Banner/Filename·prepAmaCfgImages·bindAmaSingleUI/BatchUI·loadAmaSlotToUI·state.{single,batch}.ama 모두 정의 + 사용 ≥2회 확인
+    - 회귀 위험 0 (AMA 전용 분기/엔트리만 추가, 기존 7 템플릿 코드 무수정)
+  - **검증 환경 제약**: Claude Preview 환경에서 macOS sandbox 권한 이슈로 인한 미리보기 서버 시작 불가 (Python http.server·node·npx 모두 `Operation not permitted` 에러). 정적 검증(node --check + symbol grep)으로 코드 무결성 확인, **실 브라우저 시각 검증은 사용자 측에서 필요**
+  - **수동 검증 가이드** (사용자 브라우저, `repo/today-banner-designer.html` 직접 open):
+    - 헤더 드롭다운 "Ask Me Anything (무물보)" 옵션 노출 ✓
+    - 선택 시 단건 패널에 키비주얼 dropzone + X/Y/Scale 슬라이더 3개 + 4언어 탭 (헤더 라벨 표시·편집 불가 + 질문 textarea + 자막 input)
+    - 사이즈 셀렉터: 9x16 (1080×1920)로 자동 lock + disabled
+    - 4언어 탭 전환 → 헤더 라벨 + 질문 + 자막 모두 이미지 샘플로 프리필
+    - 키비주얼 업로드 → 캔버스 풀배경 cover-fit 표시 + X/Y/Scale 슬라이더 실시간 반영
+    - 질문에 Enter 줄바꿈 → 캔버스에서 가운데정렬 멀티라인 렌더
+    - 자막 텍스트 길이 변화 → 우하단 검정 박스 폭 auto-resize
+    - KO 모드: 우하단 `*확률형 아이템 포함` 자동 노출 (baseline=1900)
+    - EN/JA/zh-TW 모드: disclaimer 미출력
+    - PNG 다운로드: 1080×1920 정확한 사이즈
+    - 배치 모드: 사이즈 체크박스 9x16만 활성 + 나머지 비활성, 4언어 체크 시 4장 ZIP (`banner_ama_{ko|en|ja|zh-TW}_1080x1920.png`)
+    - 다른 7 템플릿(today-tap, app-badge, appstore-screenshot, sd-showcase, keyvisual-review, pickup, steam-review) 회귀 0 확인
+  - 다음 단계: 사용자 브라우저 실측 → 시각 비교(4 스샷 vs 출력) → 필요시 `/pdca iterate ask-me-anything` 미세 조정
 - 2026-05-14: **[batch-preview-scale R4 / pdca iterate] thumb-card 우측 검정 영역 노출 버그 수정 (`.thumb-grid` 1fr stretch 제거)**
   - 사용자 보고 (검정 마크업 캡처): "배치 생성의 모든 템플릿 미리보기에서 오른쪽 일부 영역이 가려진 것처럼 보임. 다운로드는 정상"
   - 잘못된 진단 2회 (모두 폐기): (1) `marginRight` 보정 — 브라우저 zoom 영향이며 실제 이슈 아님 / (2) "4번째 컬럼 잘림" — 동일 zoom 영향. 사용자 검정 마크업 캡처로 실제 위치 명확화됨
