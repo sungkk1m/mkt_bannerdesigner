@@ -199,3 +199,71 @@ Plan에서 명시한 후속 PDCA 후보:
 ---
 
 📊 **Final Status**: ✅ Completed
+
+---
+
+## 9. R32~R34 Iteration — 설명 본문 줄바꿈 버그 수정 (2026-05-16 / 2026-05-17)
+
+### 9.1 Executive Summary
+
+| 항목 | 값 |
+|---|---|
+| Iteration | R32 (DOM `\n` 줄바꿈 fix) → R33 (5줄 확장 시도) → R34 (4줄 롤백) |
+| Period | 2026-05-16 (R32+R33) → 2026-05-17 (R34) |
+| Final State | R32 보존 + R33/R34 net 0 (line-clamp 4 유지) |
+| Match Rate | **100%** (정적, 사용자 요청 100% 반영) |
+| Files Changed | 1 코드 (`today-banner-designer.html`) |
+| LOC Delta | net **+1 라인** (CSS `white-space: pre-line` 1줄 추가) |
+
+### 9.2 Bug Report & Diagnosis (R32)
+
+**사용자 보고**: App Store Screenshot 설명 본문 textarea에 Enter 키로 `\n` 입력해도, 미리보기와 다운로드 PNG 양쪽에서 줄바꿈이 무시되고 한 단락으로 합쳐져 표시됨. UA 카피 의도(짧은 임팩트 문장 여러 줄)가 PNG에 반영 안 됨.
+
+**진단 (Plan mode 단계)**:
+- **state 흐름 정상** ✓: textarea `.value` → `state.single.appstore.langs[lang].description` → `cfg.description` (라인 1060 → 8981 → 9081). raw `\n` 보존됨.
+- **DOM 버그 #1 CONFIRMED ❌**: `.banner.tmpl-appstore-screenshot .as-description` CSS([line 854-860](repo/today-banner-designer.html:854))에 `white-space` 속성 미설정 → 브라우저 기본값 `normal` → 모든 whitespace(`\n` 포함) 단일 공백 축약
+- **Canvas 코드상 작동 ⚠️**: `asWrapText`([line 5121](repo/today-banner-designer.html:5121))가 이미 `split('\n')` + paragraph마다 `cur` 리셋 + paragraph 끝에 push 수행 → 단일 `\n`은 정상 줄바꿈됨. 사용자가 미리보기 결과만 보고 다운로드도 동일하게 추정했을 가능성
+
+**비교 기준**: KVR R29 `wrapTextToNLines` (`split(/\r?\n/)`) + Steam Review `wrapDescription` (`split('\n')`) 모두 이미 `\n` 지원 → App Store Screenshot만 누락 상태였음
+
+### 9.3 Changes (R32 → R33 → R34)
+
+| Round | 변경 | 라인 | 결과 |
+|---|---|---|---|
+| R32 | `.as-description`에 `white-space: pre-line;` 추가 | [today-banner-designer.html:858](repo/today-banner-designer.html:858) | DOM 미리보기 `\n` 줄바꿈 보존, `-webkit-line-clamp: 4` 호환 |
+| R33 | `-webkit-line-clamp: 4` → 5 (`line 860`) + `descMaxLines = 4` → 5 (`line 5418`) | 2 토큰 | 5줄 표시 시도 (사용자 요청 "이전 4줄 → 현재 3줄로 보임, 5줄 표시로 늘려달라") |
+| R34 | 위 2 토큰 5 → 4 롤백 | 2 토큰 | 사용자 즉시 정정 "기존 4줄 유지로 되돌려달라" — line-clamp 4 + descMaxLines 4 복귀 |
+
+**최종 누적 net 변경**: CSS `white-space: pre-line` 1줄 추가만 남음. line-clamp/descMaxLines는 v1.5 원본 그대로.
+
+### 9.4 `pre-line` 선택 이유
+
+- `pre-line`: `\n` 줄바꿈 보존 + 다른 연속 공백 축약 + 자동 wrap 유지 → UA 카피 의도에 가장 부합
+- `pre-wrap`은 textarea의 leading/trailing 공백까지 보존되어 UA 워크플로에 노이즈
+- `-webkit-line-clamp: 4` + `pre-line` 조합 정상 동작 (Chromium/Safari 표준)
+
+### 9.5 Lessons
+
+- **L-6 (R32)**: `white-space` 속성은 명시하지 않으면 브라우저 기본 `normal`이 적용되어 `\n`이 시각적으로 사라짐. CSS 컴포넌트 추가 시 줄바꿈 정책을 명시적으로 결정해야 함. KVR/Steam Review는 Canvas 전용이라 이 함정을 피했지만, App Store Screenshot은 DOM 미리보기를 사용해 노출됨.
+- **L-7 (R33 → R34)**: "기존 N줄 vs 현재 N-1줄"이라는 사용자 보고가 코드 변경이 실제로 줄 수에 영향을 줬는지(R32 적용 후 4줄짜리 본문이 wrap되며 시각적으로 3줄로 보임) 확인 단계를 건너뛰면, 사용자 요청대로 5줄로 늘렸다가 즉시 롤백하는 비용 발생. "현상 재확인 → 원인 추정 명시 → 사용자 결정"의 3단계가 단순 토큰 변경에도 가치 있음.
+- **L-8 (R34 정정)**: 단순 토큰 롤백(5→4)도 정식 PDCA report에 반영해 결정 트레이스 보존. 코드에는 잔재 0이지만 의사결정 이력은 남아야 향후 동일 요청이 재발할 때 컨텍스트 보호.
+
+### 9.6 회귀 위험 & 검증
+
+- **회귀 위험 0**: `white-space: pre-line` 추가는 App Store Screenshot 전용 `.as-description` 셀렉터에만 적용. 다른 7개 템플릿(today-tap, app-badge, sd-showcase, keyvisual-review, pickup, steam-review, ask-me-anything) 셀렉터 분리됨
+- **하위 호환**: `\n` 없는 한 줄 입력은 기존과 동일 동작 (single space input 영향 0)
+- **사용자 검증 대기**: 4언어(ko/en/ja/zh-TW) 모두 줄바꿈 보존 + 4줄 초과 시 ellipsis 정상 + 배치 ZIP 4장 일관 + 다른 7개 템플릿 회귀 0
+
+### 9.7 변경 요약 (R32~R34 통합)
+
+| 항목 | 값 |
+|---|---|
+| 수정 파일 | [`repo/today-banner-designer.html`](repo/today-banner-designer.html) 1개 |
+| 누적 변경 | CSS 1줄 추가 (`white-space: pre-line`) |
+| 자산 추가 | 없음 |
+| Plan 문서 | `~/.claude/plans/iterate-app-store-screenshot-clever-spark.md` (R32 플랜) |
+| 본 report | R32~R34 통합 §9 섹션으로 append |
+
+---
+
+📊 **R32~R34 Final Status**: ✅ Completed (net 1줄 CSS 추가, line-clamp/descMaxLines v1.5 원본 유지)

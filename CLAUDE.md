@@ -1190,6 +1190,26 @@ _(작업 지시 시 최신 상태로 갱신)_
   - **변경량**: today-banner-designer.html 9,779 → **10,012 라인** (+233, 라벨 span 36개 inline 추가 + 핸들러 라벨 갱신 + R6 주석) · 1,110,477 B → 1,129,287 B (+18KB)
   - **회귀 위험 0**: SD Showcase HTML/JS 핸들러 토큰 교체 + 라벨 동기화만 변경. state/Canvas 빌더/perSize/clip/mirror 모두 무수정
   - 검증 대기 (사용자 브라우저 실측 6건): 슬라이더 드래그 라벨 실시간 갱신 / 1200×628 사이즈 토글 시 min/max ±30 적용 / 사이즈 토글 round-trip / min/max 스냅 / 배치 ZIP perSize 분리 / 다른 6 템플릿 회귀 0
+- 2026-05-16: **[AppStore Screenshot R32 / pdca iterate] 설명 본문 `\n` 줄바꿈 버그 fix (CSS `white-space: pre-line`, 1줄)**
+  - 사용자 보고: App Store Screenshot 설명 본문(`as-description`) textarea에 Enter 줄바꿈 입력해도 미리보기 및 다운로드 PNG 양쪽에서 무시되고 한 단락으로 합쳐짐
+  - 검증 (plan mode + Explore agent): state→cfg까지 raw `\n` 보존 ✓ / DOM 버그 CONFIRMED — `.as-description` CSS([:854~860](repo/today-banner-designer.html:854))에 `white-space` 속성 미설정 → 브라우저 기본 `normal`이 `\n`을 단일 공백 축약 ❌ / Canvas `asWrapText`([:5121](repo/today-banner-designer.html:5121))는 이미 `split('\n')` + paragraph마다 cur 리셋 → 코드상 작동 ✓ (사용자가 미리보기 결과만 보고 다운로드도 동일하게 추정한 것으로 추정)
+  - 비교: KVR R29 `wrapTextToNLines` (`split(/\r?\n/)`) + Steam Review `wrapDescription` (`split('\n')`) 모두 이미 `\n` 지원 → App Store Screenshot만 누락 상태였음
+  - **수정** ([:858](repo/today-banner-designer.html:858)): `white-space: pre-line;` 1줄 추가. `pre-line` 선택 이유 — `\n` 줄바꿈 보존 + 연속 공백 축약 + 자동 wrap 유지 (UA 카피 의도 부합) + `-webkit-line-clamp: 4` 호환
+  - 회귀 위험 0: App Store Screenshot 전용 셀렉터에만 적용. 다른 7 템플릿 무영향
+  - Plan 문서: `~/.claude/plans/iterate-app-store-screenshot-clever-spark.md`
+- 2026-05-16~17: **[AppStore Screenshot R33 → R34 / pdca iterate] 5줄 확장 시도 → 4줄 롤백 (net 0)**
+  - R33 사용자 보고: "이전에는 본문 4줄까지 가능했으나 현재 3줄만 가능, 5줄로 늘려달라" → R32 적용 후 4줄짜리 본문이 자동 wrap되며 시각적으로 3줄로 보였을 가능성 추정
+  - R33 수정: `-webkit-line-clamp: 4` → 5 (CSS [:860](repo/today-banner-designer.html:860)) + `descMaxLines = 4` → 5 (Canvas [:5418](repo/today-banner-designer.html:5418))
+  - R34 사용자 즉시 정정: "5줄 초과 시 ellipsis가 아닌 4줄 초과 시로 되돌려달라, 본문은 기존 4줄 유지"
+  - R34 롤백: 위 2 토큰 5 → 4 복귀 (v1.5 원본 동일)
+  - 최종 누적: net **+1 라인** (R32 CSS 한 줄만 남고, line-clamp/descMaxLines는 v1.5 원본 유지)
+  - Lesson: "기존 N줄 vs 현재 N-1줄" 사용자 보고에 대해 R32 변경의 시각적 부산물인지 코드상 의도 변경인지 사전 확인이 비용 절감
+- 2026-05-17: **[PDCA Report] AppStore Screenshot R32~R34 — 사이클 완료 (1줄 CSS net 추가)**
+  - 문서: `docs/04-report/appstore-screenshot.report.md` §9 R32~R34 섹션 append (기존 v1.5 1차 구현 report 보존)
+  - Match Rate: **100%** (정적, 사용자 요청 100% 반영. line-clamp 4 유지 + `\n` 줄바꿈 지원)
+  - Files Changed: 1 코드 (`today-banner-designer.html`) + 1 문서 (`appstore-screenshot.report.md` §9 append) + 1 CLAUDE.md
+  - LOC Delta: net **+1 라인** (CSS `white-space: pre-line`)
+  - 회귀 위험 0 (App Store Screenshot 전용 셀렉터, 다른 7 템플릿 무영향)
 
 ## 히스토리
 
