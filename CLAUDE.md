@@ -1210,6 +1210,105 @@ _(작업 지시 시 최신 상태로 갱신)_
   - Files Changed: 1 코드 (`today-banner-designer.html`) + 1 문서 (`appstore-screenshot.report.md` §9 append) + 1 CLAUDE.md
   - LOC Delta: net **+1 라인** (CSS `white-space: pre-line`)
   - 회귀 위험 0 (App Store Screenshot 전용 셀렉터, 다른 7 템플릿 무영향)
+- 2026-05-19: **[AppStore Screenshot R37.1 hotfix / pdca iterate] R37 구현 누락 — `moreText is not defined` ReferenceError (Canvas 다운로드 전체 실패)**
+  - 사용자 보고: "실패: moreText is not defined 라는 오류가 확인됩니다. 다운로드 자체가 안되는데 확인해주세요."
+  - **Severity**: 🔴 Critical — App Store Screenshot 단건/배치 모든 다운로드 실패 (Canvas throw)
+  - **Root cause (확정)**: R37 구현 시 Canvas description 영역의 코드를 helper 호출로 일원화하면서 `const moreText = pack.more;` 변수 선언을 제거([:5494~5500](repo/today-banner-designer.html:5494))했으나, **forEach 루프 안 line 5511에서 `ctx.fillText(moreText, ...)` 참조가 정리되지 않음**. `fitAppStoreDescription`([:5205](repo/today-banner-designer.html:5205))의 parameter `moreText`는 함수 scope 안에만 존재 → 외부 forEach에서 ReferenceError. DOM 측은 자체 종결되어 미리보기 정상, 다운로드만 실패
+  - **수정** ([:5511](repo/today-banner-designer.html:5511)): `ctx.fillText(moreText, descX + ww, descTopY + i * descLineH)` → `ctx.fillText(pack.more, descX + ww, descTopY + i * descLineH)` (1 토큰 교체). 이전 `const moreText = pack.more` 변수 복원보다 직접 참조가 R37 일원화 의도와 일치
+  - 변경량: today-banner-designer.html **1 토큰 (1라인)** 변경 · 10,827 라인 유지
+  - 회귀 위험 0: forEach 내부 단일 토큰만 변경. `pack`은 line ~4316에서 `AS_LANG_PACK[lang]`로 함수 진입 시 정의되어 forEach 내부에서 접근 가능. 다른 7 템플릿 / R35 / R36 / R37 다른 영역 모두 무영향
+  - `moreText` 잔재 검증: 함수 외부 참조 0건. 내부 parameter scope 2건만 (line 5205 정의 + 5214 사용, 정상)
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓ (1,000,740 chars, R37 대비 +1 char)
+  - **검증 대기** (사용자 브라우저 실측):
+    - 단건 App Store Screenshot 선택 → 다운로드 PNG 정상 출력 (ReferenceError 사라짐)
+    - R37 의도 정상 작동: 미리보기 ↔ 다운로드 description 줄 수/위치 일치
+    - 4언어 ko/en/ja/zh-TW 모두 다운로드 정상
+    - 배치 ZIP 4장 모두 다운로드 정상
+    - more 라벨이 마지막 줄 끝에 정상 표시 (theme.link 색상)
+  - **Lesson**: R37 일원화 시 변수 제거하면서 변수 참조 위치(forEach 루프 안)를 grep으로 사전 확인 못함. 다음 hotfix류 변경 전 반드시 `grep -n <removed_var>` 실행 권장
+- 2026-05-18: **[AppStore Screenshot R37 / pdca iterate] Description 본문 줄 수 DOM↔Canvas 불일치 수정 (JS pre-wrap으로 일원화)**
+  - 사용자 보고: "미리보기에서는 3줄 정도만 보이지만, 실제 다운로드 시 4줄이 보이는 것 같아요"
+  - **Root cause 진단**: DOM `.as-description`([:854~860](repo/today-banner-designer.html:854))의 `-webkit-line-clamp: 4` 컨테이너 안에 본문 텍스트와 `<span class="as-description-more">`(more 라벨)이 **inline content로 함께 존재**([:4410~4413](repo/today-banner-designer.html:4410)). 본문 4줄 full + more 라벨이 들어갈 폭 부족 → more 라벨이 5번째 줄로 wrap → line-clamp가 5번째 줄 제거 + 4번째 줄도 부분 잘림 → **시각적으로 3줄로 보임**. Canvas([:5468~5489](repo/today-banner-designer.html:5468))는 본문 4줄을 explicit wrap 후 마지막 줄에 `…` + more를 별도 measure + draw → **항상 정확 4줄 표시**
+  - 사용자 결정 (AskUserQuestion 3건): 해결 옵션 = **B. JS pre-wrap (DOM/Canvas 완전 통일)** (R36 fitAppStoreTitle 패턴 일관) / more 위치 = **본문 4번째 줄 끝 우측 inline** / 정답 기준 = **다운로드 결과물 = 정답** (R34 history 일치, "본문 4줄 + more 표시")
+  - **변경 사항** (4곳, R37 마커):
+    - **헬퍼 함수 신규** ([:5205~5230](repo/today-banner-designer.html:5205)): `fitAppStoreDescription(text, moreText, maxW, fontFamily, fontSize, maxLines)` — off-screen canvas measureText 기반. ① asWrapText로 maxLines 줄 wrap ② lines.length === maxLines이면 마지막 줄에 `…` + more 폭 확보 (`while measureText(last + '… ').width + moreW > maxW`) ③ 반환 `{ lines, lastLineHasEllipsis }`. 캐시된 `_ctx` static field로 매 호출 시 canvas 재생성 비용 제거 (R36 패턴 일관)
+    - **Canvas 일원화** ([:5491~5500](repo/today-banner-designer.html:5491)): 기존 `asWrapText` 직접 호출 + 마지막 줄 ellipsis/more 폭 측정 14라인 → `fitAppStoreDescription` helper 호출 2라인으로 압축. 그리기 로직(forEach + fillText + more 별도 그리기)은 그대로
+    - **DOM precompute** ([:4332~4341](repo/today-banner-designer.html:4332)): `buildAppStoreScreenshotBanner` 내부에서 R36 titleFit 다음에 `descFit = fitAppStoreDescription(...)` 계산 후 `descHTML` 생성. `lines.map((line, i) => i === last ? escapeHTML(line) + '<span class="as-description-more">...</span>' : escapeHTML(line)).join('<br/>')`
+    - **DOM HTML** ([:4420~4421](repo/today-banner-designer.html:4420)): `<div class="as-description">${cfg.description}<span>...</span></div>` → `<div class="as-description">${descHTML}</div>` (5라인 → 2라인)
+    - **CSS** ([:854~860](repo/today-banner-designer.html:854)): 무수정. `-webkit-line-clamp: 4` 안전장치 그대로 (JS 결과가 정확 4줄이면 미발동, 측정 오차 발생 시 fallback)
+  - **DOM↔Canvas 일관성 보장**:
+    - 양쪽 모두 동일한 off-screen canvas measureText 기반 → wrap 결과 비트단위 일치
+    - maxW 양쪽 동일 (Canvas: `W - 100 = 980` / DOM: `1080 - padding 50×2 = 980`)
+    - 본문 4줄 미만: 마지막 줄 끝에 more 라벨 자연스럽게 inline
+    - 본문 정확 4줄: 마지막 줄에 `…` + more (lastLineHasEllipsis=false인데 fits)
+    - 본문 5줄+: 4줄로 클램프 + `…` + more (lastLineHasEllipsis=true)
+  - 변경량: today-banner-designer.html 10,801 → **10,827 라인** (+26, helper 28 + Canvas 일원화 -12 + DOM precompute 10 + HTML -3 + 주석)
+  - 회귀 위험 0: App Store Screenshot 전용 함수만 변경. 다른 7 템플릿(today-tap, app-badge, sd-showcase, keyvisual-review, pickup, steam-review, ask-me-anything) 무영향. `asWrapText` 함수 자체 무수정. R35/R36/R32 모두 무영향. KO 고지문구(`as-ko-disclaimer`) 영향 없음 (description 다음 별도 영역)
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓ (1,000,739 chars)
+  - **검증 대기** (사용자 브라우저 실측):
+    - 1줄 description ("Simple game"): 1줄 + 끝에 more
+    - 2~3줄 description: 정확히 그 줄 수 + 마지막 줄 끝에 more
+    - 정확히 4줄 description: 4줄 + 마지막 줄 끝에 자연스럽게 more (ellipsis 없을 수도 있음)
+    - 5줄 이상 description (사용자 첨부 일본어 같은): 4줄 + 마지막 줄에 `…` + more
+    - 미리보기 ↔ 다운로드 시각 비교: 양쪽 동일 줄 수 + 동일 wrap 위치 + more 라벨 위치 동일
+    - 4언어 (ko/en/ja/zh-TW) 모두 동일 동작
+    - `\n` 줄바꿈 (R32 지원) + maxLines 4 유지
+    - 회귀: R35 연령 / R36 title 축소 / KO 고지문구 / 배치 ZIP 4장 / 다른 7 템플릿
+- 2026-05-18: **[AppStore Screenshot R36 / pdca iterate] Title 자동 폰트 축소 + DOM/Canvas 일관성 (60→40 + ellipsis fallback)**
+  - 사용자 보고: 미리보기와 달리 다운로드 결과물에서 Title이 일정 글자 수 이상이면 자동으로 ellipsis(`…`) 처리됨 (예: 일본어 `ソードマスタースト…`)
+  - 사용자 요청 2건: (1) 미리보기와 다운로드 결과물 일치 (2) Title 글자 수 증가 시 자동 폰트 사이즈 축소
+  - **진단**: CSS([:750](repo/today-banner-designer.html:750)) `white-space: nowrap; overflow: hidden; text-overflow: ellipsis` + Canvas([:5255~5265](repo/today-banner-designer.html:5255)) `60px 고정 + while measureText > maxW → slice + …`. 양쪽 모두 고정 폰트 + ellipsis 자르기. 미리보기 컨테이너 슬라이더 0.45 축소로 시각 비율 차이 발생 → 미리보기에선 잘 보이는데 다운로드에서 잘림으로 인지
+  - 사용자 결정 (AskUserQuestion 3건): 적용 범위 = **Title만** (subtitle/desc 무변경) / 최소 폰트 = **40px (33% 축소)** / Fallback = **ellipsis 유지** (안전장치)
+  - **maxW 일치 검증**: Canvas `txMaxW = W - txX - 50` = 1080 - 324 - 50 = **706px** / DOM `1080 - 50(좌패딩) - 242(icon) - 32(gap) - 50(우마진)` = **706px** → 정확 일치, 동일 알고리즘 적용 가능
+  - **변경 사항** (4곳, +33 라인):
+    - **헬퍼 함수 신규** ([:5141~5163](repo/today-banner-designer.html:5141)): `fitAppStoreTitle(text, maxW, fontFamily, baseFs=60, minFs=40)` — off-screen canvas measureText 기반. 60→40 자동 축소 (2px step) + 최소 도달 후 ellipsis fallback. 반환 `{fontSize, text}`. 캐시된 `_ctx` static field로 매 호출 시 canvas 재생성 비용 제거
+    - **Canvas 적용** ([:5289](repo/today-banner-designer.html:5289)): 기존 `while measureText > txMaxW → slice` 로직 → `const titleFit = fitAppStoreTitle(...); ctx.font = '700 ${titleFit.fontSize}px ${family}'; ctx.fillText(titleFit.text, ...)`
+    - **DOM precompute** ([:4330](repo/today-banner-designer.html:4330)): `buildAppStoreScreenshotBanner` Stars renderer 직후에 `const titleFit = fitAppStoreTitle(cfg.title, 706, asFontFamily(lang), 60, 40)` 추가 (banner.innerHTML 생성 전)
+    - **DOM 적용** ([:4357](repo/today-banner-designer.html:4357)): `<div class="as-title">${escapeHTML(cfg.title)}</div>` → `<div class="as-title" style="font-size: ${titleFit.fontSize}px;">${escapeHTML(titleFit.text)}</div>`. CSS의 `text-overflow: ellipsis`는 안전장치로 유지 (40px 도달 후에도 넘치면 fallback)
+  - **DOM↔Canvas 동작 일관성**:
+    - 양쪽 모두 동일한 off-screen canvas measureText 사용 → 측정 결과 비트단위 일치
+    - letter-spacing(-1.4px CSS)은 Canvas measureText 미지원이지만, 60px 기준 ~2% 미세 차이로 시각적 영향 미미. 보수적 측정 결과 (Canvas가 약간 넓게 측정 → fit이 보수적 작동 → DOM에 약간 여유)
+    - 한국어 ~10자 / 일본어 ~13자 / 영어 ~22자까지 60px 유지, 그 이상은 자동 축소, 40px에서도 초과 시 ellipsis
+  - 변경량: today-banner-designer.html 10,772 → **10,805 라인** (+33, 헬퍼 23 + 호출 3건 + 주석 7)
+  - 회귀 위험 0: App Store Screenshot 전용 함수/렌더만 변경. 다른 7 템플릿(today-tap, app-badge, sd-showcase, keyvisual-review, pickup, steam-review, ask-me-anything) 무영향. CSS `.as-title` 규칙 그대로 (font-size는 inline style이 override). R35 age 필드 무영향
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓ (999,381 chars)
+  - **검증 대기** (사용자 브라우저 실측):
+    - 단건 미리보기 + 다운로드 PNG: 일본어 `ソードマスターストーリー` (12자) → 60px 유지 / 더 긴 타이틀 → 자동 축소 동일 적용
+    - 미리보기와 다운로드 결과물 시각 비교: 같은 입력에서 같은 폰트 사이즈 + 같은 텍스트(원본 또는 ellipsis 처리)
+    - 짧은 타이틀(예: `Underdark`): 60px 그대로
+    - 극단적으로 긴 타이틀: 40px까지 축소 후에도 넘치면 `…` 추가
+    - 4언어 (ko/en/ja/zh-TW) 모두 동일 패턴 작동
+    - 배치 ZIP 4장: 단건과 동일
+    - R35 연령 입력 회귀 0
+    - 다른 7 템플릿 회귀 0
+- 2026-05-18: **[AppStore Screenshot R35 / pdca iterate] 연령 입력 필드 추가 (공통 필드, App Store 표준 "{age}+" 형식, default '15')**
+  - 사용자 요청: 통계 4컬럼 중 Col 2(연령) 메인 값이 하드코딩 `4+` → 사용자 편집 가능하게. Default `15`. 4언어(ko/en/ja/zh-TW) 모두 동일 적용
+  - 사용자 결정 (AskUserQuestion 3건): 필드 구조 = **공통 필드 단일 값** (theme/showStats 패턴 일관) / 표시 형식 = **App Store 표준 `{age}+`** (`15+`) / 기본값 = **숫자 '15'** (사용자가 12·17 등 자유 변경)
+  - Suffix 라인(세/Years Old/歳/歲) 처리: **그대로 유지** — 기존 디자인 일관성 보존
+  - **변경 사항** (15곳 R35 마커, in-place 토큰 + HTML input × 2):
+    - `APPSTORE_SCREENSHOT_DEFAULT` ([:2810~](repo/today-banner-designer.html:2810)): top-level `age: '15'` 추가
+    - `state.batch` ([:4068~](repo/today-banner-designer.html:4068)): `as_age: '15'` 추가 (as_theme/as_showStats 패턴 일관)
+    - DOM Col 2 ([:4365](repo/today-banner-designer.html:4365)): `<div class="as-stat-mid">4+</div>` → `${escapeHTML(String(cfg.age || '15'))}+`
+    - Canvas Col 2 ([:5360](repo/today-banner-designer.html:5360)): `drawValue('4+', ...)` → `drawValue(\`${String(cfg.age || '15')}+\`, ...)`
+    - `buildAppStoreScreenshotCfg` ([:9096](repo/today-banner-designer.html:9096)): cfg에 `age: as.age || '15'` 펌프
+    - `buildBatchCfgs` appstore 분기 ([:10281](repo/today-banner-designer.html:10281)): `age: state.batch.as_age || '15'` 펌프
+    - `syncSingleAppStoreFromUI` ([:8985~](repo/today-banner-designer.html:8985)): `#s-as-age` → `as.age` 동기화
+    - `syncBatchStateFromUI` App Store 블록 ([:9778](repo/today-banner-designer.html:9778)): `#b-as-age` → `state.batch.as_age` 동기화
+    - 단건 이벤트 바인딩 `asInputIds` ([:7598~](repo/today-banner-designer.html:7598)): `'s-as-age'` 추가
+    - 배치 이벤트 바인딩 `asInputIds` ([:9504](repo/today-banner-designer.html:9504)): `'b-as-age'` 추가
+    - 단건 HTML 패널 ([:1086~](repo/today-banner-designer.html:1086)): 통계 위젯 박스 끝에 "연령 (공통 · 4언어 동일 · "{값}+" 형식)" 라벨 + `<input id="s-as-age">` 추가
+    - 배치 HTML 패널 ([:2008~](repo/today-banner-designer.html:2008)): 4 토글 다음에 "연령 (전 언어 공통)" 라벨 + `<input id="b-as-age">` 추가
+  - 변경량: today-banner-designer.html 10,749 → **10,772 라인** (+23, R35 마커 15곳 + HTML 안내문)
+  - 회귀 위험 0: App Store Screenshot 전용 토큰만 변경. `AS_LANG_PACK`(라벨/접미사) 무수정. Canvas/DOM 좌표 무수정. 다른 7 템플릿(today-tap, app-badge, sd-showcase, keyvisual-review, pickup, steam-review, ask-me-anything) 무영향. 기존 세션 fallback (`cfg.age || '15'`)으로 undefined 안전 처리
+  - 문법 검증: 인라인 `<script>` 추출 → `node --check` 통과 ✓ (998,105 chars)
+  - **검증 대기** (사용자 브라우저 실측):
+    - 단건 App Store Screenshot 선택 → 통계 위젯 박스 아래 "연령" input(default `15`) 노출
+    - 4언어 탭 전환(ko↔en↔ja↔zh-TW): age input 값 유지 (공통 필드)
+    - 미리보기 Col 2 4언어 모두: 라벨(연령/Age/年齢/年齡) + 메인 "**15+**" + 접미사(세/Years Old/歳/歲) 표시
+    - input을 `12`로 변경 → 4언어 모두 미리보기 "12+" 즉시 반영
+    - PNG 다운로드: `15+` 또는 변경값 정확 표시
+    - 배치 모드: 공통 설정 박스에 "연령" input, default `15`. ZIP 4장 모두 "15+" 일관 적용
+    - 회귀: 다른 7 템플릿 단건/배치 무영향, App Store의 다른 3컬럼(평점/랭킹/개발자) 4언어 입력 정상
 
 ## 히스토리
 

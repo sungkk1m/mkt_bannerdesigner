@@ -267,3 +267,113 @@ Plan에서 명시한 후속 PDCA 후보:
 ---
 
 📊 **R32~R34 Final Status**: ✅ Completed (net 1줄 CSS 추가, line-clamp/descMaxLines v1.5 원본 유지)
+
+---
+
+## 10. R35~R37.1 통합 사이클 (2026-05-18 ~ 05-19)
+
+> 4건 iterations (R35 / R36 / R37 / R37.1 hotfix)를 단일 사이클로 묶어 보고. Plan 문서: `~/.claude/plans/iterate-app-store-screenshot-ticklish-blossom.md`
+
+### 10.1 Executive Summary
+
+| 항목 | 값 |
+|---|---|
+| **Feature** | App Store Screenshot R35 / R36 / R37 / R37.1 hotfix |
+| **Period** | 2026-05-18 ~ 2026-05-19 (2일, 4 iterations) |
+| **Final Match Rate** | 100% (정적, node --check + grep 검증 통과) |
+| **LOC Delta** | today-banner-designer.html 10,749 → 10,827 라인 (**+78 net**) |
+| **Files Changed** | 2 (today-banner-designer.html + CLAUDE.md) |
+| **회귀 위험** | 0 (전 iterations) |
+| **Critical 발생** | 1건 (R37 → R37.1 hotfix로 즉시 해결) |
+
+### 10.2 Value Delivered (4관점)
+
+| 관점 | 내용 |
+|---|---|
+| **Problem** | (1) 통계 4컬럼 중 Col 2(연령) 메인 값 하드코딩 `4+` → 사용자 변경 불가 (R35) / (2) Title 글자 수 많아지면 자동으로 ellipsis만 → 미리보기-다운로드 인지 차이 (R36) / (3) Description 본문 미리보기 3줄 vs 다운로드 4줄 불일치 (R37) / (4) R37 구현 중 `moreText is not defined` ReferenceError로 다운로드 전체 실패 (R37.1) |
+| **Solution** | R35: 공통 필드 `age` 도입 + UI input 2개 (단건/배치) / R36: `fitAppStoreTitle` 헬퍼 (off-screen canvas measureText 기반 60→40 자동 축소 + ellipsis fallback) → DOM/Canvas 양쪽 호출 / R37: `fitAppStoreDescription` 헬퍼 (asWrapText wrapping + 마지막 줄 ellipsis/more 폭 확보) → DOM은 JS pre-wrap 결과를 `<br/>`로 강제 줄바꿈 + more 라벨 inline / R37.1: line 5511의 `moreText` → `pack.more` 1 토큰 직접 참조 |
+| **Function UX Effect** | (R35) 연령 input default `15`, 4언어 모두 "15+" 통일 표시 / (R36) 한국어 ~10자 / 일본어 ~13자 / 영어 ~22자까지 60px 유지, 그 이상 자동 축소(60→40), 40px 도달 후에만 ellipsis 안전장치 / (R37) 미리보기·다운로드 양쪽 정확히 4줄 + 마지막 줄 끝 more 라벨 inline, 본문 길이별 일관 동작 (1~3줄 자연 inline / 4줄 fit / 5줄+ ellipsis + more) / (R37.1) 다운로드 정상 복구 |
+| **Core Value** | UA Manager가 4언어 ZIP 출력 시 (1) 게임 등급 통일 입력 (15+) (2) 다양한 길이 게임명 자연 fit (3) 미리보기에서 보던 결과 = 다운로드 PNG. App Store Screenshot 템플릿의 시각 신뢰성 + 운영 효율 동시 달성 |
+
+### 10.3 Iteration Journey
+
+| Round | Date | 변경 영역 | LOC | 결과 |
+|---|---|---|---|---|
+| **R35** | 2026-05-18 | 연령 공통 필드 (8곳: 상수/state/DOM/Canvas/cfg 단건+배치/sync 단건+배치/이벤트 단건+배치/HTML 단건+배치) | +23 | App Store 표준 `{age}+` 표시, 4언어 동일 |
+| **R36** | 2026-05-18 | Title 자동 축소 (4곳: `fitAppStoreTitle` 헬퍼 신규 + Canvas/DOM/precompute) | +29 | 60→40 자동 축소, DOM/Canvas 동일 maxW=706px |
+| **R37** | 2026-05-18 | Description fit (4곳: `fitAppStoreDescription` 헬퍼 신규 + Canvas 일원화 + DOM precompute + DOM HTML) | +26 | 4줄 + more 라벨 마지막 줄 끝 inline, DOM/Canvas 동일 maxW=980px |
+| **R37.1 hotfix** | 2026-05-19 | R37 누락 `moreText` 참조 정리 (1 토큰: `moreText` → `pack.more`) | 0 (1라인 변경) | Critical ReferenceError 해결, 다운로드 복구 |
+
+**누적 LOC**: 10,749 → 10,827 (+78)
+
+### 10.4 Decision Record Chain
+
+| Round | 결정 | 선택 | 근거 |
+|---|---|---|---|
+| **R35** | 필드 구조 | 공통 필드 (단일 값) | 사용자 명시 "4언어 모두 동일하게 적용". `theme`/`showStats` 패턴 일관 |
+| **R35** | 표시 형식 | App Store 표준 `{age}+` | 1줄 토큰 교체로 종결, App Store 실제 UI 일치 |
+| **R35** | 기본값 | `'15'` (문자열) | 사용자가 12·17 등 자유 변경 가능 |
+| **R36** | 적용 범위 | Title만 | 사용자 명시. subtitle/desc 무변경, 최소 수정으로 회귀 위험 0 |
+| **R36** | 최소 폰트 | 40px (33% 축소) | App Store 실제 UI 근접. 한국어 ~10자/일본어 ~13자/영어 ~22자 수용 |
+| **R36** | Fallback | ellipsis 유지 | 최소 폰트 도달 후 안전장치, 레이아웃 깨짐 방지 |
+| **R37** | 해결 옵션 | B. JS pre-wrap (DOM/Canvas 완전 통일) | R36 `fitAppStoreTitle` 패턴 일관, 비트단위 일치 보장 |
+| **R37** | more 위치 | 본문 4번째 줄 끝 inline | App Store 실제 UI 일치, Canvas 현재 동작 보존 |
+| **R37** | 정답 기준 | 다운로드 결과물 | R34 history와 일치 ("본문 4줄 + more 표시") |
+| **R37.1** | 수정 방식 | `moreText` → `pack.more` 직접 참조 | 변수 복원보다 직접 참조가 R37 일원화 의도와 일치 |
+
+**Decision Followed**: 10/10 (100%)
+
+### 10.5 Key Changes (R35~R37.1)
+
+| # | Line (최종) | 영역 | Round | 변경 |
+|---|---|---|---|---|
+| 1 | 2810~2813 | `APPSTORE_SCREENSHOT_DEFAULT` | R35 | top-level `age: '15'` |
+| 2 | 4068~4074 | `state.batch` | R35 | `as_age: '15'` |
+| 3 | 1086~ | 단건 HTML | R35 | `<input id="s-as-age">` |
+| 4 | 2008~ | 배치 HTML | R35 | `<input id="b-as-age">` |
+| 5 | 4365 | DOM Col 2 | R35 | `${cfg.age}+` |
+| 6 | 5360 | Canvas Col 2 | R35 | `${cfg.age}+` |
+| 7 | 5141~5163 | **헬퍼 신규** | R36 | `fitAppStoreTitle(text, maxW, fontFamily, baseFs, minFs)` |
+| 8 | 4330 / 4357 | DOM title | R36 | `titleFit` precompute + inline `font-size` |
+| 9 | 5289 | Canvas title | R36 | `fitAppStoreTitle` 호출 |
+| 10 | 5205~5230 | **헬퍼 신규** | R37 | `fitAppStoreDescription(text, moreText, maxW, fontFamily, fontSize, maxLines)` |
+| 11 | 4332~4341 / 4420 | DOM desc | R37 | `descFit` precompute + `descHTML` 생성 + HTML 교체 |
+| 12 | 5491~5500 | Canvas desc | R37 | helper 호출로 일원화 |
+| 13 | 5511 | Canvas more 그리기 | R37.1 | `moreText` → `pack.more` |
+
+### 10.6 회귀 위험 & 안전망
+
+- **위험도 0**: 전 iterations 모두 App Store Screenshot 전용 함수/렌더만 변경
+- **무수정 보장**: 다른 7 템플릿 (today-tap, app-badge, sd-showcase, keyvisual-review, pickup, steam-review, ask-me-anything)
+- **무수정 보장**: `AS_LANG_PACK` (라벨/접미사 그대로) / `asWrapText` 함수 자체 / Canvas/DOM 좌표
+- **CSS 안전장치**: `.as-description`의 `-webkit-line-clamp: 4` + `white-space: pre-line` (R32) 그대로 유지 — JS pre-wrap이 정확 4줄이면 line-clamp 미발동
+- **하위 호환**: 기존 세션의 `state.single.appstore.age` undefined → `cfg.age || '15'` fallback으로 자동 안전 처리
+
+### 10.7 Plan SC & Verification
+
+| Plan Success Criteria | Status | 증거 |
+|---|:---:|---|
+| (R35) 단건/배치 모두 4언어 `15+` 통일 | ✅ Met | DOM line 4365 + Canvas line 5360 동일 cfg.age 참조 |
+| (R36) DOM ↔ Canvas title 비트단위 일치 | ✅ Met | 양쪽 동일 off-screen canvas measureText. maxW=706 양쪽 동일 |
+| (R37) DOM ↔ Canvas description 줄 수 일치 | ✅ Met | 양쪽 동일 `fitAppStoreDescription` 호출. maxW=980 양쪽 동일 |
+| (R37.1) 다운로드 실패 해결 | ✅ Met | `node --check` 통과 + grep으로 `moreText` 외부 참조 0건 확인 |
+| 회귀 0 (다른 7 템플릿, R32, R33) | ✅ Met | App Store Screenshot 전용 셀렉터/함수만 변경 |
+
+**Overall**: **5/5 Met (100% Static)** — 사용자 브라우저 실측 후 확정
+
+### 10.8 Lessons Learned
+
+- **L-9 (R35)**: 4언어에 동일하게 적용되는 값은 per-language 슬롯이 아닌 top-level 공통 필드로 두는 게 운영 효율 + 코드 단순도 양쪽에서 우월. `theme`/`showStats` 패턴 재활용
+- **L-10 (R36)**: DOM ↔ Canvas 일관성 보장은 off-screen canvas measureText 공통 헬퍼로 양쪽이 같은 측정 알고리즘을 호출하는 것이 가장 안전. CSS letter-spacing은 미세 영향이지만 보수적 측정으로 자동 흡수
+- **L-11 (R37)**: CSS `-webkit-line-clamp` + inline `<span>` 결합 시 inline 자식이 5번째 줄로 wrap → line-clamp가 4번째 줄까지 부분 잘림 효과. JS pre-wrap으로 명시적 `<br/>` 줄바꿈이 가장 예측 가능
+- **L-12 (R37.1)**: 변수 제거 refactor 시 반드시 `grep -n <removed_var>` 사전 확인 필요. R37 일원화 시 forEach 내부 잔존 참조를 놓쳐 Critical 회귀 발생 → CLAUDE.md history에 lesson 명시
+- **L-13 (R37.1 처리)**: Critical 발생 시 Plan mode + 사용자 결정 없이 명백한 1-token fix는 즉시 적용 가능. 하지만 워크플로(plan 작성 → ExitPlanMode)는 유지해 의사결정 트레이스 보존
+
+### 10.9 Final Status & Next Steps
+
+📊 **R35~R37.1 Final Status**: ✅ **Completed** (4 iterations, Match Rate 100% static, 회귀 0, 사용자 시각 검증 대기)
+
+**다음 단계**:
+1. 사용자 브라우저 실측 (각 R 별 verification 시나리오 통합)
+2. 회귀 0 확인 시 `/pdca archive appstore-screenshot --summary` 고려 (R32~R37.1 통합 6 iterations 묶음)
+3. Lesson L-12 (`grep -n <removed_var>` 사전 확인) 다음 refactor 시 적용

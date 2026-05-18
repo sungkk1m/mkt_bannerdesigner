@@ -1082,6 +1082,11 @@
               <input id="s-as-developer" class="input-base text-sm" placeholder="SeungHo" />
             </div>
           </div>
+          <div>
+            <div class="text-[11px] text-gray-400 mb-1">연령 (공통 · 4언어 동일 · "{값}+" 형식)</div>
+            <input id="s-as-age" class="input-base text-sm" type="text" maxlength="3" placeholder="15" value="15" />
+            <p class="text-[10px] text-gray-500 mt-1">예: 12, 15, 17 — 모든 언어에서 동일하게 "15+" 표기 (R35)</p>
+          </div>
           <p class="text-[10px] text-gray-500">통계 영역 전체는 아래 토글로 일괄 숨김 가능</p>
         </div>
 
@@ -1999,6 +2004,11 @@
             <input id="b-as-show-iap" type="checkbox" checked /> IAP 라벨
           </label>
         </div>
+        <div>
+          <div class="field-label">연령 (전 언어 공통 · "{값}+" 형식)</div>
+          <input id="b-as-age" class="input-base text-sm" type="text" maxlength="3" placeholder="15" value="15" />
+          <p class="text-[10px] text-gray-500 mt-1">예: 12, 15, 17 — 모든 언어 ZIP 4장 모두 동일하게 "15+" 표기 (R35)</p>
+        </div>
         <p class="text-[10px] text-gray-500">언어별 텍스트(타이틀·설명·통계 수치)는 위 "언어별 입력" 영역에서 4개 언어 각각 입력</p>
       </div>
 
@@ -2791,14 +2801,16 @@ const APP_BADGE_DEFAULT = {
 };
 
 // v1.5: App Store Screenshot 기본 상태
-// - 공통(언어 무관): theme, 4개 표시 토글, keyart, icon (이미지는 state.single.keyart/icon 재사용)
+// - 공통(언어 무관): theme, 4개 표시 토글, age, keyart, icon (이미지는 state.single.keyart/icon 재사용)
 // - 언어별: title, subtitle, description, rating, ratingCount, ranking, developer
+// - R35 (2026-05-18): age 공통 필드 추가 — App Store 표준 "{age}+" 형식, 4언어 동일 적용, default '15'
 const APPSTORE_SCREENSHOT_DEFAULT = {
   theme: 'dark',          // 'dark' | 'light'
   showStats: true,
   showTabbar: true,
   showCta: true,
   showIap: true,
+  age: '15',              // R35: 게임 등급 — "{age}+" 표준 형식, 4언어 동일 적용
   // 언어별 가변 텍스트 — 4개 언어 슬롯
   langs: {
     'ko':    { title: '', subtitle: '', description: '', rating: '4.8',  ratingCount: '3.8천', ranking: '#2',   developer: 'SeungHo' },
@@ -4053,12 +4065,13 @@ const state = {
     ab_logoScale: 100,
     // v1.4 r7: 로고 Y축 오프셋
     ab_logoY: 0,
-    // v1.5: App Store Screenshot 공통 설정 (테마 + 4개 토글)
+    // v1.5: App Store Screenshot 공통 설정 (테마 + 4개 토글 + R35 age)
     as_theme: 'dark',
     as_showStats: true,
     as_showTabbar: true,
     as_showCta: true,
     as_showIap: true,
+    as_age: '15',                       // R35: 게임 등급 (4언어 동일 적용)
     // 언어별 가변 텍스트는 langOverrides에 통합 저장 (rating/ratingCount/ranking/developer/description 등)
     // v1.6: SD Showcase 공통 설정 (배경색, 외곽선 두께, 픽 토글, 4언어×2사이즈 공유 SD 6슬롯)
     // R5: sd_cellScale 폐기 → sd_slotAdjustPerSize (슬롯별 x/y/scale 사이즈별 분리)
@@ -4313,6 +4326,20 @@ function buildAppStoreScreenshotBanner(cfg) {
     else starsHTML += AS_SVG.starE;
   }
 
+  // R36: Title auto-fit (60→40 + ellipsis fallback) — Canvas와 동일 maxW=706 (1080 - 50 - 242 - 32 - 50)
+  const titleFit = fitAppStoreTitle(cfg.title || 'App Title', 706, asFontFamily(lang), 60, 40);
+
+  // R37: Description fit (DOM/Canvas 일치) — maxW=980 (1080 - 100), fontSize=30, maxLines=4
+  // pre-wrap된 lines를 <br>로 강제 줄바꿈하고 마지막 줄 끝에 more 라벨 inline 추가
+  const descFit = fitAppStoreDescription(cfg.description || 'App description...', pack.more, 980, asFontFamily(lang), 30, 4);
+  const descHTML = descFit.lines.map((line, i) => {
+    const safeLine = escapeHTML(line);
+    if (i === descFit.lines.length - 1) {
+      return safeLine + `<span class="as-description-more">${escapeHTML(pack.more)}</span>`;
+    }
+    return safeLine;
+  }).join('<br/>');
+
   banner.innerHTML = `
     <!-- 1. Status bar -->
     <div class="as-statusbar">
@@ -4338,7 +4365,7 @@ function buildAppStoreScreenshotBanner(cfg) {
           : `<div class="as-icon-placeholder">App Icon</div>`}
       </div>
       <div class="as-app-info-text">
-        <div class="as-title">${escapeHTML(cfg.title || 'App Title')}</div>
+        <div class="as-title" style="font-size: ${titleFit.fontSize}px;">${escapeHTML(titleFit.text)}</div>
         <div class="as-subtitle">${escapeHTML(cfg.subtitle || 'Category')}</div>
         <div class="as-cta-row">
           <button class="as-cta-button" type="button">${escapeHTML(pack.get)}</button>
@@ -4356,7 +4383,7 @@ function buildAppStoreScreenshotBanner(cfg) {
       </div>
       <div class="as-stat">
         <div class="as-stat-top">${escapeHTML(pack.statAge)}</div>
-        <div class="as-stat-mid">4+</div>
+        <div class="as-stat-mid">${escapeHTML(String(cfg.age || '15'))}+</div>
         <div class="as-stat-bot as-stat-age-suffix">${escapeHTML(pack.ageSuffix)}</div>
       </div>
       <div class="as-stat">
@@ -4390,11 +4417,8 @@ function buildAppStoreScreenshotBanner(cfg) {
       <div class="as-device-chevron">${AS_SVG.chevronDown}</div>
     </div>
 
-    <!-- 7. Description -->
-    <div class="as-description">
-      ${escapeHTML(cfg.description || 'App description...')}
-      <span class="as-description-more">${escapeHTML(pack.more)}</span>
-    </div>
+    <!-- 7. Description — R37: JS pre-wrap (DOM/Canvas 일치, more 라벨이 마지막 줄 끝 inline) -->
+    <div class="as-description">${descHTML}</div>
     ${cfg.lang === 'ko' ? `<!-- 7.1 ko-disclaimer-policy O-2 B: KO 고지문구 (description 본문 끝)
     --><div class="as-ko-disclaimer">${escapeHTML(((LANG_PACK.ko && LANG_PACK.ko.disclaimer) || '*확률형 아이템 포함').replace(/^\*/, ''))}</div>` : ''}
 
@@ -5118,6 +5142,36 @@ function asFontFamily(lang) {
   return "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Pretendard', sans-serif";
 }
 
+// R36 (2026-05-18): App Store Screenshot title 자동 폰트 축소 + ellipsis fallback
+// - DOM/Canvas 양쪽에서 호출하여 일관된 결과 보장 (off-screen canvas measureText 공통 사용)
+// - 60 → 40 자동 축소(2px step), 최소 폰트 도달 후에도 넘치면 ellipsis(…) 안전장치
+// - 반환: { fontSize, text } — Canvas는 양쪽 사용, DOM은 inline style + textContent에 적용
+function fitAppStoreTitle(text, maxW, fontFamily, baseFs, minFs) {
+  baseFs = baseFs || 60;
+  minFs  = minFs  || 40;
+  const t = String(text || '');
+  if (!t) return { fontSize: baseFs, text: t };
+  if (!fitAppStoreTitle._ctx) {
+    fitAppStoreTitle._ctx = document.createElement('canvas').getContext('2d');
+  }
+  const c = fitAppStoreTitle._ctx;
+  let fs = baseFs;
+  c.font = `700 ${fs}px ${fontFamily}`;
+  while (c.measureText(t).width > maxW && fs > minFs) {
+    fs -= 2;
+    c.font = `700 ${fs}px ${fontFamily}`;
+  }
+  // 최소 폰트에 도달했는데도 초과하면 ellipsis fallback
+  if (c.measureText(t).width > maxW) {
+    let dt = t;
+    while (c.measureText(dt + '…').width > maxW && dt.length > 0) {
+      dt = dt.slice(0, -1);
+    }
+    return { fontSize: fs, text: dt + '…' };
+  }
+  return { fontSize: fs, text: t };
+}
+
 // 텍스트 줄바꿈 — 단어 단위 wrap, 최대 maxLines 줄. CJK 문자도 단어처럼 처리.
 function asWrapText(ctx, text, maxWidth, maxLines) {
   const lines = [];
@@ -5141,6 +5195,34 @@ function asWrapText(ctx, text, maxWidth, maxLines) {
     if (cur.length > 0 && lines.length < maxLines) lines.push(cur);
   }
   return lines;
+}
+
+// R37 (2026-05-18): App Store Screenshot description wrap + more 라벨 폭 확보 헬퍼
+// - DOM/Canvas 양쪽에서 호출하여 일관된 결과 보장 (R36 fitAppStoreTitle과 동일 패턴)
+// - 1) asWrapText로 maxLines 줄 wrap
+// - 2) lines.length === maxLines이면 마지막 줄에 ellipsis(…) + more 라벨 폭 확보 (Canvas 기존 로직 흡수)
+// - 반환: { lines: string[], lastLineHasEllipsis: bool } — 호출자는 마지막 줄 끝에 more 라벨 inline 추가
+function fitAppStoreDescription(text, moreText, maxW, fontFamily, fontSize, maxLines) {
+  if (!fitAppStoreDescription._ctx) {
+    fitAppStoreDescription._ctx = document.createElement('canvas').getContext('2d');
+  }
+  const c = fitAppStoreDescription._ctx;
+  c.font = `400 ${fontSize}px ${fontFamily}`;
+  const lines = asWrapText(c, text || '', maxW, maxLines);
+  let lastLineHasEllipsis = false;
+  if (lines.length === maxLines) {
+    const moreW = c.measureText('  ' + (moreText || '')).width;
+    let last = lines[lines.length - 1];
+    let lastTrunc = last;
+    while (c.measureText(lastTrunc + '… ').width + moreW > maxW && lastTrunc.length > 0) {
+      lastTrunc = lastTrunc.slice(0, -1);
+    }
+    if (lastTrunc !== last) {
+      lines[lines.length - 1] = lastTrunc + '…';
+      lastLineHasEllipsis = true;
+    }
+  }
+  return { lines, lastLineHasEllipsis };
 }
 
 async function prepAppStoreCfgImages(cfg) {
@@ -5239,17 +5321,13 @@ async function buildAppStoreScreenshotCanvas(cfg) {
   const blockH = titleH + 4 + subH + 18 + ctaH;
   const blockTop = iconY + (iconSize - blockH) / 2;
 
-  // Title (single line, ellipsis) — 10% 상향 (54 → 60)
+  // Title — R36: auto-fit 60→40 + ellipsis fallback (DOM/Canvas 동일 알고리즘)
+  const titleFit = fitAppStoreTitle(cfg.title || 'App Title', txMaxW, family, 60, 40);
   ctx.fillStyle = theme.textPrimary;
-  ctx.font = `700 60px ${family}`;
+  ctx.font = `700 ${titleFit.fontSize}px ${family}`;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
-  let dt = cfg.title || 'App Title';
-  if (ctx.measureText(dt).width > txMaxW) {
-    while (ctx.measureText(dt + '…').width > txMaxW && dt.length > 0) dt = dt.slice(0, -1);
-    dt = dt + '…';
-  }
-  ctx.fillText(dt, txX, blockTop);
+  ctx.fillText(titleFit.text, txX, blockTop);
 
   // Subtitle
   ctx.fillStyle = theme.textSecondary;
@@ -5344,10 +5422,10 @@ async function buildAppStoreScreenshotCanvas(cfg) {
       if (img) ctx.drawImage(img, stX + i * (sw + sg), stY, sw, sw);
     }
 
-    // Col 2: AGE / 4+ / suffix
+    // Col 2: AGE / {age}+ / suffix  — R35: cfg.age 사용 (4언어 공통, default '15')
     const c2x = colW * 1.5;
     drawLabel(pack.statAge, c2x, labelTop);
-    drawValue('4+', c2x, valueTop);
+    drawValue(`${String(cfg.age || '15')}+`, c2x, valueTop);
     drawBot(pack.ageSuffix, c2x, valueTop + 38 + 6, 18);
 
     // Col 3: ranking icon + #N
@@ -5410,7 +5488,7 @@ async function buildAppStoreScreenshotCanvas(cfg) {
   ctx.fillRect(50, devEnd, W - 100, 1);
   y = devEnd;
 
-  // [7] Description (~4 lines clamp + "more")
+  // [7] Description (~4 lines clamp + "more") — R37: fitAppStoreDescription 헬퍼로 DOM/Canvas 일원화
   const descTop = 20;
   const descX = 50;
   const descMaxW = W - 100;
@@ -5419,18 +5497,8 @@ async function buildAppStoreScreenshotCanvas(cfg) {
   ctx.fillStyle = theme.textPrimary;
   ctx.font = `400 30px ${family}`;
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  const descLines = asWrapText(ctx, cfg.description || '', descMaxW, descMaxLines);
-  const moreText = pack.more;
-  ctx.font = `400 30px ${family}`;
-  const moreW = ctx.measureText('  ' + moreText).width;
-  if (descLines.length === descMaxLines) {
-    let last = descLines[descLines.length - 1];
-    let lastTrunc = last;
-    while (ctx.measureText(lastTrunc + '… ').width + moreW > descMaxW && lastTrunc.length > 0) {
-      lastTrunc = lastTrunc.slice(0, -1);
-    }
-    if (lastTrunc !== last) descLines[descLines.length - 1] = lastTrunc + '…';
-  }
+  const descFit = fitAppStoreDescription(cfg.description || '', pack.more, descMaxW, family, 30, descMaxLines);
+  const descLines = descFit.lines;
   const descTopY = y + descTop;
   descLines.forEach((line, i) => {
     ctx.fillStyle = theme.textPrimary;
@@ -5440,7 +5508,7 @@ async function buildAppStoreScreenshotCanvas(cfg) {
     if (i === descLines.length - 1) {
       const ww = ctx.measureText(line + '  ').width;
       ctx.fillStyle = theme.link;
-      ctx.fillText(moreText, descX + ww, descTopY + i * descLineH);
+      ctx.fillText(pack.more, descX + ww, descTopY + i * descLineH);
     }
   });
 
@@ -7582,10 +7650,12 @@ function bindSingleMode() {
   });
 
   // v1.5: App Store Screenshot 컨트롤 — 입력 변경 시 sync + 미리보기 갱신
+  // R35: 's-as-age' 추가 (4언어 공통 연령 필드)
   const asInputIds = [
     's-as-theme', 's-as-title', 's-as-subtitle', 's-as-description',
     's-as-rating', 's-as-rating-count', 's-as-ranking', 's-as-developer',
     's-as-show-stats', 's-as-show-tabbar', 's-as-show-cta', 's-as-show-iap',
+    's-as-age',
   ];
   asInputIds.forEach(id => {
     const el = document.getElementById(id);
@@ -8967,6 +9037,9 @@ function syncSingleAppStoreFromUI() {
   if (showTabbar) as.showTabbar = showTabbar.checked;
   if (showCta)    as.showCta    = showCta.checked;
   if (showIap)    as.showIap    = showIap.checked;
+  // R35: 연령 공통 필드 (4언어 동일 적용)
+  const ageEl = document.getElementById('s-as-age');
+  if (ageEl) as.age = ageEl.value;
   const lang = state.single.lang;
   as.langs[lang] = as.langs[lang] || {};
   const slot = as.langs[lang];
@@ -9075,6 +9148,7 @@ function buildAppStoreScreenshotCfg(stateObj) {
     showTabbar: as.showTabbar !== false,
     showCta:    as.showCta    !== false,
     showIap:    as.showIap    !== false,
+    age:        as.age || '15',         // R35: 게임 등급 공통 필드
     icon:    stateObj.icon    || null,
     keyart:  stateObj.keyart  || null,
     title:        langSlot.title        || '',
@@ -9481,8 +9555,8 @@ function bindBatchMode() {
     syncBatchStateFromUI();
   });
 
-  // v1.5: 배치 App Store Screenshot 공통 설정 (테마 + 4개 토글)
-  const asInputIds = ['b-as-theme', 'b-as-show-stats', 'b-as-show-tabbar', 'b-as-show-cta', 'b-as-show-iap'];
+  // v1.5: 배치 App Store Screenshot 공통 설정 (테마 + 4개 토글 + R35 age)
+  const asInputIds = ['b-as-theme', 'b-as-show-stats', 'b-as-show-tabbar', 'b-as-show-cta', 'b-as-show-iap', 'b-as-age'];
   asInputIds.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -9744,17 +9818,19 @@ function syncBatchStateFromUI() {
   const abOp = document.getElementById('b-ab-bgopacity');
   if (abOp) state.batch.ab_bgOpacity = parseInt(abOp.value, 10);
 
-  // v1.5: App Store Screenshot 공통 설정 (테마 + 4개 토글)
+  // v1.5: App Store Screenshot 공통 설정 (테마 + 4개 토글 + R35 age)
   const asTheme    = document.getElementById('b-as-theme');
   const asShowSt   = document.getElementById('b-as-show-stats');
   const asShowTab  = document.getElementById('b-as-show-tabbar');
   const asShowCta  = document.getElementById('b-as-show-cta');
   const asShowIap  = document.getElementById('b-as-show-iap');
+  const asAge      = document.getElementById('b-as-age');     // R35
   if (asTheme)   state.batch.as_theme      = asTheme.value;
   if (asShowSt)  state.batch.as_showStats  = asShowSt.checked;
   if (asShowTab) state.batch.as_showTabbar = asShowTab.checked;
   if (asShowCta) state.batch.as_showCta    = asShowCta.checked;
   if (asShowIap) state.batch.as_showIap    = asShowIap.checked;
+  if (asAge)     state.batch.as_age        = asAge.value;     // R35
 
   // v1.6 + R5: SD Showcase 공통 설정 (배경색, 외곽선 두께, 픽 토글, r2 spacing) — cellScale은 R5 폐기
   const sdsBg     = document.getElementById('b-sds-bgcolor');
@@ -10257,6 +10333,7 @@ function buildBatchCfgs() {
         showTabbar: state.batch.as_showTabbar !== false,
         showCta:    state.batch.as_showCta    !== false,
         showIap:    state.batch.as_showIap    !== false,
+        age:        state.batch.as_age        || '15',   // R35: 4언어 동일 적용
         icon:   state.batch.icon,
         keyart: state.batch.keyart,
         title:        langOverride.as_title       || '',
