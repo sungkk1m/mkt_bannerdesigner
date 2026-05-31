@@ -686,6 +686,14 @@
     --as-stat-value: #6e6e73;
   }
 
+  /* v1.11: Google Play Screenshot — Canvas→img 단일소스 wrapper (9:16 / 4:5, padding 0으로 full-bleed) */
+  .banner.tmpl-google-play-screenshot.size-9x16 {
+    width: 1080px; height: 1920px; padding: 0; overflow: hidden;
+  }
+  .banner.tmpl-google-play-screenshot.size-4x5 {
+    width: 1080px; height: 1350px; padding: 0; overflow: hidden;
+  }
+
   /* Container — 9:16 only (1080×1920) */
   .banner.tmpl-appstore-screenshot.size-9x16 {
     width: 1080px; height: 1920px; padding: 0;
@@ -919,6 +927,7 @@
         <option value="pickup">Pickup</option>
         <option value="steam-review">Steam Review</option>
         <option value="ask-me-anything">Ask Me Anything (무물보)</option>
+        <option value="google-play-screenshot">Google Play Screenshot</option>
       </select>
     </div>
     <div class="flex items-center gap-1">
@@ -939,6 +948,7 @@
           <select id="s-size" class="input-base">
             <option value="1x1">1:1 (1080×1080)</option>
             <option value="9x16">9:16 (1080×1920)</option>
+            <option value="4x5">4:5 (1080×1350)</option>
             <option value="1200x628">1200×628 (가로)</option>
           </select>
         </div>
@@ -1648,14 +1658,95 @@
         <p class="text-[11px] text-gray-500">* 1080×1920 (9:16) 전용 · 헤더 라벨 = 언어별 고정 · 질문 + 자막 = 언어별 편집 · 질문 박스(card)와 자막 박스 = 4언어 공통 슬라이더 (X/Y/Scale + 폰트 별도) · KO 한정 우하단 "*확률형 아이템 포함" 자동 노출 (z-order TOPMOST, 키비주얼 위)</p>
       </div>
 
+      <!-- v1.11: Google Play Screenshot 단건 패널 -->
+      <div class="space-y-3" data-tmpl="google-play-screenshot" style="display:none;">
+        <div>
+          <div class="field-label">테마</div>
+          <select id="s-gp-theme" class="input-base">
+            <option value="dark">다크 (Dark)</option>
+            <option value="light">라이트 (Light)</option>
+          </select>
+          <p class="text-[11px] text-gray-500 mt-1">* 1080×1920 (9:16) 전용 · 배치 모드는 4언어 × 2테마 = 8장 자동 생성</p>
+        </div>
+        <!-- 앱 아이콘 dropzone (표준 구조: input + remove 필수) -->
+        <div>
+          <div class="field-label">앱 아이콘 (정사각 권장)</div>
+          <div id="s-gp-icon" class="dropzone" data-target="gp-icon">
+            <p class="text-sm">클릭 또는 파일을 여기에 드롭</p>
+            <p class="text-[11px] mt-1">앱 아이콘 (정사각 권장) · 둥근 모서리 자동 적용</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+        </div>
+        <!-- 키비주얼 dropzone + 슬라이더 -->
+        <div>
+          <div class="field-label">키비주얼 (사전등록 버튼 하단, 16:9 권장)</div>
+          <div id="s-gp-keyvisual" class="dropzone" data-target="gp-keyvisual">
+            <p class="text-sm">클릭 또는 파일을 여기에 드롭</p>
+            <p class="text-[11px] mt-1">키비주얼 (16:9 권장) · cover-fit + 슬라이더 미세조정</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <div>
+              <div class="field-label">크기 (<span id="s-gp-kv-scale-label">100</span>%)</div>
+              <input id="s-gp-kv-scale" type="range" min="50" max="250" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">좌우 (<span id="s-gp-kv-x-label">0</span>px)</div>
+              <input id="s-gp-kv-x" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">상하 (<span id="s-gp-kv-y-label">0</span>px)</div>
+              <input id="s-gp-kv-y" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+          </div>
+        </div>
+        <!-- 텍스트 (개발사명 = 4언어 공통 / 게임명·소개·태그 = 언어별) -->
+        <div class="border border-[#262932] rounded-lg p-3 space-y-2">
+          <p class="text-xs font-semibold text-gray-300">텍스트 (개발사명 = 4언어 공통 · 게임명/소개/태그 = 언어별 저장)</p>
+          <div>
+            <div class="field-label">개발사명 (4언어 공통)</div>
+            <input id="s-gp-developer" class="input-base" value="SuperPlanet" />
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <div class="field-label">연령 등급 (숫자, 4언어 공통)</div>
+              <input id="s-gp-age" class="input-base" value="15" placeholder="15" />
+            </div>
+            <div>
+              <div class="field-label">Play Points (비우면 숨김)</div>
+              <input id="s-gp-playpoints" class="input-base" value="100" placeholder="100" />
+            </div>
+          </div>
+          <div>
+            <div class="field-label">게임명</div>
+            <input id="s-gp-gamename" class="input-base" placeholder="게임명" />
+          </div>
+          <div>
+            <div class="field-label">게임 소개 (5줄까지 표시, Enter로 줄바꿈)</div>
+            <textarea id="s-gp-description" class="input-base" rows="4" placeholder="게임 소개 본문 (5줄 초과 시 자동 ellipsis)"></textarea>
+          </div>
+          <div>
+            <div class="field-label">태그 (최대 3개 · KO는 2개 입력 + 마지막 자동 "확률형 아이템 포함")</div>
+            <div class="grid grid-cols-3 gap-2">
+              <input id="s-gp-tag-0" class="input-base text-sm" placeholder="태그 1" />
+              <input id="s-gp-tag-1" class="input-base text-sm" placeholder="태그 2" />
+              <input id="s-gp-tag-2" class="input-base text-sm" placeholder="태그 3" />
+            </div>
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-500">* 사전 등록 버튼 = 라일락 고정 · 개발사명 = 파란 링크색 · 하단 탭바(게임/앱/검색/도서) 자동 · 연령/데이터 보안 영역 제외</p>
+      </div>
+
       <!-- 공통: 고지 문구 (Today Tap / App Badge 만 사용) -->
-      <div data-tmpl-hide="appstore-screenshot,sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything">
+      <div data-tmpl-hide="appstore-screenshot,sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything,google-play-screenshot">
         <div class="field-label">고지 문구 (우상단, 비우면 미표시)</div>
         <input id="s-disclaimer" class="input-base" value="*확률형 아이템 포함" />
         <p class="text-[11px] text-gray-500 mt-1">언어 변경 시 자동으로 기본값이 채워집니다 (한국어만 기본값 존재)</p>
       </div>
 
-      <div class="space-y-3" data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything">
+      <div class="space-y-3" data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything,google-play-screenshot">
         <!-- App Badge 전용: 게임 로고(BI) 업로드 -->
         <div data-tmpl="app-badge" style="display:none;">
           <div class="field-label">게임 로고 / BI (투명 PNG 권장)</div>
@@ -1824,6 +1915,7 @@
           <!-- r3 FR-18: 기본 체크 1:1 + 1200x628 (9:16은 unchecked) -->
           <label class="check-pill selected"><input type="checkbox" class="b-size" value="1x1" checked /> 1:1 (1080×1080)</label>
           <label class="check-pill"><input type="checkbox" class="b-size" value="9x16" /> 9:16 (1080×1920)</label>
+          <label class="check-pill"><input type="checkbox" class="b-size" value="4x5" /> 4:5 (1080×1350)</label>
           <label class="check-pill selected" style="grid-column: span 2;"><input type="checkbox" class="b-size" value="1200x628" checked /> 1200×628 (가로)</label>
         </div>
         <p class="text-[10px] text-gray-500 mt-2">템플릿은 상단 헤더 드롭다운에서 선택 (단건·배치 공통)</p>
@@ -1897,7 +1989,7 @@
             <input id="b-ab-logo-y" type="range" min="-200" max="200" step="1" value="0" class="w-full" />
           </div>
         </div>
-        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything">
+        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything,google-play-screenshot">
           <div class="field-label" id="b-keyart-label">키아트 / 배경 이미지</div>
           <div id="b-drop-keyart" class="dropzone" data-target="b-keyart">
             <p class="text-sm">클릭 또는 드롭</p>
@@ -1916,7 +2008,7 @@
             <button class="dropzone-remove" title="제거">×</button>
           </div>
         </div>
-        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything">
+        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything,google-play-screenshot">
           <div class="field-label">앱 아이콘</div>
           <div id="b-drop-icon" class="dropzone" data-target="b-icon">
             <p class="text-sm">클릭 또는 드롭</p>
@@ -2487,6 +2579,61 @@
         <p class="text-[10px] text-gray-500">* 1080×1920 (9:16) 전용 · 4언어 텍스트(질문/자막)는 아래 언어별 입력란에서 따로 입력 · 헤더 라벨은 언어별 고정 (편집 불가) · 질문 박스(card)와 자막 박스 = 4언어 공통 슬라이더 (X/Y/Scale + 폰트 별도) · KO 한정 우하단 "*확률형 아이템 포함" 자동 노출</p>
       </div>
 
+      <!-- v1.11: Google Play Screenshot 배치 공통 설정 (단건과 별도 슬롯) -->
+      <div class="border border-[#262932] rounded-lg p-3 space-y-3" data-tmpl="google-play-screenshot" style="display:none;">
+        <p class="text-xs font-semibold text-gray-300">Google Play Screenshot 공통 설정 (배치 전용 — 단건과 별도 슬롯)</p>
+        <p class="text-[11px] text-gray-500">* 배치는 4언어 × 2테마(다크+라이트) = 8장 자동 생성 · 게임명/소개/태그는 아래 언어별 입력란에서 입력</p>
+        <!-- 앱 아이콘 (4언어 공통) -->
+        <div>
+          <div class="field-label">앱 아이콘 (4언어 공통, 정사각 권장)</div>
+          <div id="b-gp-icon" class="dropzone" data-target="b-gp-icon">
+            <p class="text-sm">클릭 또는 드롭</p>
+            <p class="text-[11px] mt-1">앱 아이콘 (4언어 공통) · 둥근 모서리 자동 적용</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+        </div>
+        <!-- 키비주얼 (4언어 공통) + 슬라이더 -->
+        <div>
+          <div class="field-label">키비주얼 (4언어 공통, 16:9 권장)</div>
+          <div id="b-gp-keyvisual" class="dropzone" data-target="b-gp-keyvisual">
+            <p class="text-sm">클릭 또는 드롭</p>
+            <p class="text-[11px] mt-1">키비주얼 (4언어 공통) · cover-fit + 슬라이더 미세조정</p>
+            <input type="file" accept="image/*" class="hidden" />
+            <button class="dropzone-remove" title="제거">×</button>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <div>
+              <div class="field-label">크기 (<span id="b-gp-kv-scale-label">100</span>%)</div>
+              <input id="b-gp-kv-scale" type="range" min="50" max="250" step="1" value="100" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">좌우 (<span id="b-gp-kv-x-label">0</span>px)</div>
+              <input id="b-gp-kv-x" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+            <div>
+              <div class="field-label">상하 (<span id="b-gp-kv-y-label">0</span>px)</div>
+              <input id="b-gp-kv-y" type="range" min="-500" max="500" step="5" value="0" class="w-full" />
+            </div>
+          </div>
+        </div>
+        <!-- 개발사명 / 연령 / Play Points (4언어 공통) -->
+        <div>
+          <div class="field-label">개발사명 (4언어 공통)</div>
+          <input id="b-gp-developer" class="input-base" value="SuperPlanet" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <div class="field-label">연령 등급 (숫자)</div>
+            <input id="b-gp-age" class="input-base" value="15" placeholder="15" />
+          </div>
+          <div>
+            <div class="field-label">Play Points (비우면 숨김)</div>
+            <input id="b-gp-playpoints" class="input-base" value="100" placeholder="100" />
+          </div>
+        </div>
+      </div>
+
       <!-- Today Tap 전용: 오버플로우 위치 조정 -->
       <div class="border border-[#262932] rounded-lg p-3 space-y-2" data-tmpl="today-tap">
         <div class="flex items-center justify-between">
@@ -2638,7 +2785,7 @@ const AS_LANG_PACK = {
 // v1.5: + appstore-screenshot 추가 (App Store Connect 스크린샷 모방)
 // v1.6: + sd-showcase 추가 (SD 캐릭터 6장 쇼케이스 배너, 1200×628 + 1080×1080)
 // ===========================================================================
-const TEMPLATE_KEYS = ['today-tap', 'app-badge', 'appstore-screenshot', 'sd-showcase', 'keyvisual-review', 'pickup', 'steam-review', 'ask-me-anything'];
+const TEMPLATE_KEYS = ['today-tap', 'app-badge', 'appstore-screenshot', 'sd-showcase', 'keyvisual-review', 'pickup', 'steam-review', 'ask-me-anything', 'google-play-screenshot'];
 
 // 헤드라인 프리셋 (언어별 기본 문구) — 사용자 custom 선택 시 비활성
 // v1.3 r2 Gap G1: 기본값은 단일 라인 (레퍼런스 일치, 1:1 / 9:16)
@@ -2764,6 +2911,7 @@ const BADGE_ASSETS = {
 const SIZE_PACK = {
   '1x1':      { w: 1080, h: 1080, label: '1:1' },
   '9x16':     { w: 1080, h: 1920, label: '9:16' },
+  '4x5':      { w: 1080, h: 1350, label: '4:5' },  // v1.11: Google Play Screenshot 전용
   '1200x628': { w: 1200, h: 628,  label: '1200×628' },
 };
 
@@ -3798,6 +3946,286 @@ const AMA_CANVAS = {
   disclaimer: { rightMargin: 60, baseline: 1900, fs: 22, color: '#666' },
 };
 
+// ===========================================================================
+// v1.11: Google Play Screenshot 템플릿 — Design Ref: ~/.claude/plans/plan-plus-google-play-declarative-pie.md
+// 구조 미러: ask-me-anything (9:16 전용 + Canvas→img 단일소스 + 배치 per-lang)
+// 시각 미러: appstore-screenshot (모바일 chrome Canvas 드로잉)
+// ROOT CAUSE 가드: dropzone HTML에 <input type="file"> + .dropzone-remove 필수 (§17)
+// ===========================================================================
+
+// §7: 자동 번역 8 라벨 (4언어)
+const GOOGLE_PLAY_LANG_PACK = {
+  'ko':    { comingSoon: '제공 예정',    preRegister: '사전 등록',    install: '설치',     aboutGame: '게임 소개',         tabGames: '게임',  tabApps: '앱',        tabSearch: '검색', tabBooks: '도서', tabProfile: '내 페이지', inApp: '인앱 구매', koDisclaimer: '확률형 아이템 포함', label: '한국어' },
+  'en':    { comingSoon: 'Coming soon',  preRegister: 'Pre-register', install: 'Install',  aboutGame: 'About this game',    tabGames: 'Games', tabApps: 'Apps',      tabSearch: 'Search', tabBooks: 'Books', tabProfile: 'You', inApp: 'In-app purchases', koDisclaimer: '', label: 'English' },
+  'ja':    { comingSoon: '近日提供予定',  preRegister: '事前登録',     install: 'インストール', aboutGame: 'このゲームについて', tabGames: 'ゲーム', tabApps: 'アプリ',    tabSearch: '検索', tabBooks: '書籍', tabProfile: 'マイページ', inApp: 'アプリ内購入', koDisclaimer: '', label: '日本語' },
+  'zh-TW': { comingSoon: '即將推出',     preRegister: '預先登錄',     install: '安裝',     aboutGame: '關於這款遊戲',      tabGames: '遊戲',  tabApps: '應用程式',  tabSearch: '搜尋', tabBooks: '圖書', tabProfile: '我的頁面', inApp: '應用程式內購買', koDisclaimer: '', label: '繁體中文' },
+};
+
+// §6: 색상 토큰 (다크/라이트) — lilacCTA는 양 테마 동일 유지
+const GOOGLE_PLAY_THEMES = {
+  dark: {
+    bg: '#0E0E10', surface: '#1F1F1F', text: '#E6E6E6', subtext: '#9AA0A6',
+    linkBlue: '#A8C7FA', lilacCTA: '#A8C7FA', ctaText: '#062E6F',  // R4: 설치버튼 bg=primary80, 텍스트/시계=짙은 파랑(onPrimary)
+    tagBorder: '#5F6368', divider: '#2A2A2D', statusbarIcon: '#E6E6E6',
+    ptsBg: '#1A73E8', ptsText: '#FFFFFF',  // R3: Play Points pill (파란 bg + 흰 숫자, 레퍼런스 정합)
+  },
+  light: {
+    bg: '#FFFFFF', surface: '#F8F9FA', text: '#1F1F1F', subtext: '#5F6368',
+    linkBlue: '#1F71E7', lilacCTA: '#A8C7FA', ctaText: '#062E6F',  // R4: 설치버튼 (공통)
+    tagBorder: '#DADCE0', divider: '#E8EAED', statusbarIcon: '#1F1F1F',
+    ptsBg: '#1A73E8', ptsText: '#FFFFFF',  // R3: Play Points pill (공통 파랑)
+  },
+};
+
+// SVG 아이콘 정의 (canvas용 __C__ 색상 토큰 치환 — App Store AS_ICON_DEFS 패턴, GP 격리)
+const GP_ICON_DEFS = {
+  // 상태바 (App Store AS_ICON_DEFS 형태 복제 — battery는 저전력(빨강 슬라이버) 그대로)
+  signal:  { w: 46, h: 28, body: '<rect x="0" y="18" width="8" height="10" rx="2"/><rect x="11" y="13" width="8" height="15" rx="2"/><rect x="22" y="7" width="8" height="21" rx="2"/><rect x="33" y="0" width="8" height="28" rx="2"/>' },
+  wifi:    { w: 38, h: 28, body: '<path d="M19 2C11 2 4 5 0 9l3 4c4-3 9-5 16-5s12 2 16 5l3-4c-4-4-11-7-19-7zm0 8c-5 0-10 2-13 5l3 4c2-2 6-3 10-3s8 1 10 3l3-4c-3-3-8-5-13-5zm0 8c-3 0-5 1-7 2l4 5c1-1 2-2 3-2s2 1 3 2l4-5c-2-1-4-2-7-2z"/>' },
+  // R1: App Store 템플릿의 낮은 배터리 UI 그대로 (외곽선 + 우측 nub + 좌측 빨강 슬라이버)
+  battery: { w: 50, h: 26, body: '<rect x="1" y="1" width="42" height="24" rx="6" fill="none" stroke="__C__" stroke-width="2" opacity="0.55"/><rect x="44" y="9" width="3" height="8" rx="1.5"/><rect x="4" y="4" width="1.8" height="18" rx="3" fill="#FF3B30"/>' },
+  // 헤더: ← 뒤로 / ⋮ 메뉴
+  back:    { w: 48, h: 48, body: '<path d="M26 10L12 24l14 14" fill="none" stroke="__C__" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="13" y1="24" x2="40" y2="24" stroke="__C__" stroke-width="3.5" stroke-linecap="round"/>' },
+  menu:    { w: 48, h: 48, body: '<circle cx="24" cy="11" r="3.4"/><circle cx="24" cy="24" r="3.4"/><circle cx="24" cy="37" r="3.4"/>' },
+  // 게임 소개 헤딩 우측 → 화살표 (원형 배경 위)
+  arrowRight: { w: 48, h: 48, body: '<path d="M20 14l10 10-10 10" fill="none" stroke="__C__" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' },
+  // 앱정보 메타 행: 달력(제공예정) + info(ⓘ)
+  calendar: { w: 40, h: 40, body: '<rect x="6" y="9" width="28" height="25" rx="4" fill="none" stroke="__C__" stroke-width="2.6"/><line x1="6" y1="16" x2="34" y2="16" stroke="__C__" stroke-width="2.6"/><line x1="13" y1="5" x2="13" y2="12" stroke="__C__" stroke-width="2.6" stroke-linecap="round"/><line x1="27" y1="5" x2="27" y2="12" stroke="__C__" stroke-width="2.6" stroke-linecap="round"/>' },
+  info:     { w: 32, h: 32, body: '<circle cx="16" cy="16" r="13" fill="none" stroke="__C__" stroke-width="2"/><circle cx="16" cy="10" r="1.8"/><rect x="14.4" y="14" width="3.2" height="10" rx="1.6"/>' },
+  // 하단 탭바 5종 (게임=컨트롤러 / 앱=격자 / 검색=돋보기 / 도서=책 / 내페이지=사람)
+  tabGames:  { w: 48, h: 48, body: '<rect x="6" y="16" width="36" height="20" rx="10" fill="none" stroke="__C__" stroke-width="2.6"/><line x1="15" y1="22" x2="15" y2="30" stroke="__C__" stroke-width="2.6" stroke-linecap="round"/><line x1="11" y1="26" x2="19" y2="26" stroke="__C__" stroke-width="2.6" stroke-linecap="round"/><circle cx="32" cy="23" r="2.4"/><circle cx="37" cy="29" r="2.4"/>' },
+  tabApps:   { w: 48, h: 48, body: '<rect x="8" y="8" width="14" height="14" rx="3"/><rect x="26" y="8" width="14" height="14" rx="3"/><rect x="8" y="26" width="14" height="14" rx="3"/><rect x="26" y="26" width="14" height="14" rx="3"/>' },
+  tabSearch: { w: 48, h: 48, body: '<circle cx="21" cy="21" r="12" fill="none" stroke="__C__" stroke-width="3"/><line x1="30" y1="30" x2="40" y2="40" stroke="__C__" stroke-width="3" stroke-linecap="round"/>' },
+  tabBooks:  { w: 48, h: 48, body: '<path d="M24 12c-3-2-8-3-13-3v28c5 0 10 1 13 3z" fill="none" stroke="__C__" stroke-width="2.6" stroke-linejoin="round"/><path d="M24 12c3-2 8-3 13-3v28c-5 0-10 1-13 3z" fill="none" stroke="__C__" stroke-width="2.6" stroke-linejoin="round"/>' },
+  tabProfile:{ w: 48, h: 48, body: '<circle cx="24" cy="17" r="8" fill="none" stroke="__C__" stroke-width="2.6"/><path d="M10 40c0-8 6-13 14-13s14 5 14 13" fill="none" stroke="__C__" stroke-width="2.6" stroke-linecap="round"/>' },
+  // 사전예약 CTA 시계 아이콘 (설치 버튼 좌측)
+  clock:     { w: 40, h: 40, body: '<circle cx="20" cy="20" r="15" fill="none" stroke="__C__" stroke-width="3"/><path d="M20 11v9l6 4" fill="none" stroke="__C__" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' },
+};
+
+function buildGpIconUrl(key, color) {
+  const def = GP_ICON_DEFS[key];
+  if (!def) return '';
+  const body = def.body.replace(/__C__/g, color);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${def.w}" height="${def.h}" viewBox="0 0 ${def.w} ${def.h}" fill="${color}">${body}</svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+// 연령 라벨 (언어별)
+function gpAgeText(lang, age) {
+  const n = String(age || '15');
+  if (lang === 'en')    return `Rated ${n}+`;
+  if (lang === 'ja')    return `${n}歳以上`;
+  if (lang === 'zh-TW') return `${n}歲以上`;
+  return `${n}세 이상`;
+}
+
+// R1: 좌표를 사이즈별로 분기 (9:16 / 4:5). 실제 Google Play 레이아웃 (개발사 위 → 대형 제목 → 메타 행).
+// Z Flip5(~22:9) 레퍼런스의 늘어난 간격을 복제하지 않고 표준 비율 컴팩트 좌표 사용. 다크/라이트 동일 좌표.
+const GP_LAYOUT = {
+  '9x16': {
+    W: 1080, H: 1920,
+    statusBar: { timeX: 44, timeY: 34, timeFs: 30, rightX: 1036 },
+    header:    { y: 64, h: 100, backX: 40, backSize: 44, menuX: 1012, menuSize: 40, ptsH: 56, ptsFs: 30 },
+    dev:       { x: 44, y: 188, fs: 36 },
+    // R3: 단일줄 오토핏 (base 96 → min 60, 초과 시 ellipsis). lineH/maxLines는 미사용.
+    title:     { x: 44, y: 232, fs: 96, minFs: 60, lineH: 88, maxLines: 2 },
+    // R3: 아이콘 +40 (168→208), 바닥(578) 고정 → y 410→370 (위로 확장). 메타는 우측 단일 가로행.
+    metaRow:   { y: 370, iconX: 44, iconSize: 208, iconR: 44, labelFs: 30, colGap: 36 },
+    cta:       { x: 44, y: 620, w: 992, h: 116, r: 58, fs: 44 },
+    inApp:     { x: 44, y: 752, fs: 28 },
+    keyvisual: { x: 44, y: 800, w: 992, h: 500, r: 20 },
+    about:     { headingX: 44, headingY: 1346, headingFs: 46, arrowX: 980, arrowY: 1340, arrowSize: 56 },
+    body:      { x: 44, y: 1430, maxW: 992, fs: 34, lineH: 50, maxLines: 5 },
+    tags:      { x: 44, y: 1700, pillH: 84, pillR: 42, padX: 34, gap: 20, fs: 30, borderW: 1.5 },
+    tabBar:    { y: 1812, iconSize: 40, iconY: 1832, labelY: 1882, labelFs: 20 },
+  },
+  '4x5': {
+    W: 1080, H: 1350,
+    statusBar: { timeX: 44, timeY: 28, timeFs: 27, rightX: 1036 },
+    header:    { y: 52, h: 88, backX: 40, backSize: 40, menuX: 1016, menuSize: 36, ptsH: 50, ptsFs: 27 },
+    dev:       { x: 44, y: 152, fs: 30 },
+    // R3: 단일줄 오토핏 (base 80 → min 52)
+    title:     { x: 44, y: 190, fs: 80, minFs: 52, lineH: 72, maxLines: 2 },
+    // R3: 아이콘 +24 (132→156), 바닥(472) 고정 → y 340→316. 메타 단일 가로행.
+    metaRow:   { y: 316, iconX: 44, iconSize: 156, iconR: 32, labelFs: 27, colGap: 32 },
+    cta:       { x: 44, y: 506, w: 992, h: 96, r: 48, fs: 38 },
+    inApp:     { x: 44, y: 616, fs: 25 },
+    keyvisual: { x: 44, y: 656, w: 992, h: 252, r: 18 },
+    about:     { headingX: 44, headingY: 932, headingFs: 40, arrowX: 984, arrowY: 926, arrowSize: 50 },
+    body:      { x: 44, y: 990, maxW: 992, fs: 31, lineH: 44, maxLines: 3 },
+    tags:      { x: 44, y: 1138, pillH: 72, pillR: 36, padX: 28, gap: 16, fs: 27, borderW: 1.5 },
+    tabBar:    { y: 1244, iconSize: 36, iconY: 1258, labelY: 1304, labelFs: 18 },
+  },
+};
+
+// R1: 데이터 모델 (size + age + playPoints 추가). developer/age/playPoints = 4언어 공통.
+const GOOGLE_PLAY_SCREENSHOT_DEFAULT = {
+  size: '9x16',             // '9x16'(1080×1920) | '4x5'(1080×1350)
+  theme: 'dark',            // 'dark' | 'light'
+  developer: 'SuperPlanet', // 4언어 공통 (회사명 불변)
+  age: '15',                // 연령 등급 숫자 (4언어 공통)
+  playPoints: '100',        // Play Points pill 숫자 (비우면 pill 미표시)
+  icon: null,               // dataURL
+  keyvisual: null,          // dataURL
+  kvScale: 100,             // %, 50~250
+  kvX: 0,                   // px, ±500
+  kvY: 0,                   // px, ±500
+  langs: {
+    'ko':    { gameName: '', description: '', tags: ['', ''] },        // 마지막 자리 자동 '확률형 아이템 포함'
+    'en':    { gameName: '', description: '', tags: ['', '', ''] },
+    'ja':    { gameName: '', description: '', tags: ['', '', ''] },
+    'zh-TW': { gameName: '', description: '', tags: ['', '', ''] },
+  },
+};
+
+// GP_HELPERS — 실제 Google Play 레이아웃 헬퍼. 모든 헬퍼는 사이즈별 레이아웃 L + 사전 디코드 svg를 받음.
+const GP_HELPERS = {
+  drawRoundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+  },
+  // 상태바(9:41 + 신호/Wi-Fi/저전력배터리) + 헤더(← / Play Points pill / ⋮)
+  drawTopChrome(ctx, L, theme, lang, svg, family, playPoints) {
+    const sb = L.statusBar;
+    ctx.fillStyle = theme.statusbarIcon;
+    ctx.font = `600 ${sb.timeFs}px ${family}`;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText('9:41', sb.timeX, sb.timeY);
+    let xR = sb.rightX;
+    if (svg.battery) { ctx.drawImage(svg.battery, xR - 50, sb.timeY - 13, 50, 26); xR -= 50 + 12; }
+    if (svg.wifi)    { ctx.drawImage(svg.wifi,    xR - 38, sb.timeY - 14, 38, 28); xR -= 38 + 12; }
+    if (svg.signal)  { ctx.drawImage(svg.signal,  xR - 46, sb.timeY - 14, 46, 28); }
+    const h = L.header;
+    const cy = h.y + h.h / 2;
+    if (svg.back) ctx.drawImage(svg.back, h.backX, cy - h.backSize / 2, h.backSize, h.backSize);
+    if (svg.menu) ctx.drawImage(svg.menu, h.menuX, cy - h.menuSize / 2, h.menuSize, h.menuSize);
+    // Play Points pill (⋮ 좌측) — 비어있으면 미표시
+    const pts = (playPoints == null) ? '' : String(playPoints).trim();
+    if (pts) {
+      ctx.font = `600 ${h.ptsFs}px ${family}`;
+      const numW = ctx.measureText(pts).width;
+      const dia = h.ptsH * 0.46, padX = 18, gap = 10;
+      const pillW = padX + dia + gap + numW + padX;
+      const pillX = h.menuX - 16 - pillW, pillY = cy - h.ptsH / 2;
+      ctx.fillStyle = theme.ptsBg || theme.surface;  // R3: 파란 pill (레퍼런스 정합)
+      ctx.beginPath(); ctx.roundRect(pillX, pillY, pillW, h.ptsH, h.ptsH / 2); ctx.fill();
+      // 4색 다이아 (Play Points)
+      const dcx = pillX + padX + dia / 2, dcy = cy, r = dia / 2;
+      const top = [dcx, dcy - r], rt = [dcx + r, dcy], bt = [dcx, dcy + r], lf = [dcx - r, dcy], ce = [dcx, dcy];
+      const tri = (a, b, col) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(ce[0], ce[1]); ctx.closePath(); ctx.fill(); };
+      tri(top, rt, '#EA4335'); tri(rt, bt, '#FBBC04'); tri(bt, lf, '#34A853'); tri(lf, top, '#4285F4');
+      ctx.fillStyle = theme.ptsText || theme.text;  // R3: 흰 숫자
+      ctx.font = `600 ${h.ptsFs}px ${family}`;
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(pts, pillX + padX + dia + gap, cy + 1);
+    }
+  },
+  // 앱 정보: 개발사명(파란, 위) → 대형 제목(풀폭, wrap) → 메타 행(아이콘 + 제공예정 + 연령)
+  drawAppInfoGP(ctx, L, theme, langPack, lang, gameName, developer, iconImg, age, svg, family) {
+    // 개발사명
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillStyle = theme.linkBlue;
+    ctx.font = `500 ${L.dev.fs}px ${family}`;
+    ctx.fillText(developer || 'SuperPlanet', L.dev.x, L.dev.y);
+    // R3: 대형 제목 — 단일줄 오토핏 (base→min 축소, 초과 시 ellipsis). AS의 fitAppStoreTitle 재사용(read-only).
+    ctx.fillStyle = theme.text;
+    const titleFit = fitAppStoreTitle(gameName || 'Game Title', L.W - L.title.x * 2, family, L.title.fs, L.title.minFs || 60);
+    ctx.font = `700 ${titleFit.fontSize}px ${family}`;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText(titleFit.text, L.title.x, L.title.y);
+    // 메타 행
+    const m = L.metaRow;
+    ctx.save();
+    ctx.beginPath(); ctx.roundRect(m.iconX, m.y, m.iconSize, m.iconSize, m.iconR); ctx.clip();
+    if (iconImg) {
+      drawImageCover(ctx, iconImg, m.iconX, m.y, m.iconSize, m.iconSize);
+    } else {
+      ctx.fillStyle = theme.surface; ctx.fillRect(m.iconX, m.y, m.iconSize, m.iconSize);
+      ctx.fillStyle = theme.subtext; ctx.font = `400 24px ${family}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('Icon', m.iconX + m.iconSize / 2, m.y + m.iconSize / 2);
+    }
+    ctx.restore();
+    // R5: 메타 — 항목별 세로 미니스택(그래픽 위 / 텍스트 아래), 그래픽은 텍스트 좌측 정렬. 블록을 아이콘 하단에 정렬.
+    const calSz = Math.round(m.labelFs * 1.3);
+    const badge = m.labelFs + 14;
+    const infoSz = Math.round(m.labelFs * 0.95);
+    const vGap = 12;                           // 그래픽 ↔ 텍스트 세로 간격
+    const itemGap = m.colGap + 12;             // 항목(제공예정 ↔ 연령) 가로 간격
+    const gRowH = Math.max(calSz, badge);      // 그래픽 행 높이
+    const blockTop = (m.y + m.iconSize) - (gRowH + vGap + m.labelFs);  // R5: 블록 바닥 = 아이콘 바닥
+    const gCy = blockTop + gRowH / 2;          // 그래픽 행 중심 Y
+    const tCy = blockTop + gRowH + vGap + m.labelFs / 2;  // 텍스트 행 중심 Y
+    ctx.font = `500 ${m.labelFs}px ${family}`;
+    const comingLabel = langPack.comingSoon || '';
+    const ageNum = String(age || '15');
+    const ageLabel = gpAgeText(lang, ageNum);
+    const comingW = ctx.measureText(comingLabel).width;
+    const ageLabelW = ctx.measureText(ageLabel).width;
+    const item1W = Math.max(calSz, comingW);   // 항목1 폭(항목 간격용)
+    let ix = m.iconX + m.iconSize + m.colGap;
+    // 항목1: 제공 예정 (달력 위 좌측 / 텍스트 아래)
+    if (svg.calendar) ctx.drawImage(svg.calendar, ix, gCy - calSz / 2, calSz, calSz);
+    ctx.fillStyle = theme.subtext; ctx.font = `500 ${m.labelFs}px ${family}`;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(comingLabel, ix, tCy);
+    ix += item1W + itemGap;
+    // 항목2: 연령 (15 배지 위 좌측 / "15세 이상 ⓘ" 아래)
+    const badgeX = ix;
+    ctx.fillStyle = '#E8833A';  // 15세 등급 오렌지
+    ctx.beginPath(); ctx.roundRect(badgeX, gCy - badge / 2, badge, badge, 7); ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.font = `700 ${Math.round(m.labelFs * 0.62)}px ${family}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(ageNum, badgeX + badge / 2, gCy + 1);
+    const tStart = ix;
+    ctx.textAlign = 'left'; ctx.fillStyle = theme.subtext; ctx.font = `500 ${m.labelFs}px ${family}`;
+    ctx.fillText(ageLabel, tStart, tCy);
+    if (svg.info) ctx.drawImage(svg.info, tStart + ageLabelW + 8, tCy - infoSz / 2, infoSz, infoSz);
+  },
+  // 태그 pill 1개 (border만) → {w,h} 반환
+  drawTagPill(ctx, L, text, x, y, theme, family) {
+    const t = L.tags;
+    ctx.font = `400 ${t.fs}px ${family}`;
+    const tw = ctx.measureText(text || '').width;
+    const w = tw + t.padX * 2, h = t.pillH;
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, t.pillR);
+    ctx.lineWidth = t.borderW;
+    ctx.strokeStyle = theme.tagBorder;
+    ctx.stroke();
+    ctx.fillStyle = theme.subtext;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text || '', x + w / 2, y + h / 2);
+    ctx.restore();
+    return { w, h };
+  },
+  // 하단 탭바 5분할 (게임 active=linkBlue, 나머지 subtext). svg는 이미 색상 적용됨.
+  drawBottomTabBar(ctx, L, theme, langPack, lang, svg, family) {
+    const tb = L.tabBar;
+    const W = L.W;
+    ctx.fillStyle = theme.divider;
+    ctx.fillRect(0, tb.y, W, 1);
+    const tabs = [
+      { icon: 'tabGames',   label: langPack.tabGames,   active: true  },
+      { icon: 'tabApps',    label: langPack.tabApps,    active: false },
+      { icon: 'tabSearch',  label: langPack.tabSearch,  active: false },
+      { icon: 'tabBooks',   label: langPack.tabBooks,   active: false },
+      { icon: 'tabProfile', label: langPack.tabProfile, active: false },
+    ];
+    const colW = W / tabs.length;
+    tabs.forEach((t, i) => {
+      const cx = i * colW + colW / 2;
+      const img = svg[t.icon];
+      if (img) ctx.drawImage(img, cx - tb.iconSize / 2, tb.iconY, tb.iconSize, tb.iconSize);
+      ctx.fillStyle = t.active ? theme.linkBlue : theme.subtext;
+      ctx.font = `500 ${tb.labelFs}px ${family}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(t.label || '', cx, tb.labelY);
+    });
+  },
+};
+
 const PRESETS = {
   underdark:  { title: '언더다크 : 디펜스',  subtitle: '성큰 디펜스' },
   necomancer: { title: '네코맨서: 타워 디펜스', subtitle: '오컬트 타워 디펜스' },
@@ -4025,6 +4453,7 @@ const state = {
     steam: JSON.parse(JSON.stringify(STEAM_REVIEW_DEFAULT)),
     // v1.10: Ask Me Anything 전용 필드 (1080×1920 only, 키비주얼 + 4언어 question/subtitle)
     ama: JSON.parse(JSON.stringify(AMA_DEFAULT)),
+    gp: JSON.parse(JSON.stringify(GOOGLE_PLAY_SCREENSHOT_DEFAULT)),
   },
   batch: {
     // r3 FR-18/19: 기본값 변경 (9:16→1200x628, 2개 언어→4개 언어)
@@ -4095,6 +4524,7 @@ const state = {
     steam: JSON.parse(JSON.stringify(STEAM_REVIEW_DEFAULT)),
     // v1.10: Ask Me Anything 배치 전용 (키비주얼/슬라이더 + 4언어 question/subtitle, 1080×1920 only)
     ama: JSON.parse(JSON.stringify(AMA_DEFAULT)),
+    gp: JSON.parse(JSON.stringify(GOOGLE_PLAY_SCREENSHOT_DEFAULT)),
   },
   ui: { previewScale: 0.45, batchPreviewScale: 0.45 },
 };
@@ -4466,6 +4896,10 @@ function renderBanner(cfg) {
   // v1.10: Ask Me Anything 분기
   if (cfg.template === 'ask-me-anything') {
     return buildAmaBanner(cfg);
+  }
+  // v1.11: Google Play Screenshot 분기
+  if (cfg.template === 'google-play-screenshot') {
+    return buildGooglePlayScreenshotBanner(cfg);
   }
   const banner = document.createElement('div');
   banner.className = `banner size-${cfg.size}`;
@@ -7289,6 +7723,223 @@ function buildAmaFilename(s) {
   return `${prefix}_ama_${lang}_1080x1920.${ext}`;
 }
 
+// ===========================================================================
+// v1.11: Google Play Screenshot 빌더 5종 (Design §14.4/§14.7)
+// 렌더 단일소스: buildGooglePlayScreenshotCanvas (미리보기+export 공통)
+// ===========================================================================
+
+// state → render-ready cfg (KO 태그 마지막 자리 '확률형 아이템 포함' 자동 삽입)
+function buildGooglePlayScreenshotCfg(stateNode, lang, mode = 'batch') {
+  const lp = GOOGLE_PLAY_LANG_PACK[lang] || GOOGLE_PLAY_LANG_PACK['en'];
+  const slot = (stateNode.langs && stateNode.langs[lang]) || { gameName: '', description: '', tags: [] };
+  const userTags = (slot.tags || []).map(t => (t || '').trim()).filter(Boolean);
+  let tags;
+  if (lang === 'ko') {
+    // Plan SC-04 / D-3: KO 사용자는 태그 2개만 입력 → 마지막 자리에 고지 자동 고정
+    tags = [...userTags.slice(0, 2), lp.koDisclaimer || '확률형 아이템 포함'];
+  } else {
+    tags = userTags.slice(0, 3);
+  }
+  return {
+    template: 'google-play-screenshot',
+    lang,
+    size: (stateNode.size === '4x5') ? '4x5' : '9x16',
+    theme: stateNode.theme || 'dark',
+    developer: stateNode.developer || 'SuperPlanet',
+    age: stateNode.age || '15',
+    playPoints: (stateNode.playPoints != null) ? String(stateNode.playPoints) : '',
+    icon: stateNode.icon || null,
+    keyvisual: stateNode.keyvisual || null,
+    kvScale: (typeof stateNode.kvScale === 'number') ? stateNode.kvScale : 100,
+    kvX:     (typeof stateNode.kvX     === 'number') ? stateNode.kvX     : 0,
+    kvY:     (typeof stateNode.kvY     === 'number') ? stateNode.kvY     : 0,
+    gameName: slot.gameName || '',
+    description: slot.description || '',
+    tags,
+    prefix: stateNode.prefix,
+    format: stateNode.format,
+  };
+}
+
+// 아이콘 + 키비주얼 + SVG 아이콘(테마별 색상) 사전 디코드. 사전 설정된 _iconImg/_keyvisualImg 존중(배치 공유).
+async function prepGooglePlayCfgImages(cfg) {
+  const theme = GOOGLE_PLAY_THEMES[cfg.theme === 'light' ? 'light' : 'dark'];
+  const colorByKey = {
+    signal: theme.statusbarIcon, wifi: theme.statusbarIcon, battery: theme.statusbarIcon,
+    back: theme.text, menu: theme.text, arrowRight: theme.text,
+    calendar: theme.subtext, info: theme.subtext,
+    clock: theme.ctaText,       // CTA(라일락) 위 시계 — 항상 다크
+    tabGames: theme.linkBlue,   // active 탭
+    tabApps: theme.subtext, tabSearch: theme.subtext, tabBooks: theme.subtext, tabProfile: theme.subtext,
+  };
+  const svgImgs = {};
+  await Promise.all(Object.keys(colorByKey).map(async k => {
+    svgImgs[k] = await loadCachedImage(buildGpIconUrl(k, colorByKey[k]));
+  }));
+  cfg._theme = theme;
+  cfg._svgImgs = svgImgs;
+  if (cfg._iconImg === undefined)      cfg._iconImg      = cfg.icon      ? await loadCachedImage(cfg.icon)      : null;
+  if (cfg._keyvisualImg === undefined) cfg._keyvisualImg = cfg.keyvisual ? await loadCachedImage(cfg.keyvisual) : null;
+  return cfg;
+}
+
+// Canvas 10단계 합성 (1080×1920). 다크/라이트 동일 좌표, 색상 토큰만 교체.
+async function buildGooglePlayScreenshotCanvas(cfg) {
+  if (!cfg._svgImgs) await prepGooglePlayCfgImages(cfg);
+  const size = (cfg.size === '4x5') ? '4x5' : '9x16';
+  const L = GP_LAYOUT[size];
+  const W = L.W, H = L.H;
+  const theme = cfg._theme || GOOGLE_PLAY_THEMES[cfg.theme === 'light' ? 'light' : 'dark'];
+  const lang = cfg.lang || 'ko';
+  const langPack = GOOGLE_PLAY_LANG_PACK[lang] || GOOGLE_PLAY_LANG_PACK['en'];
+  const family = (typeof getFontFamilyForLang === 'function') ? getFontFamilyForLang(lang) : 'sans-serif';
+  const svg = cfg._svgImgs || {};
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // [1] 배경
+  ctx.fillStyle = theme.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // [2]+[3] 상태바 + 헤더 (+ Play Points pill)
+  GP_HELPERS.drawTopChrome(ctx, L, theme, lang, svg, family, cfg.playPoints);
+
+  // [4] 앱 정보 (개발사명 위 → 대형 제목 → 메타 행: 아이콘+제공예정+연령) — 실제 GP 레이아웃
+  GP_HELPERS.drawAppInfoGP(ctx, L, theme, langPack, lang, cfg.gameName, cfg.developer, cfg._iconImg, cfg.age, svg, family);
+
+  // [5] CTA 버튼 (라일락 고정, 풀폭) — R2: 시계 아이콘 + "설치" 그룹 중앙정렬 (실제 사전예약 레퍼런스)
+  const cta = L.cta;
+  ctx.fillStyle = theme.lilacCTA;
+  GP_HELPERS.drawRoundRect(ctx, cta.x, cta.y, cta.w, cta.h, cta.r);
+  ctx.fill();
+  const ctaLabel = langPack.install || '설치';
+  const ctaCy = cta.y + cta.h / 2;
+  const clockSz = Math.round(cta.fs * 1.05);
+  const clockGap = 16;
+  ctx.font = `700 ${cta.fs}px ${family}`;
+  const labelW = ctx.measureText(ctaLabel).width;
+  const groupW = (svg.clock ? clockSz + clockGap : 0) + labelW;
+  const groupX = cta.x + (cta.w - groupW) / 2;
+  if (svg.clock) ctx.drawImage(svg.clock, groupX, ctaCy - clockSz / 2, clockSz, clockSz);
+  ctx.fillStyle = theme.ctaText;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(ctaLabel, groupX + (svg.clock ? clockSz + clockGap : 0), ctaCy);
+
+  // [5.1] 인앱 구매 표기 (버튼 하단, 작은 회색)
+  ctx.fillStyle = theme.subtext;
+  ctx.font = `400 ${L.inApp.fs}px ${family}`;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(langPack.inApp || '', L.inApp.x, L.inApp.y);
+
+  // [6] 키비주얼 카드 (clip + cover + kvScale/X/Y transform — KVR/Pickup 패턴)
+  const kv = L.keyvisual;
+  ctx.save();
+  GP_HELPERS.drawRoundRect(ctx, kv.x, kv.y, kv.w, kv.h, kv.r);
+  ctx.clip();
+  if (cfg._keyvisualImg) {
+    const img = cfg._keyvisualImg;
+    const iw = img.naturalWidth || img.width;
+    const ih = img.naturalHeight || img.height;
+    if (iw > 0 && ih > 0) {
+      const base = Math.max(kv.w / iw, kv.h / ih);
+      const s = base * ((cfg.kvScale || 100) / 100);
+      const dw = iw * s, dh = ih * s;
+      const dx = kv.x + (kv.w - dw) / 2 + (cfg.kvX || 0);
+      const dy = kv.y + (kv.h - dh) / 2 + (cfg.kvY || 0);
+      ctx.drawImage(img, dx, dy, dw, dh);
+    }
+  } else {
+    ctx.fillStyle = theme.surface;
+    ctx.fillRect(kv.x, kv.y, kv.w, kv.h);
+    ctx.fillStyle = theme.subtext;
+    ctx.font = `400 28px ${family}`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Key Visual', kv.x + kv.w / 2, kv.y + kv.h / 2);
+  }
+  ctx.restore();
+
+  // [7] 게임 소개 헤딩 + 우측 → 화살표 (원형 surface 배경)
+  const ab = L.about;
+  ctx.fillStyle = theme.text;
+  ctx.font = `700 ${ab.headingFs}px ${family}`;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(langPack.aboutGame || '', ab.headingX, ab.headingY);
+  const ac = ab.arrowSize;
+  ctx.fillStyle = theme.surface;
+  ctx.beginPath();
+  ctx.arc(ab.arrowX + ac / 2, ab.arrowY + ac / 2, ac / 2, 0, Math.PI * 2);
+  ctx.fill();
+  if (svg.arrowRight) {
+    const ai = Math.round(ac * 0.6);
+    ctx.drawImage(svg.arrowRight, ab.arrowX + (ac - ai) / 2, ab.arrowY + (ac - ai) / 2, ai, ai);
+  }
+
+  // [8] 본문 (maxLines 클램프 + ellipsis, 명시적 \n 보존 — wrapTextToNLines 재사용)
+  const body = L.body;
+  ctx.fillStyle = theme.text;
+  ctx.font = `400 ${body.fs}px ${family}`;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  const bodyLines = wrapTextToNLines(ctx, cfg.description || '', body.maxW, lang, body.maxLines);
+  bodyLines.forEach((line, i) => {
+    ctx.fillText(line, body.x, body.y + i * body.lineH);
+  });
+
+  // [9] 태그 (최대 3개 pill, KO는 마지막이 자동 고지)
+  const tg = L.tags;
+  let tagX = tg.x;
+  (cfg.tags || []).slice(0, 3).forEach(tagText => {
+    if (!tagText) return;
+    const r = GP_HELPERS.drawTagPill(ctx, L, tagText, tagX, tg.y, theme, family);
+    tagX += r.w + tg.gap;
+  });
+
+  // [10] 하단 탭바 (5탭)
+  GP_HELPERS.drawBottomTabBar(ctx, L, theme, langPack, lang, svg, family);
+
+  // state hygiene
+  ctx.textAlign = 'start';
+  ctx.textBaseline = 'alphabetic';
+  return canvas;
+}
+
+// DOM 미리보기 wrapper — Canvas 렌더 후 교체 (KVR/AMA 패턴 + Rendering placeholder + 에러 노출)
+function buildGooglePlayScreenshotBanner(cfg) {
+  const size = (cfg.size === '4x5') ? '4x5' : '9x16';
+  const dim = GP_LAYOUT[size];
+  const wrap = document.createElement('div');
+  wrap.className = `banner tmpl-google-play-screenshot size-${size}`;
+  wrap.setAttribute('data-lang', cfg.lang || 'ko');
+  wrap.setAttribute('data-theme', cfg.theme || 'dark');
+  wrap.style.cssText = `width:${dim.W}px;height:${dim.H}px;position:relative;overflow:hidden;padding:0;background:${(GOOGLE_PLAY_THEMES[cfg.theme] || GOOGLE_PLAY_THEMES.dark).bg};`;
+  const placeholder = document.createElement('div');
+  placeholder.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#888;font-size:40px;';
+  placeholder.textContent = 'Rendering...';
+  wrap.appendChild(placeholder);
+  (async () => {
+    try {
+      await prepGooglePlayCfgImages(cfg);
+      const canvas = await buildGooglePlayScreenshotCanvas(cfg);
+      canvas.style.cssText = 'width:100%;height:100%;display:block;';
+      wrap.replaceChildren(canvas);
+    } catch (err) {
+      console.error('buildGooglePlayScreenshotBanner failed:', err);
+      placeholder.textContent = 'Render error: ' + (err && err.message || err);
+    }
+  })();
+  return wrap;
+}
+
+function buildGooglePlayScreenshotFilename(s) {
+  const prefix = (s.prefix && String(s.prefix).trim()) || 'banner';
+  const lang = s.lang || 'ko';
+  const theme = s.theme || 'dark';
+  const dim = (s.size === '4x5') ? '1080x1350' : '1080x1920';
+  const ext = (s.format === 'jpg' || s.format === 'jpeg') ? 'jpg' : 'png';
+  return `${prefix}_google-play-screenshot_${lang}_${theme}_${dim}.${ext}`;
+}
+
 // bugfix Plan FR-01/02/05: Canvas 직접 합성 핵심
 async function buildBannerCanvas(cfg) {
   // v1.3: 템플릿 분기
@@ -7318,6 +7969,10 @@ async function buildBannerCanvas(cfg) {
   // v1.10: Ask Me Anything 분기
   if (cfg.template === 'ask-me-anything') {
     return buildAmaCanvas(cfg);
+  }
+  // v1.11: Google Play Screenshot 분기
+  if (cfg.template === 'google-play-screenshot') {
+    return buildGooglePlayScreenshotCanvas(cfg);
   }
   const spec = CANVAS_SPECS[cfg.size];
   const pixelRatio = Math.max(1, cfg.scale || 1);
@@ -7644,6 +8299,10 @@ function bindSingleMode() {
     if (state.single.template === 'ask-me-anything') {
       loadAmaSlotToUI(lang);
     }
+    // v1.11: Google Play Screenshot 입력 필드를 해당 언어 슬롯에서 복원
+    if (state.single.template === 'google-play-screenshot') {
+      loadGooglePlaySlotToUI(lang);
+    }
     state.single.lang = lang;
     syncSingleStateFromUI();
     refreshSinglePreview();
@@ -7753,6 +8412,9 @@ function bindSingleMode() {
 
   // v1.10: AMA 전용 UI 바인딩
   bindAmaSingleUI();
+
+  // v1.11: Google Play Screenshot 전용 UI 바인딩
+  bindGooglePlayScreenshotSingleUI();
 }
 
 // v1.6: SD Showcase 단건 모드 이벤트 바인딩 (Plan FR-07)
@@ -8627,6 +9289,134 @@ function loadAmaSlotToUI(lang) {
   });
 }
 
+// v1.11: Google Play Screenshot 단건 모드 UI 바인딩
+function gpEnsureSlot(node, lang) {
+  if (!node.langs[lang]) node.langs[lang] = { gameName: '', description: '', tags: (lang === 'ko' ? ['', ''] : ['', '', '']) };
+  if (!Array.isArray(node.langs[lang].tags)) node.langs[lang].tags = (lang === 'ko' ? ['', ''] : ['', '', '']);
+  return node.langs[lang];
+}
+
+function bindGooglePlayScreenshotSingleUI() {
+  // 아이콘 dropzone
+  setupDropzone('s-gp-icon', (dataURL) => {
+    updateStateImage(state.single.gp, 'icon', dataURL);
+    refreshSinglePreview();
+  });
+  // 키비주얼 dropzone
+  setupDropzone('s-gp-keyvisual', (dataURL) => {
+    updateStateImage(state.single.gp, 'keyvisual', dataURL);
+    refreshSinglePreview();
+  });
+  // 키비주얼 슬라이더 3개 (4언어 공통)
+  [
+    ['s-gp-kv-scale', 's-gp-kv-scale-label', 'kvScale'],
+    ['s-gp-kv-x',     's-gp-kv-x-label',     'kvX'],
+    ['s-gp-kv-y',     's-gp-kv-y-label',     'kvY'],
+  ].forEach(([elId, labelId, prop]) => {
+    const el = document.getElementById(elId);
+    const label = document.getElementById(labelId);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const v = parseInt(el.value, 10);
+      state.single.gp[prop] = v;
+      if (label) label.textContent = String(v);
+      refreshSinglePreview();
+    });
+  });
+  // 테마 토글
+  const themeEl = document.getElementById('s-gp-theme');
+  if (themeEl) themeEl.addEventListener('change', () => {
+    state.single.gp.theme = themeEl.value;
+    refreshSinglePreview();
+  });
+  // 개발사명 / 연령 / Play Points (4언어 공통)
+  const devEl = document.getElementById('s-gp-developer');
+  if (devEl) devEl.addEventListener('input', () => {
+    state.single.gp.developer = devEl.value;
+    refreshSinglePreview();
+  });
+  const ageEl = document.getElementById('s-gp-age');
+  if (ageEl) ageEl.addEventListener('input', () => {
+    state.single.gp.age = ageEl.value;
+    refreshSinglePreview();
+  });
+  const ptsEl = document.getElementById('s-gp-playpoints');
+  if (ptsEl) ptsEl.addEventListener('input', () => {
+    state.single.gp.playPoints = ptsEl.value;
+    refreshSinglePreview();
+  });
+  // 게임명 / 게임 소개 (언어별 슬롯에 저장)
+  const gameNameEl = document.getElementById('s-gp-gamename');
+  if (gameNameEl) gameNameEl.addEventListener('input', () => {
+    gpEnsureSlot(state.single.gp, state.single.lang).gameName = gameNameEl.value;
+    refreshSinglePreview();
+  });
+  const descEl = document.getElementById('s-gp-description');
+  if (descEl) descEl.addEventListener('input', () => {
+    gpEnsureSlot(state.single.gp, state.single.lang).description = descEl.value;
+    refreshSinglePreview();
+  });
+  // 태그 3개 (KO는 tag-2가 자동 고지라 disabled — 이벤트 미발생)
+  [0, 1, 2].forEach(i => {
+    const el = document.getElementById(`s-gp-tag-${i}`);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const slot = gpEnsureSlot(state.single.gp, state.single.lang);
+      slot.tags[i] = el.value;
+      refreshSinglePreview();
+    });
+  });
+}
+
+// 언어 전환 시 GP 입력 필드를 state에서 복원 (KO는 태그 3번째 자동 고지 readonly)
+function loadGooglePlaySlotToUI(lang) {
+  const gp = state.single.gp;
+  if (!gp) return;
+  const slot = gpEnsureSlot(gp, lang);
+  const themeEl = document.getElementById('s-gp-theme');
+  const devEl = document.getElementById('s-gp-developer');
+  const ageEl = document.getElementById('s-gp-age');
+  const ptsEl = document.getElementById('s-gp-playpoints');
+  if (themeEl) themeEl.value = gp.theme || 'dark';
+  if (devEl) devEl.value = gp.developer || 'SuperPlanet';
+  if (ageEl) ageEl.value = (gp.age != null) ? gp.age : '15';
+  if (ptsEl) ptsEl.value = (gp.playPoints != null) ? gp.playPoints : '';
+  const gameNameEl = document.getElementById('s-gp-gamename');
+  const descEl = document.getElementById('s-gp-description');
+  if (gameNameEl) gameNameEl.value = slot.gameName || '';
+  if (descEl) descEl.value = slot.description || '';
+  // 태그 (KO=2 입력 + 3번째 자동 고지 readonly / 기타=3 입력)
+  const isKo = (lang === 'ko');
+  const lp = GOOGLE_PLAY_LANG_PACK[lang] || GOOGLE_PLAY_LANG_PACK['en'];
+  for (let i = 0; i < 3; i++) {
+    const el = document.getElementById(`s-gp-tag-${i}`);
+    if (!el) continue;
+    if (isKo && i === 2) {
+      el.value = lp.koDisclaimer || '확률형 아이템 포함';
+      el.disabled = true;
+      el.style.opacity = '0.6';
+    } else {
+      el.value = slot.tags[i] || '';
+      el.disabled = false;
+      el.style.opacity = '1';
+    }
+  }
+  // 키비주얼 슬라이더 (4언어 공통)
+  [
+    ['s-gp-kv-scale', 's-gp-kv-scale-label', 'kvScale', 100],
+    ['s-gp-kv-x',     's-gp-kv-x-label',     'kvX',     0],
+    ['s-gp-kv-y',     's-gp-kv-y-label',     'kvY',     0],
+  ].forEach(([elId, labelId, prop, def]) => {
+    const el = document.getElementById(elId);
+    const label = document.getElementById(labelId);
+    if (el) {
+      const v = (typeof gp[prop] === 'number') ? gp[prop] : def;
+      el.value = v;
+      if (label) label.textContent = String(v);
+    }
+  });
+}
+
 // AMA 배치 모드 UI 바인딩 (배치 전용 슬롯 — 단건과 독립)
 function bindAmaBatchUI() {
   setupDropzone('b-drop-ama-keyart', (dataURL) => {
@@ -8657,6 +9447,37 @@ function bindAmaBatchUI() {
       if (label) label.textContent = String(v);
     });
   });
+}
+
+// v1.11: Google Play Screenshot 배치 모드 UI 바인딩 (배치 전용 슬롯 — 단건과 독립)
+function bindGooglePlayScreenshotBatchUI() {
+  setupDropzone('b-gp-icon', (dataURL) => {
+    updateStateImage(state.batch.gp, 'icon', dataURL);
+  });
+  setupDropzone('b-gp-keyvisual', (dataURL) => {
+    updateStateImage(state.batch.gp, 'keyvisual', dataURL);
+  });
+  [
+    ['b-gp-kv-scale', 'b-gp-kv-scale-label', 'kvScale'],
+    ['b-gp-kv-x',     'b-gp-kv-x-label',     'kvX'],
+    ['b-gp-kv-y',     'b-gp-kv-y-label',     'kvY'],
+  ].forEach(([elId, labelId, prop]) => {
+    const el = document.getElementById(elId);
+    const label = document.getElementById(labelId);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const v = parseInt(el.value, 10);
+      state.batch.gp[prop] = v;
+      if (label) label.textContent = String(v);
+    });
+  });
+  // 개발사명 / 연령 / Play Points (4언어 공통). 게임명/소개/태그는 renderBatchLangFields가 처리.
+  const devEl = document.getElementById('b-gp-developer');
+  if (devEl) devEl.addEventListener('input', () => { state.batch.gp.developer = devEl.value; });
+  const ageEl = document.getElementById('b-gp-age');
+  if (ageEl) ageEl.addEventListener('input', () => { state.batch.gp.age = ageEl.value; });
+  const ptsEl = document.getElementById('b-gp-playpoints');
+  if (ptsEl) ptsEl.addEventListener('input', () => { state.batch.gp.playPoints = ptsEl.value; });
 }
 
 // v1.3: App Badge 단건 모드 이벤트 바인딩
@@ -8867,10 +9688,26 @@ function applyTemplateSwitch(newTemplate) {
       sizeSel.value = '9x16';
       sizeSel.disabled = true;
       state.single.size = '9x16';
+    } else if (newTemplate === 'google-play-screenshot') {
+      // v1.11: Google Play Screenshot 9:16(1080×1920) + 4:5(1080×1350) 지원
+      if (state.single.size !== '9x16' && state.single.size !== '4x5') {
+        sizeSel.value = '9x16';
+        state.single.size = '9x16';
+      } else {
+        sizeSel.value = state.single.size;
+      }
+      sizeSel.disabled = false;
+      Array.from(sizeSel.options).forEach(opt => { opt.disabled = !(opt.value === '9x16' || opt.value === '4x5'); });
     } else {
       sizeSel.disabled = false;
       // 다른 템플릿 복귀 시 모든 option 활성화
       Array.from(sizeSel.options).forEach(opt => { opt.disabled = false; });
+    }
+    // v1.11: 4:5는 Google Play Screenshot 전용 — 다른 템플릿에서는 항상 비활성 (선택돼 있으면 9:16로 복귀)
+    if (newTemplate !== 'google-play-screenshot') {
+      const opt4x5 = Array.from(sizeSel.options).find(o => o.value === '4x5');
+      if (opt4x5) opt4x5.disabled = true;
+      if (state.single.size === '4x5') { state.single.size = '9x16'; sizeSel.value = '9x16'; }
     }
   }
   // v1.5: 배치 모드 사이즈 체크박스도 9:16 강제 (appstore일 때만 9:16 체크 + 나머지 비활성)
@@ -8945,11 +9782,33 @@ function applyTemplateSwitch(newTemplate) {
           pill.style.opacity = cb.disabled ? '0.4' : '1';
         }
       });
+    } else if (newTemplate === 'google-play-screenshot') {
+      // v1.11: Google Play Screenshot 9:16 + 4:5 지원 (둘 다 체크 → 배치는 사이즈×4언어×2테마)
+      bSizeBoxes.forEach(cb => {
+        const allowed = (cb.value === '9x16' || cb.value === '4x5');
+        cb.checked = allowed;
+        cb.disabled = !allowed;
+        const pill = cb.closest('.check-pill');
+        if (pill) {
+          pill.classList.toggle('selected', cb.checked);
+          pill.style.opacity = cb.disabled ? '0.4' : '1';
+        }
+      });
     } else {
       bSizeBoxes.forEach(cb => {
         cb.disabled = false;
         const pill = cb.closest('.check-pill');
         if (pill) pill.style.opacity = '1';
+      });
+    }
+    // v1.11: 4:5 체크박스는 GP 전용 — 다른 템플릿에서는 비활성 + 해제
+    if (newTemplate !== 'google-play-screenshot') {
+      bSizeBoxes.forEach(cb => {
+        if (cb.value === '4x5') {
+          cb.checked = false; cb.disabled = true;
+          const pill = cb.closest('.check-pill');
+          if (pill) { pill.classList.remove('selected'); pill.style.opacity = '0.4'; }
+        }
       });
     }
   }
@@ -8976,6 +9835,10 @@ function applyTemplateSwitch(newTemplate) {
   // v1.10: AMA로 전환 시 현재 언어 슬롯을 UI에 반영
   if (newTemplate === 'ask-me-anything' && typeof loadAmaSlotToUI === 'function') {
     loadAmaSlotToUI(state.single.lang);
+  }
+  // v1.11: Google Play Screenshot로 전환 시 현재 언어 슬롯 + 공통 설정을 UI에 반영
+  if (newTemplate === 'google-play-screenshot' && typeof loadGooglePlaySlotToUI === 'function') {
+    loadGooglePlaySlotToUI(state.single.lang);
   }
   // App Badge로 전환이고, 헤드라인이 비어있으면 기본 프리셋 주입 (Q22)
   if (newTemplate === 'app-badge') {
@@ -9180,6 +10043,9 @@ function refreshSinglePreview() {
     cfg = buildSteamReviewCfg(state.single.steam, state.single.lang, state.single.size, 'single');
   } else if (state.single.template === 'ask-me-anything') {
     cfg = buildAmaCfg(state.single.ama, state.single.lang);
+  } else if (state.single.template === 'google-play-screenshot') {
+    state.single.gp.size = state.single.size;  // 글로벌 사이즈 셀렉터(9x16/4x5) → GP
+    cfg = buildGooglePlayScreenshotCfg(state.single.gp, state.single.lang, 'single');
   } else {
     cfg = state.single;
   }
@@ -9187,7 +10053,7 @@ function refreshSinglePreview() {
   container.appendChild(banner);
   applyPreviewScale();
   const size = SIZE_PACK[state.single.size];
-  const tmplLabelMap = { 'app-badge': 'App Badge', 'appstore-screenshot': 'App Store Screenshot', 'today-tap': 'Today Tap', 'sd-showcase': 'SD Showcase', 'keyvisual-review': 'Key Visual + Review', 'pickup': 'Pickup', 'steam-review': 'Steam Review', 'ask-me-anything': 'Ask Me Anything (무물보)' };
+  const tmplLabelMap = { 'app-badge': 'App Badge', 'appstore-screenshot': 'App Store Screenshot', 'today-tap': 'Today Tap', 'sd-showcase': 'SD Showcase', 'keyvisual-review': 'Key Visual + Review', 'pickup': 'Pickup', 'steam-review': 'Steam Review', 'ask-me-anything': 'Ask Me Anything (무물보)', 'google-play-screenshot': 'Google Play Screenshot' };
   const tmplLabel = tmplLabelMap[state.single.template] || 'Today Tap';
   document.getElementById('s-preview-meta').textContent =
     `${tmplLabel} · ${size.label} · ${size.w}×${size.h}px · ${LANG_PACK[state.single.lang].label}`;
@@ -9238,6 +10104,7 @@ async function handleSingleDownload() {
     const isPickup = state.single.template === 'pickup';  // v1.8
     const isSteam = state.single.template === 'steam-review';  // v1.9
     const isAma = state.single.template === 'ask-me-anything';  // v1.10
+    const isGp = state.single.template === 'google-play-screenshot';  // v1.11
     let filename;
     if (isAppBadge) filename = buildAppBadgeFilename(state.single);
     else if (isAppStore) filename = buildAppStoreFilename(state.single);
@@ -9288,6 +10155,17 @@ async function handleSingleDownload() {
       filename = buildAmaFilename({
         prefix: slugify(amaLang.subtitle || '') || 'ama',
         lang: state.single.lang,
+        format: state.single.format,
+      });
+    }
+    else if (isGp) {
+      // v1.11: GP prefix: 현재 언어 게임명 slug, 빈 문자열 시 'google-play' fallback
+      const gpLang = state.single.gp.langs[state.single.lang] || {};
+      filename = buildGooglePlayScreenshotFilename({
+        prefix: slugify(gpLang.gameName || '') || 'google-play',
+        lang: state.single.lang,
+        theme: state.single.gp.theme,
+        size: state.single.size,
         format: state.single.format,
       });
     }
@@ -9344,6 +10222,14 @@ async function handleSingleDownload() {
       const cfg = buildAmaCfg(state.single.ama, state.single.lang);
       const cfgWithImgs = await prepAmaCfgImages(cfg);
       const canvas = await buildAmaCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
+    } else if (isGp) {
+      // v1.11: Google Play Screenshot 경로 (9:16 / 4:5)
+      await ensureFontsLoaded();
+      state.single.gp.size = state.single.size;  // 글로벌 사이즈 셀렉터 → GP
+      const cfg = buildGooglePlayScreenshotCfg(state.single.gp, state.single.lang, 'single');
+      const cfgWithImgs = await prepGooglePlayCfgImages(cfg);
+      const canvas = await buildGooglePlayScreenshotCanvas(cfgWithImgs);
       dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
     } else if (USE_CANVAS_EXPORT) {
       await ensureFontsLoaded();
@@ -9711,6 +10597,7 @@ function bindBatchMode() {
   bindPickupBatchUI();       // v1.8: Pickup 배치 전용 UI (R3 perSize 마이그레이션 포함, collateral deletion 후 복원)
   bindSteamReviewBatchUI();  // v1.9: Steam Review 배치 전용 UI (별도 슬롯/슬라이더)
   bindAmaBatchUI();          // v1.10: AMA 배치 전용 UI (별도 슬롯/슬라이더)
+  bindGooglePlayScreenshotBatchUI();  // v1.11: GP 배치 전용 UI (별도 슬롯/슬라이더)
 }
 
 function loadBatchOverflowSliders() {
@@ -9919,6 +10806,33 @@ function syncBatchStateFromUI() {
       if (sEl) slot.subtitle = sEl.value;
     });
   }
+
+  // v1.11: GP 공통(developer/age/playPoints) + 언어별 텍스트 (state.batch.gp에 직접 저장)
+  if (state.batch.gp) {
+    const gpDev = document.getElementById('b-gp-developer');
+    if (gpDev) state.batch.gp.developer = gpDev.value;
+    const gpAge = document.getElementById('b-gp-age');
+    if (gpAge) state.batch.gp.age = gpAge.value;
+    const gpPts = document.getElementById('b-gp-playpoints');
+    if (gpPts) state.batch.gp.playPoints = gpPts.value;
+    if (!state.batch.gp.langs) state.batch.gp.langs = {};
+    state.batch.langs.forEach(lang => {
+      if (!state.batch.gp.langs[lang]) {
+        state.batch.gp.langs[lang] = { gameName: '', description: '', tags: (lang === 'ko' ? ['', ''] : ['', '', '']) };
+      }
+      const slot = state.batch.gp.langs[lang];
+      if (!Array.isArray(slot.tags)) slot.tags = (lang === 'ko' ? ['', ''] : ['', '', '']);
+      const nameEl = document.getElementById(`b-gp-gamename-${lang}`);
+      const descEl = document.getElementById(`b-gp-description-${lang}`);
+      if (nameEl) slot.gameName = nameEl.value;
+      if (descEl) slot.description = descEl.value;
+      const tagCount = (lang === 'ko') ? 2 : 3;  // KO 마지막 자리는 cfg 빌더가 자동 삽입
+      for (let i = 0; i < tagCount; i++) {
+        const tagEl = document.getElementById(`b-gp-tag-${lang}-${i}`);
+        if (tagEl) slot.tags[i] = tagEl.value;
+      }
+    });
+  }
 }
 
 function renderBatchLangFields() {
@@ -9940,6 +10854,7 @@ function renderBatchLangFields() {
   const isPickup = tmpl === 'pickup';  // v1.8
   const isSteam = tmpl === 'steam-review';  // v1.9
   const isAma = tmpl === 'ask-me-anything';  // v1.10
+  const isGp = tmpl === 'google-play-screenshot';  // v1.11
 
   // v1.7 R30: KVR 배치도 다른 템플릿(Pickup/Steam Review 등)과 일관된 언어별 입력 폼 제공
   // 초기값은 state.batch.kvr.langs (KVR_DEFAULT deep copy로 init됨)
@@ -10067,6 +10982,31 @@ function renderBatchLangFields() {
         <div class="text-[11px] text-gray-500">헤더 라벨 (고정): ${escapeHTML(lp.header)}${lp.disclaimer ? ' · 고지: ' + escapeHTML(lp.disclaimer) : ''}</div>
         <textarea id="b-ama-question-${lang}" class="input-base text-sm" rows="3" placeholder="질문 (${pack.label}, Enter로 줄바꿈)">${escapeHTML(questionVal)}</textarea>
         <input id="b-ama-subtitle-${lang}" class="input-base text-sm" placeholder="자막 (${pack.label}, 우하단 검정 박스)" value="${escapeHTML(subtitleVal)}" />
+      `;
+    } else if (isGp) {
+      // v1.11: GP 언어별 입력 — gameName / description / tags (KO=2, 기타=3, state.batch.gp.langs)
+      const gpDefault = (GOOGLE_PLAY_SCREENSHOT_DEFAULT.langs && GOOGLE_PLAY_SCREENSHOT_DEFAULT.langs[lang]) || { gameName: '', description: '', tags: [] };
+      const gpSlot = (state.batch.gp && state.batch.gp.langs && state.batch.gp.langs[lang]) || gpDefault;
+      const tags = Array.isArray(gpSlot.tags) ? gpSlot.tags : [];
+      const getVal = (id, fallback) => existing[id] !== undefined ? existing[id] : (fallback || '');
+      const nameVal = getVal(`b-gp-gamename-${lang}`, gpSlot.gameName);
+      const descVal = getVal(`b-gp-description-${lang}`, gpSlot.description);
+      const tagCount = (lang === 'ko') ? 2 : 3;
+      let tagsHTML = '';
+      for (let i = 0; i < tagCount; i++) {
+        const tid = `b-gp-tag-${lang}-${i}`;
+        tagsHTML += `<input id="${tid}" class="input-base text-sm" placeholder="태그 ${i + 1}" value="${escapeHTML(getVal(tid, tags[i]))}" />`;
+      }
+      const koNote = (lang === 'ko') ? `<p class="text-[11px] text-gray-500">* KO 마지막 태그 = "확률형 아이템 포함" 자동 삽입</p>` : '';
+      group.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-200 font-semibold">${pack.label}</span>
+          <button type="button" class="text-[10px] text-indigo-400 hover:underline" data-copy-from="${lang}" title="이 언어의 게임명/소개/태그를 다른 선택 언어에 복사">다른 언어에 복사</button>
+        </div>
+        <input id="b-gp-gamename-${lang}" class="input-base text-sm" placeholder="게임명 (${pack.label})" value="${escapeHTML(nameVal)}" />
+        <textarea id="b-gp-description-${lang}" class="input-base text-sm" rows="3" placeholder="게임 소개 (${pack.label}, 5줄까지 표시)">${escapeHTML(descVal)}</textarea>
+        <div class="grid grid-cols-3 gap-2">${tagsHTML}</div>
+        ${koNote}
       `;
     } else if (isKvr) {
       // v1.7 R30: KVR 언어별 입력 — reviewTitle / reviewBody / reviewerId (3 필드, state.batch.kvr.langs)
@@ -10198,6 +11138,22 @@ function copyLangFieldsToOthers(srcLang) {
       if (q) { q.value = srcQuestion; copied++; }
       if (s) s.value = srcSubtitle;
     });
+  } else if (tmpl === 'google-play-screenshot') {
+    // v1.11: GP — gameName / description / tags (3필드 그룹)
+    const srcName = document.getElementById(`b-gp-gamename-${srcLang}`)?.value || '';
+    const srcDesc = document.getElementById(`b-gp-description-${srcLang}`)?.value || '';
+    const srcTags = [0, 1, 2].map(i => document.getElementById(`b-gp-tag-${srcLang}-${i}`)?.value || '');
+    langs.forEach(lang => {
+      if (lang === srcLang) return;
+      const n = document.getElementById(`b-gp-gamename-${lang}`);
+      const d = document.getElementById(`b-gp-description-${lang}`);
+      if (n) { n.value = srcName; copied++; }
+      if (d) d.value = srcDesc;
+      for (let i = 0; i < 3; i++) {
+        const tg = document.getElementById(`b-gp-tag-${lang}-${i}`);
+        if (tg) tg.value = srcTags[i];
+      }
+    });
   } else if (tmpl === 'keyvisual-review') {
     // v1.7 R30: KVR — reviewTitle / reviewBody / reviewerId (3필드)
     const srcTitle    = document.getElementById(`b-kvr-review-title-${srcLang}`)?.value || '';
@@ -10265,6 +11221,22 @@ function escapeHTML(s) {
 // v1.3 r2: 배치 전체에 단일 템플릿 1종 적용 (A안) — state.batch.template이 모든 사이즈에 동일 적용
 function buildBatchCfgs() {
   const { sizes, langs, template: batchTmpl } = state.batch;
+  // v1.11: Google Play Screenshot — 선택 사이즈(9:16/4:5) × 4언어 × 2테마(다크+라이트)
+  // Design §3.1: state.batch.gp 사용 (state.single.gp 참조 금지 — Risk R-07)
+  if (batchTmpl === 'google-play-screenshot') {
+    const themes = ['dark', 'light'];
+    const gpSizes = sizes.filter(s => s === '9x16' || s === '4x5');
+    if (gpSizes.length === 0) gpSizes.push('9x16');
+    const cfgs = [];
+    gpSizes.forEach(sz => langs.forEach(lg => themes.forEach(th => {
+      const cfg = buildGooglePlayScreenshotCfg(state.batch.gp, lg, 'batch');
+      cfg.theme = th;
+      cfg.size = sz;
+      cfg._combo = { size: sz, lang: lg, theme: th };
+      cfgs.push(cfg);
+    })));
+    return cfgs;
+  }
   const combos = [];
   sizes.forEach(sz => langs.forEach(lg => combos.push({ size: sz, lang: lg })));
   return combos.map(combo => {
@@ -10435,8 +11407,9 @@ function handleBatchPreview() {
     thumb.appendChild(frame);
     const meta = document.createElement('div');
     meta.className = 'thumb-meta';
+    const themeSuffix = (cfg.template === 'google-play-screenshot') ? ` · ${cfg.theme || 'dark'}` : '';
     meta.innerHTML = `
-      <span><strong>${size.label}</strong> · ${LANG_PACK[cfg.lang].label}</span>
+      <span><strong>${size.label}</strong> · ${LANG_PACK[cfg.lang].label}${themeSuffix}</span>
       <button class="text-[11px] text-indigo-400 hover:underline" data-idx="${i}">⬇ 다운로드</button>
     `;
     meta.querySelector('[data-idx]').addEventListener('click', () => downloadBatchItem(i));
@@ -10470,6 +11443,7 @@ async function downloadBatchItem(idx) {
     const isPickup = cfg.template === 'pickup';  // v1.8
     const isSteam = cfg.template === 'steam-review';  // v1.9
     const isAma = cfg.template === 'ask-me-anything';  // v1.10
+    const isGp = cfg.template === 'google-play-screenshot';  // v1.11
     const sdsSizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
     const filename = isAB
       ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
@@ -10485,7 +11459,9 @@ async function downloadBatchItem(idx) {
                 ? `${state.batch.prefix}_steam-review_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
                 : isAma
                   ? `${state.batch.prefix}_ama_${cfg.lang}_1080x1920.${ext}`
-                  : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+                  : isGp
+                    ? `${state.batch.prefix}_google-play-screenshot_${cfg.lang}_${cfg.theme || 'dark'}_1080x1920.${ext}`
+                    : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
     let dataURL;
     if (isAB) {
       await ensureFontsLoaded();
@@ -10527,6 +11503,12 @@ async function downloadBatchItem(idx) {
       await ensureFontsLoaded();
       const cfgWithImgs = await prepAmaCfgImages({ ...cfg, scale: state.batch.scale, format: state.batch.format });
       const canvas = await buildAmaCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
+    } else if (isGp) {
+      // v1.11: Google Play Screenshot 단일 다운로드
+      await ensureFontsLoaded();
+      const cfgWithImgs = await prepGooglePlayCfgImages({ ...cfg, scale: state.batch.scale, format: state.batch.format });
+      const canvas = await buildGooglePlayScreenshotCanvas(cfgWithImgs);
       dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
     } else if (USE_CANVAS_EXPORT) {
       await ensureFontsLoaded();
@@ -10633,6 +11615,14 @@ async function handleBatchExportZip() {
     const amaKeyartImg = hasAma
       ? await loadCachedImage(state.batch.ama.keyart)
       : null;
+    // v1.11: GP — 아이콘 + 키비주얼 사전 디코드 (8장 공유, 테마별 SVG는 캔버스가 캐시 hit로 처리)
+    const hasGp = cfgs.some(c => c.template === 'google-play-screenshot');
+    const [gpIconImg, gpKeyvisualImg] = hasGp
+      ? await Promise.all([
+          loadCachedImage(state.batch.gp.icon),
+          loadCachedImage(state.batch.gp.keyvisual),
+        ])
+      : [null, null];
 
     statusEl.textContent = `0 / ${total} 변환 중...`;
     for (let i = 0; i < cfgs.length; i++) {
@@ -10644,6 +11634,7 @@ async function handleBatchExportZip() {
       const isPickup = cfg.template === 'pickup';  // v1.8
       const isSteam = cfg.template === 'steam-review';  // v1.9
       const isAma = cfg.template === 'ask-me-anything';  // v1.10
+      const isGp = cfg.template === 'google-play-screenshot';  // v1.11
       try {
         let canvas;
         if (isAB) {
@@ -10706,6 +11697,14 @@ async function handleBatchExportZip() {
             scale: state.batch.scale,
             _keyartImg: amaKeyartImg,
           });
+        } else if (isGp) {
+          // v1.11: Google Play Screenshot — 아이콘 + 키비주얼 공유 (테마별 SVG는 캔버스가 캐시 hit)
+          canvas = await buildGooglePlayScreenshotCanvas({
+            ...cfg,
+            scale: state.batch.scale,
+            _iconImg: gpIconImg,
+            _keyvisualImg: gpKeyvisualImg,
+          });
         } else {
           canvas = await buildBannerCanvas({
             ...cfg,
@@ -10730,7 +11729,9 @@ async function handleBatchExportZip() {
                   ? `${state.batch.prefix}_pickup_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
                   : isAma
                     ? `${state.batch.prefix}_ama_${cfg.lang}_1080x1920.${ext}`
-                    : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+                    : isGp
+                      ? `${state.batch.prefix}_google-play-screenshot_${cfg.lang}_${cfg.theme || 'dark'}_1080x1920.${ext}`
+                      : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
         zip.file(filename, dataURL.split(',')[1], { base64: true });
       } catch (err) {
         console.error(err);
