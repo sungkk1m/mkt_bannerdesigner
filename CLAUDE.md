@@ -40,8 +40,8 @@
 
 ## 5. 현재 상태  (갱신 시 덮어쓰기 — 누적 금지, 5~10줄 이내)
 
-- 템플릿 9종: today-tap, app-badge, sd-showcase, keyvisual-review, pickup, steam-review, ask-me-anything, appstore-screenshot, google-play-screenshot
-- 최신 작업: Google Play Screenshot v1.14 — 실제 GP(Potion Craft) 시각 정합. Play Points pill 파란(#1A73E8)+흰숫자, 제목 오토핏(base96/min60→ellipsis, AS fitAppStoreTitle 재사용), 아이콘 208px(바닥 고정·위로 확장). 제공예정/연령 메타: 세로 미니스택(그래픽 위·텍스트 아래) + 그래픽 텍스트 좌측 정렬 + 블록 아이콘 하단 정렬(R5). 설치버튼 bg #A8C7FA + "설치"/시계 짙은 파랑 #062E6F(M3 primary80/onPrimary). 개발사명 위+대형 제목, 인앱구매, 5탭, 저전력 배터리(AS형). 사이즈 1080×1920 + 1080×1350(4:5), 다크/라이트, 배치 사이즈×4언어×2테마, KO 태그 자동 "확률형 아이템 포함". 데이터보안 제외. 브라우저 실측(픽셀 색상정합·콘솔에러0·회귀0) 통과
+- 템플릿 10종: today-tap, app-badge, sd-showcase, keyvisual-review, pickup, steam-review, ask-me-anything, appstore-screenshot, google-play-screenshot, install-plz
+- 최신 작업: Install Plz v1.15 — "설치 구걸" 밈 배너. 텍스트는 레퍼런스 원본 픽셀을 추출한 텍스트 플레이트(`assets/install-plz/` 8 PNG, 생성 스크립트 `make_plates.py` 동봉) 고정 — 밈 폰트 무변형·편집 UI 없음. SD 1장 공용 업로드 + 사이즈별 X/Y/Scale(기본 박스 587×570: 1x1 (258,240) / 1200x628 (609,25)). KO 고지문구 플레이트 내장(우상단, 별도 렌더 금지 — 이중 표시 주의). 1080×1080 + 1200×628(원본 1200×625 → 하단 3px 흰 패딩, 무스케일), 배치 2사이즈×4언어=8장. 브라우저 실측: 캔버스 vs 플레이트 8콤보 maxDiff=0, 콘솔에러 0, 회귀 0
 - 4언어(ko/en/ja/zh-TW) × Single+Batch 전 템플릿 지원
 
 ## 6. 이력·히스토리 참조 규칙  ★
