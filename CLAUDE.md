@@ -41,7 +41,7 @@
 ## 5. 현재 상태  (갱신 시 덮어쓰기 — 누적 금지, 5~10줄 이내)
 
 - 템플릿 10종: today-tap, app-badge, sd-showcase, keyvisual-review, pickup, steam-review, ask-me-anything, appstore-screenshot, google-play-screenshot, install-plz
-- 최신 작업: Install Plz v1.15 — "설치 구걸" 밈 배너. 텍스트는 레퍼런스 원본 픽셀을 추출한 텍스트 플레이트(`assets/install-plz/` 8 PNG, 생성 스크립트 `make_plates.py` 동봉) 고정 — 밈 폰트 무변형·편집 UI 없음. SD 1장 공용 업로드 + 사이즈별 X/Y/Scale(기본 박스 587×570: 1x1 (258,240) / 1200x628 (609,25)). KO 고지문구 플레이트 내장(우상단, 별도 렌더 금지 — 이중 표시 주의). 1080×1080 + 1200×628(원본 1200×625 → 하단 3px 흰 패딩, 무스케일), 배치 2사이즈×4언어=8장. 브라우저 실측: 캔버스 vs 플레이트 8콤보 maxDiff=0, 콘솔에러 0, 회귀 0
+- 최신 작업: App Store Screenshot v1.17 — 1:1(1080×1080) 레이아웃 개편(채택 시안 siaan3). 1:1은 **상태바(시간)·헤더(검색) 제거**하고 그 공간으로 키아트를 **16:9 무크롭(551px)** 표시. 구성: 상단여백(topPad 40) → 앱아이콘 슬롯+앱정보 → 스탯 4컬럼(평점·연령·차트·개발자) → 키아트. 디바이스 라벨·설명 본문·탭바는 계속 미출력. KO 고지문구는 1:1에서만 IAP 우측 인라인(`앱 내 구입 · 확률형 아이템 포함`). 9:16은 상태바/헤더 포함 완전 무변경(회귀 0, O-2 B). 공유 헬퍼 asIapLabelText/asSquareKeyartH/asSizeDim + AS_SQUARE.topPad. 배치 GP식 독립 fan-out. 브라우저 실측: DOM=Canvas 일치(1:1 크롬부재·키아트551·스탯4컬럼·IAP고지)·9:16 회귀 0·node --check 통과
 - 4언어(ko/en/ja/zh-TW) × Single+Batch 전 템플릿 지원
 
 ## 6. 이력·히스토리 참조 규칙  ★

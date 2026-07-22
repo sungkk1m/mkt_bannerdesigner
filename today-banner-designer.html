@@ -901,6 +901,21 @@
   .banner.tmpl-appstore-screenshot.hide-iap .as-iap-label { display: none; }
   .banner.tmpl-appstore-screenshot.hide-cta.hide-iap .as-cta-row { display: none; }
 
+  /* === appstore-screenshot-square: 1x1 (1080×1080) — Design §4 === */
+  .banner.tmpl-appstore-screenshot.size-1x1 {
+    width: 1080px; height: 1080px; padding: 0;
+    background: var(--as-bg);
+    color: var(--as-text-primary);
+    display: flex; flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Pretendard', sans-serif;
+  }
+  /* 키아트: aspect-ratio 해제 — 높이는 DOM 빌더가 asSquareKeyartH()로 inline 지정 (단일 소스) */
+  .banner.tmpl-appstore-screenshot.size-1x1 .as-keyart { aspect-ratio: auto; }
+  /* KO 고지문구 인라인 수용 (R-2) */
+  .banner.tmpl-appstore-screenshot.size-1x1 .as-iap-label { max-width: none; white-space: nowrap; }
+  /* v1.17: 1:1은 상태바·헤더 제거 → 앱정보 상단여백 확보 (Canvas AS_SQUARE.topPad=40과 동일) */
+  .banner.tmpl-appstore-screenshot.size-1x1 .as-app-info { padding-top: 40px; }
+
 </style>
 </head>
 <body>
@@ -1053,8 +1068,8 @@
             </select>
           </div>
           <div>
-            <div class="field-label">규격 (고정)</div>
-            <input class="input-base" value="9:16 (1080×1920)" disabled style="opacity:0.5;cursor:not-allowed;" />
+            <div class="field-label">규격 (자동)</div>
+            <input id="s-as-size-note" class="input-base" value="9:16 (1080×1920)" disabled style="opacity:0.5;cursor:not-allowed;" />
           </div>
         </div>
 
@@ -1067,10 +1082,10 @@
           <div class="field-label">카테고리 / 서브타이틀 (현재 언어)</div>
           <input id="s-as-subtitle" class="input-base" placeholder="예: Strategy / 策略 / ストラテジー / 성큰 디펜스" />
         </div>
-        <div>
+        <div id="s-as-desc-wrap">
           <div class="field-label">설명 본문 (현재 언어)</div>
           <textarea id="s-as-description" class="input-base" rows="3" placeholder="Defend the Flame from the dark! Level up, strategically place towers..."></textarea>
-          <p class="text-[11px] text-gray-500 mt-1">~4줄까지 표시 후 'more / 더 보기 / もっと見る / 更多' 자동 부착</p>
+          <p class="text-[11px] text-gray-500 mt-1">~4줄까지 표시 후 'more / 더 보기 / もっと見る / 更多' 자동 부착 · 1:1에서는 미표시</p>
         </div>
 
         <div class="border border-[#262932] rounded-lg p-3 space-y-2">
@@ -1106,7 +1121,7 @@
           <label class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
             <input id="s-as-show-stats" type="checkbox" checked /> 통계 영역 (평점·연령·랭킹·개발자)
           </label>
-          <label class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
+          <label id="s-as-tabbar-row" class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
             <input id="s-as-show-tabbar" type="checkbox" checked /> 하단 탭바 (Today/Games/...)
           </label>
           <label class="flex items-center gap-2 text-[11px] text-gray-300 cursor-pointer">
@@ -2857,6 +2872,32 @@ const AS_LANG_PACK = {
   'ja':    { search: '検索',  get: '入手',  iap: 'アプリ内課金',   more: 'もっと見る', statRatings: '評価',     statAge: '年齢',  statRanking: 'ランキング', statDeveloper: '開発者', ageSuffix: '歳',     deviceLabel: 'iPhone、iPad',  tabs: ['Today','ゲーム','アプリ','Arcade','検索'] },
   'zh-TW': { search: '搜尋',  get: '取得',  iap: 'App 內購買',     more: '更多',       statRatings: '評分',     statAge: '年齡',  statRanking: '排行榜', statDeveloper: '開發者', ageSuffix: '歲',     deviceLabel: 'iPhone、iPad',  tabs: ['Today','遊戲','App','Arcade','搜尋'] },
 };
+
+// ===========================================================================
+// appstore-screenshot-square (v1.16, C안): DOM/Canvas 드리프트 방지 공유 소스
+// Design Ref: §2.1 §2.2 §3 — 아래 값/문자열은 반드시 DOM·Canvas 양쪽 렌더러가 공유
+// ===========================================================================
+const AS_SQUARE = { W: 1080, H: 1080, keyartTopPad: 28, keyartBottomPad: 28, keyartMaxH: 551, topPad: 40 };  // v1.17: topPad = 1:1 상단여백(상태바·헤더 제거 후). CSS .size-1x1 .as-app-info padding-top와 동일값 유지
+
+// Design §2.1: 1:1 키아트 높이 — 잔여 세로공간 기반, 16:9 자연높이(551) 상한
+function asSquareKeyartH(keyartY) {
+  return Math.min(AS_SQUARE.H - keyartY - AS_SQUARE.keyartBottomPad, AS_SQUARE.keyartMaxH);
+}
+
+// Design §2.2: KO 1:1에서만 IAP 라벨에 고지문구 인라인 합성 (그 외 언어/사이즈는 기존 문구 그대로)
+function asIapLabelText(lang, size) {
+  const pack = AS_LANG_PACK[lang] || AS_LANG_PACK['en'];
+  if (size === '1x1' && lang === 'ko') {
+    const disc = ((LANG_PACK.ko && LANG_PACK.ko.disclaimer) || '*확률형 아이템 포함').replace(/^\*/, '');
+    return `${pack.iap} · ${disc}`;
+  }
+  return pack.iap;
+}
+
+// Design §7.4: 파일명용 사이즈 → 픽셀 표기
+function asSizeDim(size) {
+  return size === '1x1' ? '1080x1080' : '1080x1920';
+}
 
 // ===========================================================================
 // v1.3: App Badge & Icon 템플릿 전용 상수
@@ -4846,11 +4887,14 @@ function buildAppStoreScreenshotBanner(cfg) {
   const theme = (cfg.theme === 'light') ? 'light' : 'dark';
 
   const banner = document.createElement('div');
+  // Design §5: 1:1(1080×1080) 분기 — size 클래스 스왑, 하단 섹션(디바이스/설명/고지문구/탭바) 미출력
+  const isSquare = cfg.size === '1x1';
   const hideStats  = cfg.showStats  === false ? 'hide-stats'  : '';
   const hideTabbar = cfg.showTabbar === false ? 'hide-tabbar' : '';
   const hideCta    = cfg.showCta    === false ? 'hide-cta'    : '';
   const hideIap    = cfg.showIap    === false ? 'hide-iap'    : '';
-  banner.className = `banner tmpl-appstore-screenshot size-9x16 ${hideStats} ${hideTabbar} ${hideCta} ${hideIap}`.trim();
+  const sizeClass  = isSquare ? 'size-1x1' : 'size-9x16';
+  banner.className = `banner tmpl-appstore-screenshot ${sizeClass} ${hideStats} ${hideTabbar} ${hideCta} ${hideIap}`.trim();
   banner.setAttribute('data-lang', lang);
   banner.setAttribute('data-theme', theme);
 
@@ -4871,17 +4915,22 @@ function buildAppStoreScreenshotBanner(cfg) {
 
   // R37: Description fit (DOM/Canvas 일치) — maxW=980 (1080 - 100), fontSize=30, maxLines=4
   // pre-wrap된 lines를 <br>로 강제 줄바꿈하고 마지막 줄 끝에 more 라벨 inline 추가
-  const descFit = fitAppStoreDescription(cfg.description || 'App description...', pack.more, 980, asFontFamily(lang), 30, 4);
-  const descHTML = descFit.lines.map((line, i) => {
-    const safeLine = escapeHTML(line);
-    if (i === descFit.lines.length - 1) {
-      return safeLine + `<span class="as-description-more">${escapeHTML(pack.more)}</span>`;
-    }
-    return safeLine;
-  }).join('<br/>');
+  // Design §5: 1:1은 설명 본문 미출력 → fit 계산 스킵
+  let descHTML = '';
+  if (!isSquare) {
+    const descFit = fitAppStoreDescription(cfg.description || 'App description...', pack.more, 980, asFontFamily(lang), 30, 4);
+    descHTML = descFit.lines.map((line, i) => {
+      const safeLine = escapeHTML(line);
+      if (i === descFit.lines.length - 1) {
+        return safeLine + `<span class="as-description-more">${escapeHTML(pack.more)}</span>`;
+      }
+      return safeLine;
+    }).join('<br/>');
+  }
 
   banner.innerHTML = `
-    <!-- 1. Status bar -->
+    <!-- 1~2: Design v1.17 — 1:1(isSquare)은 상태바·헤더 미출력 -->
+    ${isSquare ? '' : `<!-- 1. Status bar -->
     <div class="as-statusbar">
       <span class="as-statusbar-time">9:41</span>
       <div class="as-statusbar-icons">
@@ -4895,7 +4944,7 @@ function buildAppStoreScreenshotBanner(cfg) {
     <div class="as-header">
       ${AS_SVG.back}
       <span>${escapeHTML(pack.search)}</span>
-    </div>
+    </div>`}
 
     <!-- 3. App info -->
     <div class="as-app-info">
@@ -4909,7 +4958,7 @@ function buildAppStoreScreenshotBanner(cfg) {
         <div class="as-subtitle">${escapeHTML(cfg.subtitle || 'Category')}</div>
         <div class="as-cta-row">
           <button class="as-cta-button" type="button">${escapeHTML(pack.get)}</button>
-          <div class="as-iap-label">${escapeHTML(pack.iap).replace(/\n/g, '<br/>')}</div>
+          <div class="as-iap-label">${escapeHTML(asIapLabelText(lang, cfg.size)).replace(/\n/g, '<br/>')}</div>
         </div>
       </div>
     </div>
@@ -4938,16 +4987,17 @@ function buildAppStoreScreenshotBanner(cfg) {
       </div>
     </div>
 
-    <!-- 5. Keyart card -->
+    <!-- 5. Keyart card — Design §2.1: 1:1은 잔여공간 기반 높이 inline 지정 (스탯 표시 keyartY=616 / 숨김 464) -->
     <div class="as-keyart-wrap">
-      <div class="as-keyart">
+      <div class="as-keyart"${isSquare ? ` style="height:${asSquareKeyartH(cfg.showStats !== false ? 486 : 334)}px"` : ''}>
         ${cfg.keyart
           ? `<img src="${cfg.keyart}" alt="Keyart" crossorigin="anonymous" />`
           : `<div class="as-keyart-placeholder">Upload Keyart Image</div>`}
       </div>
     </div>
 
-    <!-- 6. Device label -->
+    <!-- 6~8: Design §5 — 1:1(isSquare)에서는 미출력 (디바이스 라벨 / 설명 본문 / (구)KO 고지문구 / 탭바) -->
+    ${isSquare ? '' : `<!-- 6. Device label -->
     <div class="as-device">
       <div class="as-device-platforms">
         ${AS_SVG.iphone}
@@ -4969,7 +5019,7 @@ function buildAppStoreScreenshotBanner(cfg) {
       <div class="as-tab"><div>${AS_SVG.tabApps}</div><span>${escapeHTML(pack.tabs[2])}</span></div>
       <div class="as-tab"><div>${AS_SVG.tabArcade}</div><span>${escapeHTML(pack.tabs[3])}</span></div>
       <div class="as-tab is-active"><div>${AS_SVG.tabSearch}</div><span>${escapeHTML(pack.tabs[4])}</span></div>
-    </div>
+    </div>`}
   `;
 
   return banner;
@@ -5797,7 +5847,9 @@ async function prepAppStoreCfgImages(cfg) {
 }
 
 async function buildAppStoreScreenshotCanvas(cfg) {
-  const W = 1080, H = 1920;
+  // Design §6: 1:1(1080×1080) 분기 — H 스왑, 키아트 크롭, 하단 섹션 early return
+  const isSquare = cfg.size === '1x1';
+  const W = 1080, H = isSquare ? AS_SQUARE.H : 1920;
   const theme = cfg._theme || AS_THEMES[cfg.theme === 'light' ? 'light' : 'dark'];
   const lang = cfg.lang || 'en';
   const pack = AS_LANG_PACK[lang] || AS_LANG_PACK['en'];
@@ -5814,29 +5866,32 @@ async function buildAppStoreScreenshotCanvas(cfg) {
 
   let y = 0;
 
-  // [1] Status bar (height 80, content in 28..80)
-  ctx.fillStyle = theme.statusbarIcon;
-  ctx.font = `600 36px ${family}`;
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'left';
-  ctx.fillText('9:41', 56, 28 + 26);
-  let xR = W - 56;
-  if (svg.battery) { ctx.drawImage(svg.battery, xR - 50, 28 + (52 - 26) / 2, 50, 26); xR -= 50 + 12; }
-  if (svg.wifi)    { ctx.drawImage(svg.wifi,    xR - 38, 28 + (52 - 28) / 2, 38, 28); xR -= 38 + 12; }
-  if (svg.signal)  { ctx.drawImage(svg.signal,  xR - 46, 28 + (52 - 28) / 2, 46, 28); }
-  y = 80;
+  // Design v1.17: 1:1(isSquare)은 상태바·헤더 미출력 — 상단 topPad부터 콘텐츠 시작 (키아트 무크롭 공간 확보)
+  if (!isSquare) {
+    // [1] Status bar (height 80, content in 28..80)
+    ctx.fillStyle = theme.statusbarIcon;
+    ctx.font = `600 36px ${family}`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    ctx.fillText('9:41', 56, 28 + 26);
+    let xR = W - 56;
+    if (svg.battery) { ctx.drawImage(svg.battery, xR - 50, 28 + (52 - 26) / 2, 50, 26); xR -= 50 + 12; }
+    if (svg.wifi)    { ctx.drawImage(svg.wifi,    xR - 38, 28 + (52 - 28) / 2, 38, 28); xR -= 38 + 12; }
+    if (svg.signal)  { ctx.drawImage(svg.signal,  xR - 46, 28 + (52 - 28) / 2, 46, 28); }
+    y = 80;
 
-  // [2] Header (back + search) — padding 18 36
-  if (svg.back) ctx.drawImage(svg.back, 36, y + 18, 22, 42);
-  ctx.fillStyle = theme.link;
-  ctx.font = `400 38px ${family}`;
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(pack.search, 36 + 22 + 12, y + 18 + 21);
-  y = y + 18 + 42 + 18;
+    // [2] Header (back + search) — padding 18 36
+    if (svg.back) ctx.drawImage(svg.back, 36, y + 18, 22, 42);
+    ctx.fillStyle = theme.link;
+    ctx.font = `400 38px ${family}`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(pack.search, 36 + 22 + 12, y + 18 + 21);
+    y = y + 18 + 42 + 18;
+  }
 
-  // [3] App info — padding 12 50 24 50, icon 242 (10% 상향), gap 32
-  const aiTop = y + 12;
+  // [3] App info — 9:16: padding 12 50 24 50 / 1:1: 상단 topPad(40)부터. icon 242 (10% 상향), gap 32
+  const aiTop = isSquare ? AS_SQUARE.topPad : y + 12;
   const iconSize = 242;
   const iconX = 50, iconY = aiTop;
   // Icon card with shadow
@@ -5907,7 +5962,7 @@ async function buildAppStoreScreenshotCanvas(cfg) {
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     const iapX = (cfg.showCta !== false) ? ctaEndX + 22 : txX;
-    const iapLines = pack.iap.split('\n');
+    const iapLines = asIapLabelText(lang, cfg.size).split('\n');  // Design §2.2: KO 1:1 고지문구 인라인
     iapLines.forEach((line, i) => {
       ctx.fillText(line, iapX, ctaRowY + 6 + i * 26);
     });
@@ -5991,12 +6046,12 @@ async function buildAppStoreScreenshotCanvas(cfg) {
     y = statsY + statsTotalH;
   }
 
-  // [5] Keyart card (16:9)
+  // [5] Keyart card — 9:16: 16:9 고정 / 1:1(Design §2.1): 잔여공간 기반 높이(하단크롭, 16:9 상한)
   const keyartTopPad = 28;
   const keyartX = 50;
   const keyartW = W - 100;
-  const keyartH = Math.round(keyartW * 9 / 16);
   const keyartY = y + keyartTopPad;
+  const keyartH = isSquare ? asSquareKeyartH(keyartY) : Math.round(keyartW * 9 / 16);
   ctx.save();
   ctx.shadowColor = theme.cardShadow;
   ctx.shadowBlur = 36; ctx.shadowOffsetY = 12;
@@ -6019,6 +6074,9 @@ async function buildAppStoreScreenshotCanvas(cfg) {
   }
   ctx.restore();
   y = keyartY + keyartH;
+
+  // Design §6: 1:1은 키아트까지만 — [6]디바이스 [7]설명 [7.1](구)고지문구 [8]탭바 미출력
+  if (isSquare) return canvas;
 
   // [6] Device label
   const devTop = 16, devPad = 18;
@@ -8546,6 +8604,7 @@ function bindSingleMode() {
   document.getElementById('s-size').addEventListener('change', (e) => {
     applySingleOverflowPreset(e.target.value);
     updateSingleHints(e.target.value);  // Plan FR-02/11: 사이즈 변경 시 힌트 갱신
+    updateAsSquareUI();  // appstore-screenshot-square: 1:1 UI 토글 (Design §7.2)
   });
 
   setupDropzone('s-drop-keyart', async (dataURL) => {
@@ -9934,9 +9993,14 @@ function applyTemplateSwitch(newTemplate) {
   const sizeSel = document.getElementById('s-size');
   if (sizeSel) {
     if (newTemplate === 'appstore-screenshot') {
-      sizeSel.value = '9x16';
-      sizeSel.disabled = true;
-      state.single.size = '9x16';
+      // appstore-screenshot-square: 9:16 + 1:1 허용 (Design §7.1) — 그 외 사이즈면 9:16 fallback
+      if (state.single.size !== '9x16' && state.single.size !== '1x1') {
+        sizeSel.value = '9x16'; state.single.size = '9x16';
+      } else { sizeSel.value = state.single.size; }
+      sizeSel.disabled = false;
+      Array.from(sizeSel.options).forEach(opt => {
+        opt.disabled = !(opt.value === '9x16' || opt.value === '1x1');
+      });
     } else if (newTemplate === 'sd-showcase') {
       // 9:16 → 1x1 fallback, 1x1/1200x628은 그대로
       if (state.single.size === '9x16') {
@@ -10018,9 +10082,11 @@ function applyTemplateSwitch(newTemplate) {
   const bSizeBoxes = document.querySelectorAll('.b-size');
   if (bSizeBoxes.length) {
     if (newTemplate === 'appstore-screenshot') {
+      // appstore-screenshot-square: 9:16 + 1:1 허용, 9:16 기본 체크 (Design §7.3)
       bSizeBoxes.forEach(cb => {
+        const isAllowed = (cb.value === '9x16' || cb.value === '1x1');
         cb.checked = (cb.value === '9x16');
-        cb.disabled = (cb.value !== '9x16');
+        cb.disabled = !isAllowed;
         const pill = cb.closest('.check-pill');
         if (pill) {
           pill.classList.toggle('selected', cb.checked);
@@ -10184,7 +10250,24 @@ function applyTemplateSwitch(newTemplate) {
     if (bgOpLabel) bgOpLabel.textContent = ab.bgOpacity + '%';
     updateAppBadgeHint(state.single.size);
   }
+  updateAsSquareUI();  // appstore-screenshot-square: 1:1 UI 토글 (Design §7.2)
   refreshSinglePreview();
+}
+
+// appstore-screenshot-square (Design §7.2): appstore 1:1 선택 시 단건 패널 UI 토글
+// (규격 노트 텍스트 / 설명 본문 숨김 / 탭바 토글 비활성) — s-size는 DOM에서 직접 읽어 리스너 순서 무관
+function updateAsSquareUI() {
+  const sizeSel = document.getElementById('s-size');
+  const size = sizeSel ? sizeSel.value : (state.single.size || '9x16');
+  const isSquare = state.single.template === 'appstore-screenshot' && size === '1x1';
+  const note = document.getElementById('s-as-size-note');
+  if (note) note.value = (size === '1x1') ? '1:1 (1080×1080)' : '9:16 (1080×1920)';
+  const descWrap = document.getElementById('s-as-desc-wrap');
+  if (descWrap) descWrap.style.display = isSquare ? 'none' : '';
+  const tabbarRow = document.getElementById('s-as-tabbar-row');
+  const tabbarCb  = document.getElementById('s-as-show-tabbar');
+  if (tabbarRow) tabbarRow.style.opacity = isSquare ? '0.5' : '1';
+  if (tabbarCb)  tabbarCb.disabled = isSquare;
 }
 
 function syncSingleStateFromUI() {
@@ -10323,7 +10406,8 @@ function buildAppStoreScreenshotCfg(stateObj) {
   const langSlot = (as.langs && as.langs[lang]) || {};
   return {
     template: 'appstore-screenshot',
-    size: '9x16',
+    // appstore-screenshot-square: 단건 사이즈 셀렉터(9x16/1x1) 반영 (Design §7.1) — 그 외 값은 9x16 fallback
+    size: (stateObj.size === '1x1' || stateObj.size === '9x16') ? stateObj.size : '9x16',
     lang,
     theme: as.theme || 'dark',
     showStats:  as.showStats  !== false,
@@ -10636,14 +10720,15 @@ function buildAppBadgeFilename(s) {
   return `${prefix}_app-badge_${s.size}_${s.lang}.${ext}`;
 }
 
-// v1.5: App Store Screenshot 파일명 — prefix_appstore_lang_theme_1080x1920.png
+// v1.5: App Store Screenshot 파일명 — prefix_appstore_lang_theme_{1080x1920|1080x1080}.png
+// v1.16: 사이즈 반영 (asSizeDim, Design §7.4)
 function buildAppStoreFilename(s) {
   const ext = s.format === 'jpg' ? 'jpg' : 'png';
   const as = s.appstore || APPSTORE_SCREENSHOT_DEFAULT;
   const slot = (as.langs && as.langs[s.lang]) || {};
   const prefix = slugify(slot.title || '') || 'banner';
   const theme = (as.theme === 'light') ? 'light' : 'dark';
-  return `${prefix}_appstore_${s.lang}_${theme}_1080x1920.${ext}`;
+  return `${prefix}_appstore_${s.lang}_${theme}_${asSizeDim(s.size)}.${ext}`;
 }
 
 // Plan FR-09: img.decode() 기반 대기 (setTimeout 제거). 미지원 브라우저는 onload 폴백
@@ -11580,6 +11665,38 @@ function buildBatchCfgs() {
     })));
     return cfgs;
   }
+  // appstore-screenshot-square (v1.16, Design §7.3): 선택 사이즈(9:16/1:1) × 4언어 × 1테마
+  // GP 패턴 — 독립 fan-out으로 사이즈 중복 생성(R-4) 원천 차단
+  if (batchTmpl === 'appstore-screenshot') {
+    const asSizes = sizes.filter(s => s === '9x16' || s === '1x1');
+    if (asSizes.length === 0) asSizes.push('9x16');
+    const cfgs = [];
+    asSizes.forEach(sz => langs.forEach(lg => {
+      const lo = state.batch.langOverrides[lg] || {};
+      cfgs.push({
+        _combo: { size: sz, lang: lg },
+        template: 'appstore-screenshot',
+        size: sz,
+        lang: lg,
+        theme:      state.batch.as_theme      || 'dark',
+        showStats:  state.batch.as_showStats  !== false,
+        showTabbar: state.batch.as_showTabbar !== false,
+        showCta:    state.batch.as_showCta    !== false,
+        showIap:    state.batch.as_showIap    !== false,
+        age:        state.batch.as_age        || '15',   // R35: 4언어 동일 적용
+        icon:   state.batch.icon,
+        keyart: state.batch.keyart,
+        title:        lo.as_title       || '',
+        subtitle:     lo.as_subtitle    || '',
+        description:  lo.as_description || '',
+        rating:       lo.as_rating      || '',
+        ratingCount:  lo.as_ratingCount || '',
+        ranking:      lo.as_ranking     || '',
+        developer:    lo.as_developer   || '',
+      });
+    }));
+    return cfgs;
+  }
   const combos = [];
   sizes.forEach(sz => langs.forEach(lg => combos.push({ size: sz, lang: lg })));
   return combos.map(combo => {
@@ -11644,29 +11761,7 @@ function buildBatchCfgs() {
       return cfg;
     }
     // v1.5: App Store Screenshot 분기 — 9:16 1080×1920 전용 (사이즈는 항상 9x16)
-    if (tmpl === 'appstore-screenshot') {
-      return {
-        _combo: combo,
-        template: 'appstore-screenshot',
-        size: '9x16',
-        lang: combo.lang,
-        theme:      state.batch.as_theme      || 'dark',
-        showStats:  state.batch.as_showStats  !== false,
-        showTabbar: state.batch.as_showTabbar !== false,
-        showCta:    state.batch.as_showCta    !== false,
-        showIap:    state.batch.as_showIap    !== false,
-        age:        state.batch.as_age        || '15',   // R35: 4언어 동일 적용
-        icon:   state.batch.icon,
-        keyart: state.batch.keyart,
-        title:        langOverride.as_title       || '',
-        subtitle:     langOverride.as_subtitle    || '',
-        description:  langOverride.as_description || '',
-        rating:       langOverride.as_rating      || '',
-        ratingCount:  langOverride.as_ratingCount || '',
-        ranking:      langOverride.as_ranking     || '',
-        developer:    langOverride.as_developer   || '',
-      };
-    }
+    // appstore-screenshot는 상단 독립 블록에서 처리 (Design §7.3) — 여기 도달하지 않음
     if (tmpl === 'app-badge') {
       return {
         _combo: combo,
@@ -11798,7 +11893,7 @@ async function downloadBatchItem(idx) {
     const filename = isAB
       ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
       : isAS
-        ? `${state.batch.prefix}_appstore_${cfg.lang}_${cfg.theme || 'dark'}_1080x1920.${ext}`
+        ? `${state.batch.prefix}_appstore_${cfg.lang}_${cfg.theme || 'dark'}_${asSizeDim(cfg.size)}.${ext}`
         : isSDS
           ? `${state.batch.prefix}_sdshowcase_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
           : isKvr
@@ -12075,7 +12170,7 @@ async function handleBatchExportZip() {
         const filename = isAB
           ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
           : isAS
-            ? `${state.batch.prefix}_appstore_${cfg.lang}_${cfg.theme || 'dark'}_1080x1920.${ext}`
+            ? `${state.batch.prefix}_appstore_${cfg.lang}_${cfg.theme || 'dark'}_${asSizeDim(cfg.size)}.${ext}`
             : isSDS
               ? `${state.batch.prefix}_sdshowcase_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
               : isKvr
