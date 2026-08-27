@@ -2,7 +2,7 @@
 
 > PDCA Plan Plus (r2) · 2026-08-26 · 담당: 김성권 (ksk@superplanet.net)
 > 대상: `today-banner-designer.html` (origin/main = 6f7b7f5, v1.17 / 10개 템플릿 기준)
-> 상태: **구현 완료** (`feature/filename-rule` 브랜치). Q1~Q3 사용자 결정 반영, node 단위 테스트 14케이스 + GP 충돌 검사 PASS. 브라우저 실측 대기.
+> 상태: **구현 + 브라우저 실측 완료** (`feature/filename-rule` 브랜치). Q1~Q3 사용자 결정 반영. 실측 산출물 전수 검증 PASS (SC-01~06). main 머지 대기.
 
 ---
 
@@ -159,8 +159,8 @@
 
 1. ~~사용자: Q1~Q3 결정 + R-03 승인~~ → 완료 (2026-08-26)
 2. ~~구현~~ → 완료 (`feature/filename-rule`, 소규모 변경이라 Design 단계 생략하고 Plan→Do 직행)
-3. 사용자 브라우저 실측: 단건 10템플릿 + 배치 ZIP(특히 GP 다크/라이트 8장 전수) + Windows ZIP 해제 한글 확인 (SC-01~06)
-4. 실측 통과 시 사용자가 main 머지 또는 PR
+3. ~~사용자 브라우저 실측~~ → 완료 (2026-08-27, §11 참조)
+4. 사용자가 main 머지 또는 PR
 
 ## 10. 구현 결과 요약 (Do — 2026-08-26)
 
@@ -170,3 +170,30 @@
 - UI: 단건 `#s-title-code` 입력 신설(FR-07, 프리뷰 재렌더 없이 state만 갱신) · 배치 `#b-prefix` 라벨/placeholder/힌트 갱신(FR-08) · `state.batch.prefix` 기본값 `'banner'` → `''`
 - 부수 수정(기존 불일치 해소): 배치 개별 다운로드에 install-plz 분기 부재 → 중앙 함수로 자동 해소 · 배치 ZIP에 steam-review 분기 부재 → 동일 해소
 - 검증: `node --check` 통과(1,064,386 chars) · 단위 테스트 14케이스 + GP 다크/라이트 충돌 검사 PASS (`한_SMS_투데이탭_1080x1080.png` / `번_SODA_앱스토어(라이트)_1080x1920.png` / `영_TITLE_설치구걸_2400x1256.png` 등)
+
+## 11. 실측 검증 결과 (Check — 2026-08-27)
+
+전 템플릿 배치 생성(타이틀 `SMS`, PNG 1x) 산출물을 전수 검증했다.
+
+| SC | 검증 방법 | 결과 |
+|----|----------|------|
+| SC-01 | 산출물 88장(1차 80 + 설치구걸 재생성 8)의 파일명 패턴 대조 | **PASS** — 전부 `{언어}_SMS_{소재컨셉}_{규격}.{ext}` |
+| SC-02 | ZIP 내 파일명 충돌 검사 · GP 16장(4언어×2사이즈×2테마) 전수 확인 | **PASS** — 충돌 0, 누락 0 |
+| SC-03 | 언어 토큰 매핑 | **PASS** — 한/영/일/번 정확 |
+| SC-04 | 타이틀 대문자 보존 | **PASS** — `SMS` 원형 유지 |
+| SC-05 | Windows 10 탐색기 ZIP 해제 | **PASS** — 한글 파일명 정상 |
+| SC-06 | 미입력 fallback | 미검증 (실측 시 타이틀 항상 입력) — 단위 테스트에서 `TITLE` 확인 완료 |
+
+추가 검증 (파일명 규칙 자체를 넘어선 산출물 정합성):
+- PNG 헤더 파싱으로 **파일명 규격 = 실제 픽셀** 88/88 일치
+- MD5 해시로 언어·테마·사이즈 조합 간 **내용 중복 0** 확인
+- 설치구걸 8장은 원본 플레이트(`assets/install-plz/text-plate_{lang}_{size}.png`)와 **픽셀 완전 동일**(무손실·무스케일) + 언어별 플레이트 매칭 정확
+
+### 11.1 실측 중 발견된 별개 이슈 (filename-rule 범위 밖)
+
+1차 실측에서 설치구걸 8장이 백지(비-흰색 픽셀 0)로 생성됐다. 원인은 **HTML을 `file://`로 열었을 때 `loadCachedImage`의 `img.crossOrigin='anonymous'` 때문에 상대경로 에셋이 CORS 차단**되는 것. `decode()`가 reject → `null` 반환 → 플레이트 없이 흰 배경만 그려진다.
+
+- 영향 범위: 외부 경로 참조 에셋을 쓰는 템플릿. install-plz(플레이트, fallback 없음 → 백지) / pickup(star·name-frame, 코드 fallback 있어 육안 식별 어려움). 인라인 data URL 에셋(steam-review, keyvisual-review 등)은 무영향
+- filename-rule 커밋(078e55d)은 에셋 로딩 코드를 **한 줄도 변경하지 않음** (diff 확인) — 기존 환경 의존 이슈
+- 회피: HTTP로 열면 정상 (`python -m http.server`). 사용자 재생성분에서 8장 전부 정상 확인
+- 근본 수정은 별도 트랙 (사용자 판단 대기)

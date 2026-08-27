@@ -43,7 +43,8 @@
 - 템플릿 10종: today-tap, app-badge, sd-showcase, keyvisual-review, pickup, steam-review, ask-me-anything, appstore-screenshot, google-play-screenshot, install-plz
 - 최신 작업: **filename-rule (v1.18, `feature/filename-rule` 브랜치)** — 전 템플릿 파일명을 실무 규칙 `{언어}_{타이틀}_{소재컨셉}_{가로x세로}.{ext}`로 통일 (예: `한_SMS_투데이탭_1080x1080.png`). 언어 토큰 한/영/일/번, 소재컨셉 10종(투데이탭/앱아이콘/앱스토어/SD쇼케이스/아이폰리뷰/픽업/스팀리뷰/무물보/구글플레이/설치구걸), 테마는 괄호 병기 `구글플레이(다크)`, 규격은 scale 반영 실제 픽셀, 타이틀 미입력 시 `TITLE`
 - 구조: `buildAssetFilename()` 중앙 함수 1개가 유일한 파일명 조립 지점 (구 빌더 10개 + asSizeDim + slugify 제거). 단건 `#s-title-code` 입력 신설, 배치 `#b-prefix` 재사용. 신규 템플릿은 `CONCEPT_TOKEN`에 1줄 추가하면 규칙 자동 상속
-- 검증: node --check 통과 + 단위 테스트 14케이스/GP 다크·라이트 충돌 검사 PASS. **사용자 브라우저 실측 대기 → 실측 후 main 머지/PR 예정** (상세: `docs/01-plan/features/filename-rule.plan.md`)
+- 검증: **실측 완료(2026-08-27)** — 산출물 88장 전수 PASS (파일명 패턴·규격=실제픽셀·중복 0·GP 16장 충돌 0). main 머지 대기 (상세: `docs/01-plan/features/filename-rule.plan.md` §11)
+- ⚠️ **툴은 반드시 HTTP로 열 것** (`python -m http.server` 등). `file://`로 열면 `crossOrigin='anonymous'` 탓에 `assets/*.png` 경로 참조 에셋이 CORS 차단돼 로드 실패 → install-plz 백지, pickup 프레임·별이 fallback 드로잉으로 대체됨 (인라인 data URL 에셋은 무영향). 근본 수정 미착수
 - 참고: 구 store-listing v1.5 미커밋 553줄은 git stash 보존 (`backup: stale store-listing v1.5 work ...`)
 - 4언어(ko/en/ja/zh-TW) × Single+Batch 전 템플릿 지원
 
