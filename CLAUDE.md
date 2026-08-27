@@ -41,7 +41,10 @@
 ## 5. 현재 상태  (갱신 시 덮어쓰기 — 누적 금지, 5~10줄 이내)
 
 - 템플릿 10종: today-tap, app-badge, sd-showcase, keyvisual-review, pickup, steam-review, ask-me-anything, appstore-screenshot, google-play-screenshot, install-plz
-- 최신 작업: App Store Screenshot v1.17 — 1:1(1080×1080) 레이아웃 개편(채택 시안 siaan3). 1:1은 **상태바(시간)·헤더(검색) 제거**하고 그 공간으로 키아트를 **16:9 무크롭(551px)** 표시. 구성: 상단여백(topPad 40) → 앱아이콘 슬롯+앱정보 → 스탯 4컬럼(평점·연령·차트·개발자) → 키아트. 디바이스 라벨·설명 본문·탭바는 계속 미출력. KO 고지문구는 1:1에서만 IAP 우측 인라인(`앱 내 구입 · 확률형 아이템 포함`). 9:16은 상태바/헤더 포함 완전 무변경(회귀 0, O-2 B). 공유 헬퍼 asIapLabelText/asSquareKeyartH/asSizeDim + AS_SQUARE.topPad. 배치 GP식 독립 fan-out. 브라우저 실측: DOM=Canvas 일치(1:1 크롬부재·키아트551·스탯4컬럼·IAP고지)·9:16 회귀 0·node --check 통과
+- 최신 작업: **filename-rule (v1.18, `feature/filename-rule` 브랜치)** — 전 템플릿 파일명을 실무 규칙 `{언어}_{타이틀}_{소재컨셉}_{가로x세로}.{ext}`로 통일 (예: `한_SMS_투데이탭_1080x1080.png`). 언어 토큰 한/영/일/번, 소재컨셉 10종(투데이탭/앱아이콘/앱스토어/SD쇼케이스/아이폰리뷰/픽업/스팀리뷰/무물보/구글플레이/설치구걸), 테마는 괄호 병기 `구글플레이(다크)`, 규격은 scale 반영 실제 픽셀, 타이틀 미입력 시 `TITLE`
+- 구조: `buildAssetFilename()` 중앙 함수 1개가 유일한 파일명 조립 지점 (구 빌더 10개 + asSizeDim + slugify 제거). 단건 `#s-title-code` 입력 신설, 배치 `#b-prefix` 재사용. 신규 템플릿은 `CONCEPT_TOKEN`에 1줄 추가하면 규칙 자동 상속
+- 검증: node --check 통과 + 단위 테스트 14케이스/GP 다크·라이트 충돌 검사 PASS. **사용자 브라우저 실측 대기 → 실측 후 main 머지/PR 예정** (상세: `docs/01-plan/features/filename-rule.plan.md`)
+- 참고: 구 store-listing v1.5 미커밋 553줄은 git stash 보존 (`backup: stale store-listing v1.5 work ...`)
 - 4언어(ko/en/ja/zh-TW) × Single+Batch 전 템플릿 지원
 
 ## 6. 이력·히스토리 참조 규칙  ★

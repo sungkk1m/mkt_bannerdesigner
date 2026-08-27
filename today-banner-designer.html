@@ -1925,6 +1925,12 @@
       </div>
 
       <div class="pt-2 border-t border-[#1f2127] space-y-3">
+        <!-- filename-rule FR-07: 파일명용 타이틀 영문명 (전 템플릿 공통) -->
+        <div>
+          <div class="field-label">타이틀 영문명 (파일명용, 공백 없이)</div>
+          <input id="s-title-code" class="input-base" placeholder="예: SMS" />
+          <p class="text-[11px] text-gray-500 mt-1">저장: <code>한_SMS_투데이탭_1080x1080.png</code> 형식</p>
+        </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
             <div class="field-label">포맷</div>
@@ -2786,9 +2792,9 @@
       </div>
 
       <div>
-        <div class="field-label">파일명 Prefix (영문, 공백 없이)</div>
-        <input id="b-prefix" class="input-base" placeholder="예: underdark_today_v1" />
-        <p class="text-[11px] text-gray-500 mt-1">결과: <code>prefix_1x1_ko.png</code> 형식으로 저장됩니다</p>
+        <div class="field-label">타이틀 영문명 (파일명용, 공백 없이)</div>
+        <input id="b-prefix" class="input-base" placeholder="예: SMS" />
+        <p class="text-[11px] text-gray-500 mt-1">결과: <code>한_SMS_투데이탭_1080x1080.png</code> 형식으로 저장됩니다</p>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
@@ -2892,11 +2898,6 @@ function asIapLabelText(lang, size) {
     return `${pack.iap} · ${disc}`;
   }
   return pack.iap;
-}
-
-// Design §7.4: 파일명용 사이즈 → 픽셀 표기
-function asSizeDim(size) {
-  return size === '1x1' ? '1080x1080' : '1080x1920';
 }
 
 // ===========================================================================
@@ -4580,6 +4581,7 @@ const state = {
     cta: '지금 다운로드', disclaimer: '*확률형 아이템 포함',
     keyart: null, icon: null,
     format: 'png', scale: 1,
+    titleCode: '',   // filename-rule FR-07: 파일명용 타이틀 영문명
     overflow: null,
     overflowX: OVERFLOW_PRESETS['1x1'].x,
     overflowY: OVERFLOW_PRESETS['1x1'].y,
@@ -4610,7 +4612,7 @@ const state = {
     langs: ['ko', 'en', 'ja', 'zh-TW'],
     langOverrides: {},
     keyart: null, icon: null,
-    prefix: 'banner', format: 'png', scale: 1,
+    prefix: '', format: 'png', scale: 1,
     overflow: null,
     overflowEditingSize: '1x1',
     overflowPerSize: {
@@ -6161,7 +6163,7 @@ async function buildAppStoreScreenshotCanvas(cfg) {
 // - prepSdShowcaseCfgImages: 6 슬롯 사전 디코드
 // - buildSdShowcaseCanvas: 메인 7단계 합성 (배경/팔레트/테두리/SD/타이틀/픽/고지문구)
 // - buildSdShowcaseBanner: DOM 프리뷰 wrapper (canvas embed)
-// - buildSdShowcaseFilename: {prefix}_sdshowcase_{lang}_{size}.{ext}
+// - 파일명: buildAssetFilename 공통 규칙 (filename-rule)
 // ===========================================================================
 function buildSdShowcaseCfg(stateNode, lang, size) {
   // 단건/배치 양쪽에서 호출 — stateNode는 state.single.sdshowcase 또는 batch에서 합성한 obj
@@ -6583,24 +6585,13 @@ function buildSdShowcaseBanner(cfg) {
   return wrap;
 }
 
-// 파일명 — Plan FR-15: {prefix}_sdshowcase_{lang}_{size}.{ext}, slug 빈 문자열 시 'banner' fallback (M-3 mitigation)
-function buildSdShowcaseFilename(s) {
-  const prefix = (s.prefix && String(s.prefix).trim()) || 'banner';
-  const lang = s.lang || 'ko';
-  // 사이즈 키 매핑: '1x1' → '1080x1080', '1200x628' → '1200x628'
-  const sizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
-  const sizeStr = sizeMap[s.size] || s.size || '1080x1080';
-  const ext = (s.format === 'jpg' || s.format === 'jpeg') ? 'jpg' : 'png';
-  return `${prefix}_sdshowcase_${lang}_${sizeStr}.${ext}`;
-}
-
 // ===========================================================================
 // v1.7: Key Visual + iPhone Review 템플릿 함수군 (1080×1080 전용, 4언어)
 // - buildKvrCfg: state → render-ready cfg
 // - prepKvrCfgImages: bg / logo / mockup PNG 사전 디코드 (loadCachedImage)
 // - buildKvrCanvas: 메인 7단계 합성 (배경/로고/헤드라인/mockup/평점박스/부제목/리뷰카드)
 // - buildKvrBanner: DOM 프리뷰 wrapper (canvas embed)
-// - buildKvrFilename: {prefix}_keyvisual-review_{lang}_1080x1080.{ext}
+// - 파일명: buildAssetFilename 공통 규칙 (filename-rule)
 // ===========================================================================
 function buildKvrCfg(stateNode, lang, size) {
   const langSlot = (stateNode.langs && stateNode.langs[lang]) || { reviewTitle: '', reviewBody: '', reviewerId: '' };
@@ -7141,22 +7132,13 @@ function buildKvrBanner(cfg) {
   return wrap;
 }
 
-function buildKvrFilename(s) {
-  const prefix = (s.prefix && String(s.prefix).trim()) || 'banner';
-  const lang = s.lang || 'ko';
-  const sizeMap = { '1x1': '1080x1080' };
-  const sizeStr = sizeMap[s.size] || '1080x1080';
-  const ext = (s.format === 'jpg' || s.format === 'jpeg') ? 'jpg' : 'png';
-  return `${prefix}_keyvisual-review_${lang}_${sizeStr}.${ext}`;
-}
-
 // v1.9: Steam Review template — Canvas 빌더 5종 (Session 2)
 // Design Ref: §5 빌더 / §6 그리기 순서. Plan SC-04/05/06/07/08/09 충족 핵심
 // - buildSteamReviewCfg: state → render-ready cfg (mode='single'/'batch' 인자 — pickup R5 패턴)
 // - prepSteamReviewCfgImages: 키비주얼 + reviewerIcons×4 + thumbsUp 사전 디코드
 // - buildSteamReviewCanvas: 메인 그리기 (배경 → 키비주얼 → 타이틀 → 설명 → 태그 → 리뷰 카드 N개)
 // - buildSteamReviewBanner: DOM 프리뷰 wrapper (canvas embed)
-// - buildSteamReviewFilename: {prefix}_steam-review_{lang}_{1080x1080|1200x628}.{ext}
+// - 파일명: buildAssetFilename 공통 규칙 (filename-rule)
 // ===========================================================================
 
 function buildSteamReviewCfg(stateNode, lang, size, mode = 'batch') {
@@ -7419,15 +7401,6 @@ function buildSteamReviewBanner(cfg) {
   return wrap;
 }
 
-function buildSteamReviewFilename(s) {
-  const prefix = (s.prefix && String(s.prefix).trim()) || 'banner';
-  const lang = s.lang || 'ko';
-  const sizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
-  const sizeStr = sizeMap[s.size] || '1080x1080';
-  const ext = (s.format === 'jpg' || s.format === 'jpeg') ? 'jpg' : 'png';
-  return `${prefix}_steam-review_${lang}_${sizeStr}.${ext}`;
-}
-
 // v1.8: Pickup template — Canvas 빌더 5종
 // Design Ref: §8.1 buildPickupCanvas (10단계 그리기), §8.3 prepPickupCfgImages
 // Plan FR-14: 그리기 순서 = 배경 → 키아트 → 캐릭터 → 로고 → 설명 → 프레임 PNG
@@ -7670,16 +7643,6 @@ function buildPickupBanner(cfg) {
   return wrap;
 }
 
-// Plan FR-18: 파일명 규칙 ({prefix}_pickup_{lang}_{size}.{ext})
-function buildPickupFilename(s) {
-  const prefix = (s.prefix && String(s.prefix).trim()) || 'banner';
-  const lang = s.lang || 'ko';
-  const sizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
-  const sizeStr = sizeMap[s.size] || '1080x1080';
-  const ext = (s.format === 'jpg' || s.format === 'jpeg') ? 'jpg' : 'png';
-  return `${prefix}_pickup_${lang}_${sizeStr}.${ext}`;
-}
-
 // ===========================================================================
 // v1.10: Ask Me Anything (AMA / 무물보) — Canvas 빌더 + DOM 미리보기 + 파일명
 // 1080×1920 only. 4언어 (ko/en/ja/zh-TW). 헤더 라벨 고정, 질문/자막 편집, KO 고지문구 우하단.
@@ -7886,13 +7849,6 @@ function buildAmaBanner(cfg) {
     }
   })();
   return wrap;
-}
-
-function buildAmaFilename(s) {
-  const prefix = (s.prefix && String(s.prefix).trim()) || 'banner';
-  const lang = s.lang || 'ko';
-  const ext = (s.format === 'jpg' || s.format === 'jpeg') ? 'jpg' : 'png';
-  return `${prefix}_ama_${lang}_1080x1920.${ext}`;
 }
 
 // ===========================================================================
@@ -8103,22 +8059,13 @@ function buildGooglePlayScreenshotBanner(cfg) {
   return wrap;
 }
 
-function buildGooglePlayScreenshotFilename(s) {
-  const prefix = (s.prefix && String(s.prefix).trim()) || 'banner';
-  const lang = s.lang || 'ko';
-  const theme = s.theme || 'dark';
-  const dim = (s.size === '4x5') ? '1080x1350' : '1080x1920';
-  const ext = (s.format === 'jpg' || s.format === 'jpeg') ? 'jpg' : 'png';
-  return `${prefix}_google-play-screenshot_${lang}_${theme}_${dim}.${ext}`;
-}
-
 // ===========================================================================
 // v1.15: Install Plz 렌더링 파이프라인
 // - buildInstallPlzCfg: state → render-ready cfg flatten
 // - prepInstallPlzCfgImages: 플레이트 + SD 사전 디코드 (_imgCache 공유)
 // - buildInstallPlzCanvas: 흰 배경 → 플레이트(무스케일) → SD contain (텍스트/폰트 렌더링 없음)
 // - buildInstallPlzBanner: DOM 프리뷰 wrapper (canvas embed, sd-showcase 패턴)
-// - buildInstallPlzFilename: installplz_{lang}_{dim}.{ext}
+// - 파일명: buildAssetFilename 공통 규칙 (filename-rule)
 // Design Ref: docs/02-design/features/install-plz.design.md §4
 // ===========================================================================
 function buildInstallPlzCfg(stateNode, lang, size) {
@@ -8206,12 +8153,6 @@ function buildInstallPlzBanner(cfg) {
     }
   })();
   return wrap;
-}
-
-function buildInstallPlzFilename({ lang, size, format }) {
-  const dim = size === '1x1' ? '1080x1080' : '1200x628';
-  const ext = format === 'jpg' ? 'jpg' : 'png';
-  return `installplz_${lang}_${dim}.${ext}`;
 }
 
 // bugfix Plan FR-01/02/05: Canvas 직접 합성 핵심
@@ -8547,6 +8488,10 @@ function bindSingleMode() {
     el.addEventListener('input', () => { syncSingleStateFromUI(); refreshSinglePreview(); });
     el.addEventListener('change', () => { syncSingleStateFromUI(); refreshSinglePreview(); });
   });
+
+  // filename-rule FR-07: 타이틀 영문명 — 파일명 전용이므로 프리뷰 재렌더 없이 state만 갱신
+  const sTitleCode = document.getElementById('s-title-code');
+  if (sTitleCode) sTitleCode.addEventListener('input', () => { state.single.titleCode = sTitleCode.value; });
 
   document.getElementById('s-lang').addEventListener('change', (e) => {
     const lang = e.target.value;
@@ -10280,6 +10225,9 @@ function syncSingleStateFromUI() {
   state.single.disclaimer = document.getElementById('s-disclaimer').value;
   state.single.format = document.getElementById('s-format').value;
   state.single.scale = parseInt(document.getElementById('s-scale').value, 10);
+  // filename-rule FR-07: 파일명용 타이틀 영문명
+  const titleCodeEl = document.getElementById('s-title-code');
+  if (titleCodeEl) state.single.titleCode = titleCodeEl.value;
   state.single.overflowX = parseInt(document.getElementById('s-overflow-x').value, 10);
   state.single.overflowY = parseInt(document.getElementById('s-overflow-y').value, 10);
   state.single.overflowScale = parseInt(document.getElementById('s-overflow-scale').value, 10);
@@ -10500,8 +10448,6 @@ async function handleSingleDownload() {
   statusEl.textContent = '이미지 생성 중...';
   const startT = performance.now();
   try {
-    const ext = state.single.format === 'jpg' ? 'jpg' : 'png';
-    // v1.3/v1.5/v1.6: 템플릿별 cfg 조립 + 파일명 패턴
     const isAppBadge = state.single.template === 'app-badge';
     const isAppStore = state.single.template === 'appstore-screenshot';
     const isSDS = state.single.template === 'sd-showcase';
@@ -10511,81 +10457,17 @@ async function handleSingleDownload() {
     const isAma = state.single.template === 'ask-me-anything';  // v1.10
     const isGp = state.single.template === 'google-play-screenshot';  // v1.11
     const isIp = state.single.template === 'install-plz';  // v1.15
-    let filename;
-    if (isAppBadge) filename = buildAppBadgeFilename(state.single);
-    else if (isAppStore) filename = buildAppStoreFilename(state.single);
-    else if (isSDS) {
-      // SDS prefix: 현재 언어 타이틀 첫 줄 slug, 빈 문자열 시 'banner' fallback (M-3 mitigation)
-      const sdsLang = state.single.sdshowcase.langs[state.single.lang] || {};
-      const firstLine = (sdsLang.title || '').split('\n')[0] || '';
-      filename = buildSdShowcaseFilename({
-        prefix: slugify(firstLine) || 'banner',
-        lang: state.single.lang,
-        size: state.single.size,
-        format: state.single.format,
-      });
-    }
-    else if (isKvr) {
-      // KVR prefix: 현재 언어 리뷰 제목 slug, 빈 문자열 시 'banner' fallback
-      const kvrLang = state.single.kvr.langs[state.single.lang] || {};
-      filename = buildKvrFilename({
-        prefix: slugify(kvrLang.reviewTitle || '') || 'banner',
-        lang: state.single.lang,
-        size: state.single.size,
-        format: state.single.format,
-      });
-    }
-    else if (isPickup) {
-      // v1.8: Pickup prefix: 현재 언어 캐릭터명 slug, 빈 문자열 시 'pickup' fallback
-      const pickLang = state.single.pickup.langs[state.single.lang] || {};
-      filename = buildPickupFilename({
-        prefix: slugify(pickLang.name || '') || 'pickup',
-        lang: state.single.lang,
-        size: state.single.size,
-        format: state.single.format,
-      });
-    }
-    else if (isSteam) {
-      // v1.9: Steam Review prefix: 현재 언어 게임 타이틀 slug, 빈 문자열 시 'steam-review' fallback
-      const steamLang = state.single.steam.langs[state.single.lang] || {};
-      filename = buildSteamReviewFilename({
-        prefix: slugify(steamLang.title || '') || 'steam-review',
-        lang: state.single.lang,
-        size: state.single.size,
-        format: state.single.format,
-      });
-    }
-    else if (isAma) {
-      // v1.10: AMA prefix: 현재 언어 자막 slug, 빈 문자열 시 'ama' fallback
-      const amaLang = state.single.ama.langs[state.single.lang] || {};
-      filename = buildAmaFilename({
-        prefix: slugify(amaLang.subtitle || '') || 'ama',
-        lang: state.single.lang,
-        format: state.single.format,
-      });
-    }
-    else if (isGp) {
-      // v1.11: GP prefix: 현재 언어 게임명 slug, 빈 문자열 시 'google-play' fallback
-      const gpLang = state.single.gp.langs[state.single.lang] || {};
-      filename = buildGooglePlayScreenshotFilename({
-        prefix: slugify(gpLang.gameName || '') || 'google-play',
-        lang: state.single.lang,
-        theme: state.single.gp.theme,
-        size: state.single.size,
-        format: state.single.format,
-      });
-    }
-    else if (isIp) {
-      // v1.15: Install Plz — 텍스트 입력이 없으므로 고정 프리픽스
-      filename = buildInstallPlzFilename({
-        lang: state.single.lang,
-        size: state.single.size,
-        format: state.single.format,
-      });
-    }
-    else filename = buildFilename({
-      prefix: slugify(state.single.title) || 'banner',
-      size: state.single.size, lang: state.single.lang, ext,
+    // filename-rule: 전 템플릿 공통 — {언어}_{타이틀}_{소재컨셉}_{규격}.{ext} (Plan FR-05)
+    const filename = buildAssetFilename({
+      template: state.single.template,
+      lang: state.single.lang,
+      size: state.single.size,
+      prefix: state.single.titleCode,
+      theme: isAppStore ? (state.single.appstore && state.single.appstore.theme)
+           : isGp      ? (state.single.gp && state.single.gp.theme)
+           : null,
+      scale: state.single.scale,
+      format: state.single.format,
     });
 
     let dataURL;
@@ -10710,27 +10592,6 @@ function buildAppBadgeCfgForCanvas(s) {
   };
 }
 
-// v1.3: App Badge 파일명 — prefix_app-badge_size_lang.png
-function buildAppBadgeFilename(s) {
-  const ext = s.format === 'jpg' ? 'jpg' : 'png';
-  const ab = s.app_badge || {};
-  // prefix 우선순위: single은 headline 1줄을 slugify (없으면 'banner')
-  const first = (ab.headline || '').split('\n')[0] || '';
-  const prefix = slugify(first) || 'banner';
-  return `${prefix}_app-badge_${s.size}_${s.lang}.${ext}`;
-}
-
-// v1.5: App Store Screenshot 파일명 — prefix_appstore_lang_theme_{1080x1920|1080x1080}.png
-// v1.16: 사이즈 반영 (asSizeDim, Design §7.4)
-function buildAppStoreFilename(s) {
-  const ext = s.format === 'jpg' ? 'jpg' : 'png';
-  const as = s.appstore || APPSTORE_SCREENSHOT_DEFAULT;
-  const slot = (as.langs && as.langs[s.lang]) || {};
-  const prefix = slugify(slot.title || '') || 'banner';
-  const theme = (as.theme === 'light') ? 'light' : 'dark';
-  return `${prefix}_appstore_${s.lang}_${theme}_${asSizeDim(s.size)}.${ext}`;
-}
-
 // Plan FR-09: img.decode() 기반 대기 (setTimeout 제거). 미지원 브라우저는 onload 폴백
 async function waitForImages(container) {
   const imgs = container.querySelectorAll('img');
@@ -10743,12 +10604,56 @@ async function waitForImages(container) {
   }));
 }
 
-function slugify(str) {
-  return (str || '').toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_').slice(0, 40);
+// ===========================================================================
+// filename-rule: 실무 소재 이름규칙 — {언어}_{타이틀}_{소재컨셉}_{가로x세로}.{ext}
+// 예: 한_SMS_투데이탭_1080x1080.png · 번_SODA_구글플레이(다크)_1080x1920.png
+// 파일명 조립은 buildAssetFilename 한 곳에서만 수행 (Plan FR-04)
+// ===========================================================================
+const LANG_TOKEN = { ko: '한', en: '영', ja: '일', 'zh-TW': '번' };
+const CONCEPT_TOKEN = {
+  'today-tap': '투데이탭',
+  'app-badge': '앱아이콘',
+  'appstore-screenshot': '앱스토어',
+  'sd-showcase': 'SD쇼케이스',
+  'keyvisual-review': '아이폰리뷰',
+  'pickup': '픽업',
+  'steam-review': '스팀리뷰',
+  'ask-me-anything': '무물보',
+  'google-play-screenshot': '구글플레이',
+  'install-plz': '설치구걸',
+};
+// 다크/라이트 배리에이션이 있는 템플릿 — 배치 시 동일 파일명 충돌 방지를 위해 항상 병기 (Plan FR-10/R-02)
+const THEMED_TEMPLATES = { 'appstore-screenshot': true, 'google-play-screenshot': true };
+const THEME_TOKEN = { dark: '다크', light: '라이트' };
+
+// 타이틀 영문명 sanitize — 공백·파일명 금지문자 제거, 대소문자 보존, 미입력 시 'TITLE' (Q2)
+function sanitizeTitleCode(str) {
+  return (str || '').trim().replace(/\s+/g, '').replace(/[\\/:*?"<>|]/g, '').slice(0, 40) || 'TITLE';
 }
 
-function buildFilename({ prefix, size, lang, ext }) {
-  return `${prefix}_${size}_${lang}.${ext}`;
+// 템플릿×사이즈 키 → 실제 출력 픽셀 규격. scale(1x/2x)을 곱해 실제 파일 해상도를 표기 (Q3)
+function assetDim(template, size, scale) {
+  let wh;
+  if (template === 'keyvisual-review') wh = [1080, 1080];            // 1:1 전용
+  else if (template === 'ask-me-anything') wh = [1080, 1920];        // 9:16 전용
+  else if (template === 'appstore-screenshot') wh = (size === '1x1') ? [1080, 1080] : [1080, 1920];
+  else if (template === 'google-play-screenshot') wh = (size === '4x5') ? [1080, 1350] : [1080, 1920];
+  else if (template === 'install-plz') wh = (size === '1x1') ? [1080, 1080] : [1200, 628];
+  else {
+    const BASE = { '1x1': [1080, 1080], '9x16': [1080, 1920], '1200x628': [1200, 628] };
+    wh = BASE[size] || [1080, 1080];
+  }
+  const s = Number(scale) || 1;
+  return `${wh[0] * s}x${wh[1] * s}`;
+}
+
+function buildAssetFilename({ template, lang, size, prefix, theme, scale, format }) {
+  const langTok = LANG_TOKEN[lang] || lang;
+  const title = sanitizeTitleCode(prefix);
+  let concept = CONCEPT_TOKEN[template] || template || '배너';
+  if (THEMED_TEMPLATES[template]) concept += `(${THEME_TOKEN[theme === 'light' ? 'light' : 'dark']})`;
+  const ext = (format === 'jpg' || format === 'jpeg') ? 'jpg' : 'png';
+  return `${langTok}_${title}_${concept}_${assetDim(template, size, scale)}.${ext}`;
 }
 
 // ===========================================================================
@@ -11077,7 +10982,7 @@ function applyBatchShadowControlsState() {
 function syncBatchStateFromUI() {
   state.batch.sizes = [...document.querySelectorAll('.b-size:checked')].map(cb => cb.value);
   state.batch.langs = [...document.querySelectorAll('.b-lang:checked')].map(cb => cb.value);
-  state.batch.prefix = document.getElementById('b-prefix').value || 'banner';
+  state.batch.prefix = document.getElementById('b-prefix').value || '';
   state.batch.format = document.getElementById('b-format').value;
   state.batch.scale = parseInt(document.getElementById('b-scale').value, 10);
 
@@ -11880,7 +11785,6 @@ async function downloadBatchItem(idx) {
   statusEl.textContent = `변환 중: ${cfg.size} · ${cfg.lang}...`;
   const startT = performance.now();
   try {
-    const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
     const isAB = cfg.template === 'app-badge';
     const isAS = cfg.template === 'appstore-screenshot';
     const isSDS = cfg.template === 'sd-showcase';
@@ -11889,24 +11793,16 @@ async function downloadBatchItem(idx) {
     const isSteam = cfg.template === 'steam-review';  // v1.9
     const isAma = cfg.template === 'ask-me-anything';  // v1.10
     const isGp = cfg.template === 'google-play-screenshot';  // v1.11
-    const sdsSizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
-    const filename = isAB
-      ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
-      : isAS
-        ? `${state.batch.prefix}_appstore_${cfg.lang}_${cfg.theme || 'dark'}_${asSizeDim(cfg.size)}.${ext}`
-        : isSDS
-          ? `${state.batch.prefix}_sdshowcase_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
-          : isKvr
-            ? `${state.batch.prefix}_keyvisual-review_${cfg.lang}_1080x1080.${ext}`
-            : isPickup
-              ? `${state.batch.prefix}_pickup_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
-              : isSteam
-                ? `${state.batch.prefix}_steam-review_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
-                : isAma
-                  ? `${state.batch.prefix}_ama_${cfg.lang}_1080x1920.${ext}`
-                  : isGp
-                    ? `${state.batch.prefix}_google-play-screenshot_${cfg.lang}_${cfg.theme || 'dark'}_1080x1920.${ext}`
-                    : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+    // filename-rule: 전 템플릿 공통 — {언어}_{타이틀}_{소재컨셉}_{규격}.{ext} (Plan FR-06)
+    const filename = buildAssetFilename({
+      template: cfg.template || 'today-tap',
+      lang: cfg.lang,
+      size: cfg.size,
+      prefix: state.batch.prefix,
+      theme: cfg.theme,
+      scale: state.batch.scale,
+      format: state.batch.format,
+    });
     let dataURL;
     if (isAB) {
       await ensureFontsLoaded();
@@ -12165,25 +12061,16 @@ async function handleBatchExportZip() {
           });
         }
         const dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
-        const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
-        const sdsSizeMap = { '1x1': '1080x1080', '1200x628': '1200x628' };
-        const filename = isAB
-          ? `${state.batch.prefix}_app-badge_${cfg.size}_${cfg.lang}.${ext}`
-          : isAS
-            ? `${state.batch.prefix}_appstore_${cfg.lang}_${cfg.theme || 'dark'}_${asSizeDim(cfg.size)}.${ext}`
-            : isSDS
-              ? `${state.batch.prefix}_sdshowcase_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
-              : isKvr
-                ? `${state.batch.prefix}_keyvisual-review_${cfg.lang}_1080x1080.${ext}`
-                : isPickup
-                  ? `${state.batch.prefix}_pickup_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
-                  : isAma
-                    ? `${state.batch.prefix}_ama_${cfg.lang}_1080x1920.${ext}`
-                    : isGp
-                      ? `${state.batch.prefix}_google-play-screenshot_${cfg.lang}_${cfg.theme || 'dark'}_1080x1920.${ext}`
-                      : isIp
-                        ? `${state.batch.prefix}_installplz_${cfg.lang}_${sdsSizeMap[cfg.size] || cfg.size}.${ext}`
-                        : `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+        // filename-rule: 전 템플릿 공통 — {언어}_{타이틀}_{소재컨셉}_{규격}.{ext} (Plan FR-06)
+        const filename = buildAssetFilename({
+          template: cfg.template || 'today-tap',
+          lang: cfg.lang,
+          size: cfg.size,
+          prefix: state.batch.prefix,
+          theme: cfg.theme,
+          scale: state.batch.scale,
+          format: state.batch.format,
+        });
         zip.file(filename, dataURL.split(',')[1], { base64: true });
       } catch (err) {
         console.error(err);
@@ -12206,8 +12093,16 @@ async function handleBatchExportZip() {
         await waitForImages(banner);
         await document.fonts.ready;
         const dataURL = await bannerToImage(banner, { format: state.batch.format, scale: state.batch.scale });
-        const ext = state.batch.format === 'jpg' ? 'jpg' : 'png';
-        const filename = `${state.batch.prefix}_${cfg.size}_${cfg.lang}.${ext}`;
+        // filename-rule: fallback 경로도 동일 규칙 (Plan FR-06)
+        const filename = buildAssetFilename({
+          template: cfg.template || 'today-tap',
+          lang: cfg.lang,
+          size: cfg.size,
+          prefix: state.batch.prefix,
+          theme: cfg.theme,
+          scale: state.batch.scale,
+          format: state.batch.format,
+        });
         zip.file(filename, dataURL.split(',')[1], { base64: true });
       } catch (err) {
         console.error(err);
@@ -12225,7 +12120,8 @@ async function handleBatchExportZip() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${state.batch.prefix}_banners.zip`;
+  // filename-rule FR-11: {타이틀}_{소재컨셉}.zip (예: SMS_투데이탭.zip)
+  a.download = `${sanitizeTitleCode(state.batch.prefix)}_${CONCEPT_TOKEN[state.batch.template || 'today-tap'] || '배너'}.zip`;
   document.body.appendChild(a);
   a.click();
   a.remove();
