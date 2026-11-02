@@ -1797,7 +1797,7 @@
       <!-- v1.19: Chalkboard (칠판) 단건 패널 -->
       <div class="space-y-3" data-tmpl="chalkboard" style="display:none;">
         <div>
-          <p class="text-[11px] text-gray-500 mb-2">* 캐릭터·로고·타이틀의 위치/크기는 현재 규격(1:1 / 1200×628)별로 따로 저장됩니다</p>
+          <p class="text-[11px] text-gray-500 mb-2">* 캐릭터·로고·타이틀·본문·낙서의 위치/크기는 현재 규격(1:1 / 1200×628)별로 따로 저장됩니다</p>
           <div class="field-label">캐릭터 (4언어 공통, 투명 PNG 권장)</div>
           <div id="s-cb-char" class="dropzone" data-target="cb-char">
             <p class="text-sm">클릭 또는 파일을 여기에 드롭</p>
@@ -1864,10 +1864,38 @@
           <div>
             <div class="field-label">본문 (좌측, Enter로 줄바꿈)</div>
             <textarea id="s-cb-body" class="input-base" rows="3" placeholder="1. 캐릭터를 생성한다.&#10;2. 만렙이 된다!"></textarea>
+            <div class="grid grid-cols-3 gap-2 mt-2">
+              <div>
+                <div class="field-label">본문 크기 (<span id="s-cb-body-scale-label">100</span>%)</div>
+                <input id="s-cb-body-scale" type="range" min="50" max="250" step="5" value="100" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">본문 좌우 (<span id="s-cb-body-x-label">0</span>px)</div>
+                <input id="s-cb-body-x" type="range" min="-400" max="400" step="5" value="0" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">본문 상하 (<span id="s-cb-body-y-label">0</span>px)</div>
+                <input id="s-cb-body-y" type="range" min="-400" max="400" step="5" value="0" class="w-full" />
+              </div>
+            </div>
           </div>
           <div>
             <div class="field-label">낙서 (우측, 기울어진 흐린 글씨 · Enter로 줄바꿈)</div>
             <textarea id="s-cb-note" class="input-base" rows="2" placeholder="떠든사람&#10;동민"></textarea>
+            <div class="grid grid-cols-3 gap-2 mt-2">
+              <div>
+                <div class="field-label">낙서 크기 (<span id="s-cb-note-scale-label">100</span>%)</div>
+                <input id="s-cb-note-scale" type="range" min="50" max="250" step="5" value="100" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">낙서 좌우 (<span id="s-cb-note-x-label">0</span>px)</div>
+                <input id="s-cb-note-x" type="range" min="-400" max="400" step="5" value="0" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">낙서 상하 (<span id="s-cb-note-y-label">0</span>px)</div>
+                <input id="s-cb-note-y" type="range" min="-400" max="400" step="5" value="0" class="w-full" />
+              </div>
+            </div>
           </div>
           <div>
             <div class="field-label">CTA 버튼</div>
@@ -2874,7 +2902,37 @@
           <div class="field-label">타이틀 크기 (<span id="b-cb-title-scale-label">100</span>%)</div>
           <input id="b-cb-title-scale" type="range" min="50" max="150" step="5" value="100" class="w-full" />
         </div>
-        <p class="text-[10px] text-gray-500">* 1080×1080 + 1200×628 (캐릭터·로고·타이틀 위치/크기는 사이즈별 저장) · 리본/헤드라인/타이틀/본문/낙서/CTA는 위 언어별 입력란에서 입력 · KO 한정 "*확률형 아이템 포함" 자동 노출</p>
+        <div>
+            <div class="grid grid-cols-3 gap-2 mt-2">
+              <div>
+                <div class="field-label">본문 크기 (<span id="b-cb-body-scale-label">100</span>%)</div>
+                <input id="b-cb-body-scale" type="range" min="50" max="250" step="5" value="100" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">본문 좌우 (<span id="b-cb-body-x-label">0</span>px)</div>
+                <input id="b-cb-body-x" type="range" min="-400" max="400" step="5" value="0" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">본문 상하 (<span id="b-cb-body-y-label">0</span>px)</div>
+                <input id="b-cb-body-y" type="range" min="-400" max="400" step="5" value="0" class="w-full" />
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 mt-2">
+              <div>
+                <div class="field-label">낙서 크기 (<span id="b-cb-note-scale-label">100</span>%)</div>
+                <input id="b-cb-note-scale" type="range" min="50" max="250" step="5" value="100" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">낙서 좌우 (<span id="b-cb-note-x-label">0</span>px)</div>
+                <input id="b-cb-note-x" type="range" min="-400" max="400" step="5" value="0" class="w-full" />
+              </div>
+              <div>
+                <div class="field-label">낙서 상하 (<span id="b-cb-note-y-label">0</span>px)</div>
+                <input id="b-cb-note-y" type="range" min="-400" max="400" step="5" value="0" class="w-full" />
+              </div>
+            </div>
+        </div>
+        <p class="text-[10px] text-gray-500">* 1080×1080 + 1200×628 (캐릭터·로고·타이틀·본문·낙서 위치/크기는 사이즈별 저장) · 리본/헤드라인/타이틀/본문/낙서/CTA는 위 언어별 입력란에서 입력 · KO 한정 "*확률형 아이템 포함" 자동 노출</p>
       </div>
 
       <!-- Today Tap 전용: 오버플로우 위치 조정 -->
@@ -4419,9 +4477,9 @@ const CHALKBOARD_TEXT_FIELDS = ['ribbon', 'headline', 'title', 'body', 'note', '
 const CHALKBOARD_DEFAULT = {
   charImage: null,   // 4언어 공용 캐릭터 (data URL)
   logo: null,        // 4언어 공용 로고 (data URL, 선택)
-  adjPerSize: {      // 캐릭터/로고/타이틀 위치·크기 — 사이즈별 개별 저장 (레이아웃이 달라 공유 불가)
-    '1x1':      { charX: 0, charY: 0, charScale: 100, logoX: 0, logoY: 0, logoScale: 100, titleScale: 100 },
-    '1200x628': { charX: 0, charY: 0, charScale: 100, logoX: 0, logoY: 0, logoScale: 100, titleScale: 100 },
+  adjPerSize: {      // 캐릭터/로고/타이틀/본문/낙서 위치·크기 — 사이즈별 개별 저장 (레이아웃이 달라 공유 불가)
+    '1x1':      { charX: 0, charY: 0, charScale: 100, logoX: 0, logoY: 0, logoScale: 100, titleScale: 100, bodyX: 0, bodyY: 0, bodyScale: 100, noteX: 0, noteY: 0, noteScale: 100 },
+    '1200x628': { charX: 0, charY: 0, charScale: 100, logoX: 0, logoY: 0, logoScale: 100, titleScale: 100, bodyX: 0, bodyY: 0, bodyScale: 100, noteX: 0, noteY: 0, noteScale: 100 },
   },
   editingSize: '1x1',  // 배치 패널 편집 대상 사이즈 (단건은 현재 규격을 따름)
   langs: {
@@ -8587,12 +8645,13 @@ function cbDrawChalkText(ctx, cfg, L) {
   // 본문 — 좌측 정렬, 여러 줄
   if (cfg.body) {
     const b = L.body;
-    ctx.font = cbChalkFont(cfg.lang, b.fs);
+    const bs = (cfg.bodyScale || 100) / 100;  // 글자 크기·줄 간격 함께 비례
+    ctx.font = cbChalkFont(cfg.lang, b.fs * bs);
     ctx.fillStyle = C.chalk;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     String(cfg.body).split(/\r?\n/).forEach((line, i) => {
-      ctx.fillText(line, b.x, b.y + i * b.lineH);
+      ctx.fillText(line, b.x + (cfg.bodyX || 0), b.y + (cfg.bodyY || 0) + i * b.lineH * bs);
     });
   }
 
@@ -8601,15 +8660,16 @@ function cbDrawChalkText(ctx, cfg, L) {
     const n = L.note;
     const lines = String(cfg.note).split(/\r?\n/);
     ctx.save();
-    ctx.translate(n.cx, n.cy);
+    const ns = (cfg.noteScale || 100) / 100;
+    ctx.translate(n.cx + (cfg.noteX || 0), n.cy + (cfg.noteY || 0));
     ctx.rotate(n.rotDeg * Math.PI / 180);
     ctx.globalAlpha = n.alpha;
-    ctx.font = cbChalkFont(cfg.lang, n.fs);
+    ctx.font = cbChalkFont(cfg.lang, n.fs * ns);
     ctx.fillStyle = C.chalk;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    const y0 = -((lines.length - 1) * n.lineH) / 2;
-    lines.forEach((line, i) => ctx.fillText(line, 0, y0 + i * n.lineH));
+    const y0 = -((lines.length - 1) * n.lineH * ns) / 2;
+    lines.forEach((line, i) => ctx.fillText(line, 0, y0 + i * n.lineH * ns));
     ctx.restore();
   }
 }
@@ -10345,6 +10405,12 @@ const CB_SLIDERS = [
   ['logo-y',      'logoY',      0],
   ['logo-scale',  'logoScale',  100],
   ['title-scale', 'titleScale', 100],
+  ['body-x',      'bodyX',      0],
+  ['body-y',      'bodyY',      0],
+  ['body-scale',  'bodyScale',  100],
+  ['note-x',      'noteX',      0],
+  ['note-y',      'noteY',      0],
+  ['note-scale',  'noteScale',  100],
 ];
 
 // 사이즈별 위치/크기 슬롯 보장 (누락 키는 기본값으로 채움)
