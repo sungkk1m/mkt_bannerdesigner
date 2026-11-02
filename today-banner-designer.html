@@ -945,6 +945,7 @@
         <option value="google-play-screenshot">Google Play Screenshot</option>
         <option value="install-plz">Install Plz</option>
         <option value="chalkboard">Chalkboard (칠판)</option>
+        <option value="sns-post">SNS Post (X 게시물)</option>
       </select>
     </div>
     <div class="flex items-center gap-1">
@@ -1905,14 +1906,57 @@
         <p class="text-[11px] text-gray-500">* 1080×1080 + 1200×628 · 칠판 배경 고정 · 칠판 글씨 = 온글잎 하루치 개구리체 (KO/EN, JA·zh-TW는 Noto 대체) · KO 한정 우하단 "*확률형 아이템 포함" 자동 노출</p>
       </div>
 
+      <!-- v1.20: SNS Post (X 스타일 게시물) 단건 패널 -->
+      <div class="space-y-3" data-tmpl="sns-post" style="display:none;">
+        <div>
+          <div class="field-label">테마</div>
+          <select id="s-sp-theme" class="input-base">
+            <option value="light">라이트 (흰 배경)</option>
+            <option value="dark">다크 (검정 배경)</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <div class="field-label">스크린샷 1</div>
+            <div id="s-sp-shot-1" class="dropzone" data-target="s-sp-shot-1">
+              <p class="text-sm">클릭 또는 드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div class="field-label mt-2">상하 위치 (<span id="s-sp-shot-1-y-label">50</span>%)</div>
+            <input id="s-sp-shot-1-y" type="range" min="0" max="100" step="1" value="50" class="w-full" />
+          </div>
+          <div>
+            <div class="field-label">스크린샷 2</div>
+            <div id="s-sp-shot-2" class="dropzone" data-target="s-sp-shot-2">
+              <p class="text-sm">클릭 또는 드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div class="field-label mt-2">상하 위치 (<span id="s-sp-shot-2-y-label">50</span>%)</div>
+            <input id="s-sp-shot-2-y" type="range" min="0" max="100" step="1" value="50" class="w-full" />
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-500">* 2장 = 좌우 배치 · 1장만 넣으면 가로 꽉 채움 · 4언어 공용 · 상하 위치 = 잘리는 부분 조절</p>
+        <div>
+          <div class="field-label">본문 (현재 언어 · Enter로 줄바꿈 · 길면 자동 줄바꿈/축소)</div>
+          <textarea id="s-sp-text" class="input-base" rows="5"></textarea>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <p class="text-[11px] text-gray-500">날짜·시간 = 오늘 자동 · 조회수/반응 수 = 랜덤</p>
+          <button id="s-sp-reroll" type="button" class="btn btn-secondary text-xs whitespace-nowrap">🎲 숫자 다시 뽑기</button>
+        </div>
+        <p class="text-[11px] text-gray-500">* 1080×1080 전용 · 프로필 없음 · KO 한정 우하단 "*확률형 아이템 포함" 자동 노출</p>
+      </div>
+
       <!-- 공통: 고지 문구 (Today Tap / App Badge 만 사용) -->
-      <div data-tmpl-hide="appstore-screenshot,sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything,google-play-screenshot,install-plz,chalkboard">
+      <div data-tmpl-hide="appstore-screenshot,sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything,google-play-screenshot,install-plz,chalkboard,sns-post">
         <div class="field-label">고지 문구 (우상단, 비우면 미표시)</div>
         <input id="s-disclaimer" class="input-base" value="*확률형 아이템 포함" />
         <p class="text-[11px] text-gray-500 mt-1">언어 변경 시 자동으로 기본값이 채워집니다 (한국어만 기본값 존재)</p>
       </div>
 
-      <div class="space-y-3" data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything,google-play-screenshot,install-plz,chalkboard">
+      <div class="space-y-3" data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything,google-play-screenshot,install-plz,chalkboard,sns-post">
         <!-- App Badge 전용: 게임 로고(BI) 업로드 -->
         <div data-tmpl="app-badge" style="display:none;">
           <div class="field-label">게임 로고 / BI (투명 PNG 권장)</div>
@@ -2161,7 +2205,7 @@
             <input id="b-ab-logo-y" type="range" min="-200" max="200" step="1" value="0" class="w-full" />
           </div>
         </div>
-        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything,google-play-screenshot,install-plz,chalkboard">
+        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything,google-play-screenshot,install-plz,chalkboard,sns-post">
           <div class="field-label" id="b-keyart-label">키아트 / 배경 이미지</div>
           <div id="b-drop-keyart" class="dropzone" data-target="b-keyart">
             <p class="text-sm">클릭 또는 드롭</p>
@@ -2180,7 +2224,7 @@
             <button class="dropzone-remove" title="제거">×</button>
           </div>
         </div>
-        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything,google-play-screenshot,install-plz,chalkboard">
+        <div data-tmpl-hide="sd-showcase,keyvisual-review,pickup,steam-review,ask-me-anything,google-play-screenshot,install-plz,chalkboard,sns-post">
           <div class="field-label">앱 아이콘</div>
           <div id="b-drop-icon" class="dropzone" data-target="b-icon">
             <p class="text-sm">클릭 또는 드롭</p>
@@ -2935,6 +2979,46 @@
         <p class="text-[10px] text-gray-500">* 1080×1080 + 1200×628 (캐릭터·로고·타이틀·본문·낙서 위치/크기는 사이즈별 저장) · 리본/헤드라인/타이틀/본문/낙서/CTA는 위 언어별 입력란에서 입력 · KO 한정 "*확률형 아이템 포함" 자동 노출</p>
       </div>
 
+      <!-- v1.20: SNS Post 배치 공통 설정 (배치 전용 슬롯 — 단건과 별도) -->
+      <div class="border border-[#262932] rounded-lg p-3 space-y-3" data-tmpl="sns-post" style="display:none;">
+        <p class="text-xs font-semibold text-gray-300">SNS Post 공통 설정 (배치 전용 — 단건과 별도 슬롯)</p>
+        <div>
+          <div class="field-label">테마</div>
+          <select id="b-sp-theme" class="input-base">
+            <option value="light">라이트 (흰 배경)</option>
+            <option value="dark">다크 (검정 배경)</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <div class="field-label">스크린샷 1</div>
+            <div id="b-sp-shot-1" class="dropzone" data-target="b-sp-shot-1">
+              <p class="text-sm">클릭 또는 드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div class="field-label mt-2">상하 위치 (<span id="b-sp-shot-1-y-label">50</span>%)</div>
+            <input id="b-sp-shot-1-y" type="range" min="0" max="100" step="1" value="50" class="w-full" />
+          </div>
+          <div>
+            <div class="field-label">스크린샷 2</div>
+            <div id="b-sp-shot-2" class="dropzone" data-target="b-sp-shot-2">
+              <p class="text-sm">클릭 또는 드롭</p>
+              <input type="file" accept="image/*" class="hidden" />
+              <button class="dropzone-remove" title="제거">×</button>
+            </div>
+            <div class="field-label mt-2">상하 위치 (<span id="b-sp-shot-2-y-label">50</span>%)</div>
+            <input id="b-sp-shot-2-y" type="range" min="0" max="100" step="1" value="50" class="w-full" />
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-500">* 2장 = 좌우 배치 · 1장만 넣으면 가로 꽉 채움 · 4언어 공용 · 상하 위치 = 잘리는 부분 조절</p>
+        <div class="flex items-center justify-between gap-2">
+          <p class="text-[11px] text-gray-500">날짜·시간 = 오늘 자동 · 조회수/반응 수 = 랜덤</p>
+          <button id="b-sp-reroll" type="button" class="btn btn-secondary text-xs whitespace-nowrap">🎲 숫자 다시 뽑기</button>
+        </div>
+        <p class="text-[10px] text-gray-500">* 1080×1080 전용 · 4언어 × 1테마 = 4장 · 본문은 위 언어별 입력란에서 입력 · 반응 수는 4언어 동일</p>
+      </div>
+
       <!-- Today Tap 전용: 오버플로우 위치 조정 -->
       <div class="border border-[#262932] rounded-lg p-3 space-y-2" data-tmpl="today-tap">
         <div class="flex items-center justify-between">
@@ -3107,7 +3191,7 @@ function asIapLabelText(lang, size) {
 // v1.5: + appstore-screenshot 추가 (App Store Connect 스크린샷 모방)
 // v1.6: + sd-showcase 추가 (SD 캐릭터 6장 쇼케이스 배너, 1200×628 + 1080×1080)
 // ===========================================================================
-const TEMPLATE_KEYS = ['today-tap', 'app-badge', 'appstore-screenshot', 'sd-showcase', 'keyvisual-review', 'pickup', 'steam-review', 'ask-me-anything', 'google-play-screenshot', 'install-plz', 'chalkboard'];
+const TEMPLATE_KEYS = ['today-tap', 'app-badge', 'appstore-screenshot', 'sd-showcase', 'keyvisual-review', 'pickup', 'steam-review', 'ask-me-anything', 'google-play-screenshot', 'install-plz', 'chalkboard', 'sns-post'];
 
 // 헤드라인 프리셋 (언어별 기본 문구) — 사용자 custom 선택 시 비활성
 // v1.3 r2 Gap G1: 기본값은 단일 라인 (레퍼런스 일치, 1:1 / 9:16)
@@ -4490,6 +4574,48 @@ const CHALKBOARD_DEFAULT = {
   },
 };
 
+// ===========================================================================
+// v1.20: SNS Post (X 스타일 게시물) 템플릿 (12번째) 전용 상수
+// 1080×1080 전용. 프로필 없이 본문 → 스크린샷 1~2장 → 시간·날짜·조회수 → 반응 수.
+// 날짜·시간은 렌더 시점 자동, 조회수/반응 수는 랜덤(노드별 1회 생성 → 4언어 동일, 🎲 버튼으로 재생성).
+// ===========================================================================
+const SNS_POST_CANVAS = {
+  w: 1080, h: 1080, padX: 60, top: 60,
+  text:  { fs: 46, minFs: 28, lineH: 1.42, maxBottom: 480 },
+  shots: { gapAfterText: 30, gap: 14, radius: 28, bottom: 902 },
+  meta:  { y: 948, fs: 30 },
+  divider: { y: 988 },
+  stats: { cy: 1030, fs: 29, icon: 32 },
+  disclaimer: { right: 26, baseline: 1070, fs: 18 },
+};
+const SNS_POST_THEMES = {
+  light: { bg: '#ffffff', text: '#0f1419', sub: '#536471', line: '#eff3f4', border: '#cfd9de', placeholder: '#f2f4f5' },
+  dark:  { bg: '#000000', text: '#e7e9ea', sub: '#71767b', line: '#2f3336', border: '#2f3336', placeholder: '#16181c' },
+};
+// 언어별 시간·날짜·조회수 표기 (views = 사람이 읽는 축약 숫자, viewsSep = 날짜와 조회수 사이 구분자 — 기본 ' · ')
+const SNS_POST_LANG = {
+  'ko':    { time: d => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`, date: d => `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`, views: v => ['조회 ', `${(v / 10000).toFixed(1)}만`, '회'], viewsSep: ' ' },
+  'en':    { time: d => { const h = d.getHours() % 12 || 12; return `${h}:${pad2(d.getMinutes())} ${d.getHours() < 12 ? 'AM' : 'PM'}`; },
+             date: d => `${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`, views: v => ['', `${(v / 1000).toFixed(1)}K`, ' Views'] },
+  'ja':    { time: d => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`, date: d => `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`, views: v => ['', `${(v / 10000).toFixed(1)}万`, ' 件の表示'] },
+  'zh-TW': { time: d => { const h = d.getHours() % 12 || 12; return `${d.getHours() < 12 ? '上午' : '下午'}${h}:${pad2(d.getMinutes())}`; },
+             date: d => `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`, views: v => ['', `${(v / 10000).toFixed(1)}萬`, ' 次查看'] },
+};
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+const SNS_POST_DEFAULT = {
+  theme: 'light',
+  shots: [null, null],     // 4언어 공용 스크린샷 (data URL)
+  shotPosY: [50, 50],      // cover-fit 세로 기준점 (0=위, 100=아래)
+  stats: null,             // { views, comments, reposts, likes, bookmarks } — 최초 렌더 시 랜덤 생성
+  langs: {
+    'ko':    { text: '오늘 만난 친구가 피방에서도 자꾸 폰 보길래\n대체 뭐하나 봤더니 이 게임임ㅋㅋㅋ\n궁금해서 나도 깔았는데 ㄹㅇ개재밌네\n친구가 덱 짜주는 대로 했더니 바로 버스탐ㅋㅋㅋ' },
+    'en':    { text: 'my friend kept staring at their phone all day\nfinally checked and it was this game lol\ngave it a try and it\'s actually so good\nused their deck and got carried lmao' },
+    'ja':    { text: 'ネカフェでも友達がずっとスマホ見てるから\n何してるのか覗いたらこのゲームだったw\n気になって入れてみたらマジで面白い\n友達のデッキ借りたら即キャリーされたw' },
+    'zh-TW': { text: '今天朋友在網咖還一直滑手機\n偷看一下原來在玩這款遊戲哈哈哈\n好奇下載來玩結果真的超好玩\n照朋友配的牌組打直接被帶飛哈哈' },
+  },
+};
+
 // GP_HELPERS — 실제 Google Play 레이아웃 헬퍼. 모든 헬퍼는 사이즈별 레이아웃 L + 사전 디코드 svg를 받음.
 const GP_HELPERS = {
   drawRoundRect(ctx, x, y, w, h, r) {
@@ -4872,6 +4998,8 @@ const state = {
 
     // v1.19: Chalkboard 전용 필드 (캐릭터/로고 1장 공용 + 4언어 텍스트 6종)
     chalkboard: JSON.parse(JSON.stringify(CHALKBOARD_DEFAULT)),
+    // v1.20: SNS Post 전용 필드 (테마 + 스크린샷 2장 공용 + 4언어 본문 + 랜덤 반응 수)
+    snspost: JSON.parse(JSON.stringify(SNS_POST_DEFAULT)),
   },
   batch: {
     // r3 FR-18/19: 기본값 변경 (9:16→1200x628, 2개 언어→4개 언어)
@@ -4948,6 +5076,8 @@ const state = {
 
     // v1.19: Chalkboard 배치 전용 (단건과 별도 슬롯)
     chalkboard: JSON.parse(JSON.stringify(CHALKBOARD_DEFAULT)),
+    // v1.20: SNS Post 배치 전용 (단건과 별도 슬롯)
+    snspost: JSON.parse(JSON.stringify(SNS_POST_DEFAULT)),
   },
   ui: { previewScale: 0.45, batchPreviewScale: 0.45 },
 };
@@ -5340,6 +5470,10 @@ function renderBanner(cfg) {
   // v1.19: Chalkboard 분기
   if (cfg.template === 'chalkboard') {
     return buildChalkboardBanner(cfg);
+  }
+  // v1.20: SNS Post 분기
+  if (cfg.template === 'sns-post') {
+    return buildSnsPostBanner(cfg);
   }
   const banner = document.createElement('div');
   banner.className = `banner size-${cfg.size}`;
@@ -8824,6 +8958,282 @@ function buildChalkboardBanner(cfg) {
   return wrap;
 }
 
+// ===========================================================================
+// v1.20: SNS Post 렌더링 파이프라인
+// - buildSnsPostCfg: state → cfg (현재 언어 본문 + 렌더 시점 날짜 + 노드 공용 랜덤 반응 수)
+// - buildSnsPostCanvas: 배경 → 본문(자동 줄바꿈/축소) → 스크린샷 → 시간·날짜·조회수 → 구분선 → 반응 수 → KO 고지
+// ===========================================================================
+function spRandomStats() {
+  const r = (a, b) => a + Math.random() * (b - a);
+  const views = Math.round(r(50000, 300000));
+  const likes = Math.round(views * r(0.05, 0.1));
+  return {
+    views,
+    likes,
+    reposts:   Math.round(likes * r(0.6, 0.9)),
+    bookmarks: Math.round(likes * r(0.35, 0.55)),
+    comments:  Math.round(likes * r(0.06, 0.12)),
+  };
+}
+
+function buildSnsPostCfg(stateNode, lang) {
+  const node = stateNode || SNS_POST_DEFAULT;
+  if (!node.stats) node.stats = spRandomStats();
+  const slot = (node.langs && node.langs[lang]) || {};
+  return {
+    template: 'sns-post',
+    size: '1x1',
+    lang: lang,
+    theme: node.theme === 'dark' ? 'dark' : 'light',
+    shots: (node.shots || []).slice(0, 2),
+    shotPosY: (node.shotPosY || [50, 50]).slice(0, 2),
+    stats: { ...node.stats },
+    text: slot.text || '',
+    now: Date.now(),
+    disclaimer: (lang === 'ko') ? (LANG_PACK.ko.disclaimer || '') : '',
+    scale: 1,
+    format: 'png',
+  };
+}
+
+async function prepSnsPostCfgImages(cfg) {
+  const ff = getFontFamilyForLang(cfg.lang);
+  const weightLoads = (document.fonts && document.fonts.load)
+    ? [`400 46px ${ff}`, `700 30px ${ff}`].map(f => document.fonts.load(f).catch(() => {}))
+    : [];
+  const [, img1, img2] = await Promise.all([
+    Promise.all(weightLoads).then(() => ensureFontsLoaded()),
+    loadCachedImage(cfg.shots[0]),
+    loadCachedImage(cfg.shots[1]),
+  ]);
+  return { ...cfg, _shotImgs: [img1, img2] };
+}
+
+// 줄바꿈: Enter 기준 문단 → 폭 초과 시 단어(공백) 또는 글자 단위로 끊음
+function spWrapLines(ctx, text, maxW) {
+  const out = [];
+  String(text).split(/\r?\n/).forEach(para => {
+    if (!para) { out.push(''); return; }
+    const tokens = para.includes(' ') ? para.split(/(\s+)/) : Array.from(para);
+    let line = '';
+    tokens.forEach(tok => {
+      const next = line + tok;
+      if (ctx.measureText(next).width <= maxW) { line = next; return; }
+      if (ctx.measureText(tok).width > maxW) {  // 한 단어가 폭보다 길면 글자 단위로 분해
+        Array.from(tok).forEach(ch => {
+          if (ctx.measureText(line + ch).width > maxW && line) { out.push(line.trimEnd()); line = ''; }
+          line += ch;
+        });
+        return;
+      }
+      if (line) out.push(line.trimEnd());
+      line = tok.trimStart();
+    });
+    out.push(line.trimEnd());
+  });
+  return out;
+}
+
+// 반응 아이콘 (X 아이콘 복제 아님 — 단순 선화). (x, cy) = 아이콘 좌측·세로 중앙, s = 크기
+const SP_ICONS = {
+  comment(ctx, x, cy, s) {
+    const w = s * 0.92, h = s * 0.72, y = cy - h / 2 - s * 0.05;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, h * 0.42);
+    ctx.moveTo(x + w * 0.3, y + h);
+    ctx.lineTo(x + w * 0.2, y + h + s * 0.2);
+    ctx.lineTo(x + w * 0.48, y + h);
+    ctx.stroke();
+  },
+  repost(ctx, x, cy, s) {
+    const a = s * 0.16;
+    ctx.beginPath();
+    ctx.moveTo(x + s * 0.18, cy + s * 0.08);
+    ctx.lineTo(x + s * 0.18, cy - s * 0.3);
+    ctx.lineTo(x + s * 0.72, cy - s * 0.3);
+    ctx.moveTo(x + s * 0.18 - a, cy + s * 0.08 - a);
+    ctx.lineTo(x + s * 0.18, cy + s * 0.08);
+    ctx.lineTo(x + s * 0.18 + a, cy + s * 0.08 - a);
+    ctx.moveTo(x + s * 0.82, cy - s * 0.08);
+    ctx.lineTo(x + s * 0.82, cy + s * 0.3);
+    ctx.lineTo(x + s * 0.28, cy + s * 0.3);
+    ctx.moveTo(x + s * 0.82 - a, cy - s * 0.08 + a);
+    ctx.lineTo(x + s * 0.82, cy - s * 0.08);
+    ctx.lineTo(x + s * 0.82 + a, cy - s * 0.08 + a);
+    ctx.stroke();
+  },
+  like(ctx, x, cy, s) {
+    const cx = x + s / 2, top = cy - s * 0.26, bot = cy + s * 0.36;
+    ctx.beginPath();
+    ctx.moveTo(cx, bot);
+    ctx.bezierCurveTo(x - s * 0.02, cy + s * 0.02, x + s * 0.04, top - s * 0.2, cx, top + s * 0.04);
+    ctx.bezierCurveTo(x + s * 0.96, top - s * 0.2, x + s * 1.02, cy + s * 0.02, cx, bot);
+    ctx.stroke();
+  },
+  bookmark(ctx, x, cy, s) {
+    const l = x + s * 0.2, r = x + s * 0.8, t = cy - s * 0.4, b = cy + s * 0.4;
+    ctx.beginPath();
+    ctx.moveTo(l, b);
+    ctx.lineTo(l, t + s * 0.06);
+    ctx.quadraticCurveTo(l, t, l + s * 0.06, t);
+    ctx.lineTo(r - s * 0.06, t);
+    ctx.quadraticCurveTo(r, t, r, t + s * 0.06);
+    ctx.lineTo(r, b);
+    ctx.lineTo(x + s / 2, b - s * 0.24);
+    ctx.closePath();
+    ctx.stroke();
+  },
+};
+
+async function buildSnsPostCanvas(cfg) {
+  if (!cfg._shotImgs) cfg = await prepSnsPostCfgImages(cfg);
+  const L = SNS_POST_CANVAS;
+  const T = SNS_POST_THEMES[cfg.theme] || SNS_POST_THEMES.light;
+  const ff = getFontFamilyForLang(cfg.lang);
+  const pr = Math.max(1, cfg.scale || 1);
+  const canvas = document.createElement('canvas');
+  canvas.width = L.w * pr;
+  canvas.height = L.h * pr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(pr, pr);
+  const contentW = L.w - L.padX * 2;
+
+  // [1] 배경
+  ctx.fillStyle = T.bg;
+  ctx.fillRect(0, 0, L.w, L.h);
+
+  // [2] 본문 — 영역(top~maxBottom)에 들어갈 때까지 글자 크기 축소
+  let fs = L.text.fs, lines = [];
+  for (; fs >= L.text.minFs; fs -= 2) {
+    ctx.font = `400 ${fs}px ${ff}`;
+    lines = cfg.text ? spWrapLines(ctx, cfg.text, contentW) : [];
+    if (L.top + lines.length * fs * L.text.lineH <= L.text.maxBottom) break;
+  }
+  fs = Math.max(fs, L.text.minFs);
+  const lh = fs * L.text.lineH;
+  ctx.fillStyle = T.text;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  lines.forEach((line, i) => ctx.fillText(line, L.padX, L.top + lh * (i + 0.5)));
+  const textBottom = L.top + lines.length * lh;
+
+  // [3] 스크린샷 — 1장: 가로 꽉 / 2장: 좌우 (cover-fit + 세로 기준점), 없으면 자리표시
+  const imgs = (cfg._shotImgs || []).filter(Boolean);
+  const posY = imgs.length === 1
+    ? [cfg.shotPosY[cfg._shotImgs[0] ? 0 : 1]]
+    : cfg.shotPosY;
+  const sTop = (lines.length ? textBottom : L.top) + L.shots.gapAfterText;
+  const sH = L.shots.bottom - sTop;
+  const n = Math.max(1, imgs.length);
+  const sW = (contentW - L.shots.gap * (n - 1)) / n;
+  for (let i = 0; i < n; i++) {
+    const bx = L.padX + i * (sW + L.shots.gap);
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(bx, sTop, sW, sH, L.shots.radius);
+    ctx.clip();
+    const img = imgs[i];
+    if (img) {
+      const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+      const k = Math.max(sW / iw, sH / ih);
+      const dw = iw * k, dh = ih * k;
+      const fy = Math.min(100, Math.max(0, (posY[i] ?? 50))) / 100;
+      ctx.drawImage(img, bx + (sW - dw) / 2, sTop + (sH - dh) * fy, dw, dh);
+    } else {
+      ctx.fillStyle = T.placeholder;
+      ctx.fillRect(bx, sTop, sW, sH);
+    }
+    ctx.restore();
+    ctx.strokeStyle = T.border;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(bx, sTop, sW, sH, L.shots.radius);
+    ctx.stroke();
+  }
+
+  // [4] 시간 · 날짜 · 조회수 (조회수 숫자만 굵게)
+  const fmt = SNS_POST_LANG[cfg.lang] || SNS_POST_LANG.en;
+  const d = new Date(cfg.now || Date.now());
+  const [vPre, vNum, vPost] = fmt.views(cfg.stats.views);
+  const segs = [
+    { t: `${fmt.time(d)} · ${fmt.date(d)}${fmt.viewsSep || ' · '}${vPre}`, bold: false },
+    { t: vNum, bold: true },
+    { t: vPost, bold: false },
+  ];
+  let mx = L.padX;
+  ctx.textBaseline = 'middle';
+  segs.forEach(sg => {
+    if (!sg.t) return;
+    ctx.font = `${sg.bold ? 700 : 400} ${L.meta.fs}px ${ff}`;
+    ctx.fillStyle = sg.bold ? T.text : T.sub;
+    ctx.fillText(sg.t, mx, L.meta.y);
+    mx += ctx.measureText(sg.t).width;
+  });
+
+  // [5] 구분선
+  ctx.fillStyle = T.line;
+  ctx.fillRect(L.padX, L.divider.y, contentW, 2);
+
+  // [6] 반응 수 — 댓글 / 리포스트 / 좋아요 / 북마크 (4등분 좌측 정렬)
+  const st = L.stats;
+  const items = [
+    ['comment', cfg.stats.comments], ['repost', cfg.stats.reposts],
+    ['like', cfg.stats.likes], ['bookmark', cfg.stats.bookmarks],
+  ];
+  ctx.strokeStyle = T.sub;
+  ctx.lineWidth = 2.6;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.font = `400 ${st.fs}px ${ff}`;
+  ctx.fillStyle = T.sub;
+  items.forEach(([key, val], i) => {
+    const x = L.padX + i * (contentW / 4);
+    SP_ICONS[key](ctx, x, st.cy, st.icon);
+    ctx.fillText(Number(val).toLocaleString('en-US'), x + st.icon + 14, st.cy + 1);
+  });
+
+  // [7] KO 고지문구 (우하단)
+  if (cfg.disclaimer) {
+    const dc = L.disclaimer;
+    ctx.font = `400 ${dc.fs}px ${ff}`;
+    ctx.fillStyle = T.sub;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(cfg.disclaimer, L.w - dc.right, dc.baseline);
+  }
+
+  ctx.textAlign = 'start';
+  ctx.textBaseline = 'alphabetic';
+  return canvas;
+}
+
+// DOM 프리뷰 wrapper — Canvas embed (install-plz 패턴)
+function buildSnsPostBanner(cfg) {
+  const L = SNS_POST_CANVAS;
+  const wrap = document.createElement('div');
+  wrap.className = 'banner tmpl-sns-post size-1x1';
+  wrap.setAttribute('data-lang', cfg.lang);
+  wrap.style.width = L.w + 'px';
+  wrap.style.height = L.h + 'px';
+  wrap.style.position = 'relative';
+  wrap.style.background = (SNS_POST_THEMES[cfg.theme] || SNS_POST_THEMES.light).bg;
+  wrap.style.padding = '0';
+  wrap.style.boxSizing = 'border-box';
+  (async () => {
+    try {
+      const prepped = await prepSnsPostCfgImages(cfg);
+      const canvas = await buildSnsPostCanvas(prepped);
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.display = 'block';
+      wrap.appendChild(canvas);
+    } catch (err) {
+      console.error('[SNS Post] preview render failed:', err);
+    }
+  })();
+  return wrap;
+}
+
 // bugfix Plan FR-01/02/05: Canvas 직접 합성 핵심
 async function buildBannerCanvas(cfg) {
   // v1.3: 템플릿 분기
@@ -8865,6 +9275,10 @@ async function buildBannerCanvas(cfg) {
   // v1.19: Chalkboard 분기
   if (cfg.template === 'chalkboard') {
     return buildChalkboardCanvas(cfg);
+  }
+  // v1.20: SNS Post 분기
+  if (cfg.template === 'sns-post') {
+    return buildSnsPostCanvas(cfg);
   }
   const spec = CANVAS_SPECS[cfg.size];
   const pixelRatio = Math.max(1, cfg.scale || 1);
@@ -9203,6 +9617,10 @@ function bindSingleMode() {
     if (state.single.template === 'chalkboard') {
       loadChalkboardSlotToUI(lang);
     }
+    // v1.20: SNS Post 본문을 해당 언어 슬롯에서 복원
+    if (state.single.template === 'sns-post') {
+      loadSnsPostSlotToUI(lang);
+    }
     state.single.lang = lang;
     syncSingleStateFromUI();
     refreshSinglePreview();
@@ -9322,6 +9740,9 @@ function bindSingleMode() {
 
   // v1.19: Chalkboard 전용 UI 바인딩
   bindChalkboardSingleUI();
+
+  // v1.20: SNS Post 전용 UI 바인딩
+  bindSnsPostSingleUI();
 }
 
 // v1.6: SD Showcase 단건 모드 이벤트 바인딩 (Plan FR-07)
@@ -10501,6 +10922,62 @@ function loadChalkboardSlotToUI(lang) {
   cbLoadSliders(node, 's');
 }
 
+// ===========================================================================
+// v1.20: SNS Post UI 바인딩 (단건 + 배치 공용 헬퍼, prefix 's'|'b')
+// ===========================================================================
+function spBindPanel(prefix, getNode, onChange) {
+  [1, 2].forEach(i => {
+    setupDropzone(`${prefix}-sp-shot-${i}`, (dataURL) => {
+      updateStateImageAt(getNode().shots, i - 1, dataURL);
+      onChange();
+    });
+    const el = document.getElementById(`${prefix}-sp-shot-${i}-y`);
+    const label = document.getElementById(`${prefix}-sp-shot-${i}-y-label`);
+    if (el) el.addEventListener('input', () => {
+      const v = parseInt(el.value, 10);
+      getNode().shotPosY[i - 1] = Number.isFinite(v) ? v : 50;
+      if (label) label.textContent = String(getNode().shotPosY[i - 1]);
+      onChange();
+    });
+  });
+  const theme = document.getElementById(`${prefix}-sp-theme`);
+  if (theme) theme.addEventListener('change', () => { getNode().theme = theme.value; onChange(); });
+  const reroll = document.getElementById(`${prefix}-sp-reroll`);
+  if (reroll) reroll.addEventListener('click', (e) => { e.preventDefault(); getNode().stats = spRandomStats(); onChange(); });
+}
+
+function bindSnsPostSingleUI() {
+  spBindPanel('s', () => state.single.snspost, refreshSinglePreview);
+  const textEl = document.getElementById('s-sp-text');
+  if (textEl) textEl.addEventListener('input', () => {
+    const node = state.single.snspost;
+    node.langs[state.single.lang] = node.langs[state.single.lang] || { text: '' };
+    node.langs[state.single.lang].text = textEl.value;
+    refreshSinglePreview();
+  });
+}
+
+// 언어/템플릿 전환 시 단건 입력 필드를 state에서 복원
+function loadSnsPostSlotToUI(lang) {
+  const node = state.single.snspost;
+  if (!node) return;
+  const textEl = document.getElementById('s-sp-text');
+  if (textEl) textEl.value = (node.langs[lang] && node.langs[lang].text) || '';
+  const theme = document.getElementById('s-sp-theme');
+  if (theme) theme.value = node.theme;
+  [1, 2].forEach(i => {
+    const v = node.shotPosY[i - 1];
+    const el = document.getElementById(`s-sp-shot-${i}-y`);
+    const label = document.getElementById(`s-sp-shot-${i}-y-label`);
+    if (el) el.value = v;
+    if (label) label.textContent = String(v);
+  });
+}
+
+function bindSnsPostBatchUI() {
+  spBindPanel('b', () => state.batch.snspost, () => {});
+}
+
 // 배치 전용 (단건과 별도 슬롯)
 function bindChalkboardBatchUI() {
   setupDropzone('b-cb-char', (dataURL) => {
@@ -10762,8 +11239,8 @@ function applyTemplateSwitch(newTemplate) {
       Array.from(sizeSel.options).forEach(opt => {
         opt.disabled = (opt.value === '9x16');
       });
-    } else if (newTemplate === 'keyvisual-review') {
-      // v1.7: 1080×1080 전용 — 9:16 / 1200x628 비활성
+    } else if (newTemplate === 'keyvisual-review' || newTemplate === 'sns-post') {
+      // v1.7: 1080×1080 전용 — 9:16 / 1200x628 비활성 (v1.20 SNS Post 동일)
       sizeSel.value = '1x1';
       state.single.size = '1x1';
       sizeSel.disabled = false;
@@ -10854,8 +11331,8 @@ function applyTemplateSwitch(newTemplate) {
           pill.style.opacity = cb.disabled ? '0.4' : '1';
         }
       });
-    } else if (newTemplate === 'keyvisual-review') {
-      // v1.7: 1080×1080만 체크 + 다른 사이즈 비활성
+    } else if (newTemplate === 'keyvisual-review' || newTemplate === 'sns-post') {
+      // v1.7: 1080×1080만 체크 + 다른 사이즈 비활성 (v1.20 SNS Post 동일)
       bSizeBoxes.forEach(cb => {
         const isAllowed = (cb.value === '1x1');
         cb.checked = isAllowed;
@@ -10978,6 +11455,10 @@ function applyTemplateSwitch(newTemplate) {
   // v1.19: Chalkboard로 전환 시 현재 언어 슬롯 + 슬라이더를 UI에 반영
   if (newTemplate === 'chalkboard' && typeof loadChalkboardSlotToUI === 'function') {
     loadChalkboardSlotToUI(state.single.lang);
+  }
+  // v1.20: SNS Post로 전환 시 현재 언어 본문 + 테마/위치를 UI에 반영
+  if (newTemplate === 'sns-post' && typeof loadSnsPostSlotToUI === 'function') {
+    loadSnsPostSlotToUI(state.single.lang);
   }
   // App Badge로 전환이고, 헤드라인이 비어있으면 기본 프리셋 주입 (Q22)
   if (newTemplate === 'app-badge') {
@@ -11210,6 +11691,8 @@ function refreshSinglePreview() {
     cfg = buildInstallPlzCfg(state.single.installplz, state.single.lang, state.single.size);
   } else if (state.single.template === 'chalkboard') {
     cfg = buildChalkboardCfg(state.single.chalkboard, state.single.lang, state.single.size);
+  } else if (state.single.template === 'sns-post') {
+    cfg = buildSnsPostCfg(state.single.snspost, state.single.lang);
   } else {
     cfg = state.single;
   }
@@ -11217,7 +11700,7 @@ function refreshSinglePreview() {
   container.appendChild(banner);
   applyPreviewScale();
   const size = SIZE_PACK[state.single.size];
-  const tmplLabelMap = { 'app-badge': 'App Badge', 'appstore-screenshot': 'App Store Screenshot', 'today-tap': 'Today Tap', 'sd-showcase': 'SD Showcase', 'keyvisual-review': 'Key Visual + Review', 'pickup': 'Pickup', 'steam-review': 'Steam Review', 'ask-me-anything': 'Ask Me Anything (무물보)', 'google-play-screenshot': 'Google Play Screenshot', 'install-plz': 'Install Plz', 'chalkboard': 'Chalkboard (칠판)' };
+  const tmplLabelMap = { 'app-badge': 'App Badge', 'appstore-screenshot': 'App Store Screenshot', 'today-tap': 'Today Tap', 'sd-showcase': 'SD Showcase', 'keyvisual-review': 'Key Visual + Review', 'pickup': 'Pickup', 'steam-review': 'Steam Review', 'ask-me-anything': 'Ask Me Anything (무물보)', 'google-play-screenshot': 'Google Play Screenshot', 'install-plz': 'Install Plz', 'chalkboard': 'Chalkboard (칠판)', 'sns-post': 'SNS Post (X 게시물)' };
   const tmplLabel = tmplLabelMap[state.single.template] || 'Today Tap';
   document.getElementById('s-preview-meta').textContent =
     `${tmplLabel} · ${size.label} · ${size.w}×${size.h}px · ${LANG_PACK[state.single.lang].label}`;
@@ -11269,6 +11752,7 @@ async function handleSingleDownload() {
     const isGp = state.single.template === 'google-play-screenshot';  // v1.11
     const isIp = state.single.template === 'install-plz';  // v1.15
     const isCb = state.single.template === 'chalkboard';  // v1.19
+    const isSp = state.single.template === 'sns-post';  // v1.20
     // filename-rule: 전 템플릿 공통 — {언어}_{타이틀}_{소재컨셉}_{규격}.{ext} (Plan FR-05)
     const filename = buildAssetFilename({
       template: state.single.template,
@@ -11277,6 +11761,7 @@ async function handleSingleDownload() {
       prefix: state.single.titleCode,
       theme: isAppStore ? (state.single.appstore && state.single.appstore.theme)
            : isGp      ? (state.single.gp && state.single.gp.theme)
+           : isSp      ? (state.single.snspost && state.single.snspost.theme)
            : null,
       scale: state.single.scale,
       format: state.single.format,
@@ -11350,6 +11835,12 @@ async function handleSingleDownload() {
       const cfg = buildChalkboardCfg(state.single.chalkboard, state.single.lang, state.single.size);
       const cfgWithImgs = await prepChalkboardCfgImages({ ...cfg, scale: state.single.scale });
       const canvas = await buildChalkboardCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
+    } else if (isSp) {
+      // v1.20: SNS Post 경로 (1080×1080 only, 해상도 배수 반영)
+      const cfg = buildSnsPostCfg(state.single.snspost, state.single.lang);
+      const cfgWithImgs = await prepSnsPostCfgImages({ ...cfg, scale: state.single.scale });
+      const canvas = await buildSnsPostCanvas(cfgWithImgs);
       dataURL = canvasToDataURL(canvas, state.single.format, 0.95);
     } else if (USE_CANVAS_EXPORT) {
       await ensureFontsLoaded();
@@ -11440,9 +11931,10 @@ const CONCEPT_TOKEN = {
   'google-play-screenshot': '구글플레이',
   'install-plz': '설치구걸',
   'chalkboard': '칠판',
+  'sns-post': 'SNS게시물',
 };
 // 다크/라이트 배리에이션이 있는 템플릿 — 배치 시 동일 파일명 충돌 방지를 위해 항상 병기 (Plan FR-10/R-02)
-const THEMED_TEMPLATES = { 'appstore-screenshot': true, 'google-play-screenshot': true };
+const THEMED_TEMPLATES = { 'appstore-screenshot': true, 'google-play-screenshot': true, 'sns-post': true };
 const THEME_TOKEN = { dark: '다크', light: '라이트' };
 
 // 타이틀 영문명 sanitize — 공백·파일명 금지문자 제거, 대소문자 보존, 미입력 시 'TITLE' (Q2)
@@ -11745,6 +12237,7 @@ function bindBatchMode() {
   bindGooglePlayScreenshotBatchUI();  // v1.11: GP 배치 전용 UI (별도 슬롯/슬라이더)
   bindInstallPlzBatchUI();   // v1.15: Install Plz 배치 전용 UI (별도 슬롯/슬라이더)
   bindChalkboardBatchUI();   // v1.19: Chalkboard 배치 전용 UI (별도 슬롯/슬라이더)
+  bindSnsPostBatchUI();      // v1.20: SNS Post 배치 전용 UI (별도 슬롯)
 }
 
 function loadBatchOverflowSliders() {
@@ -11954,6 +12447,16 @@ function syncBatchStateFromUI() {
     });
   }
 
+  // v1.20: SNS Post 언어별 본문 (state.batch.snspost.langs에 직접 저장)
+  if (state.batch.snspost) {
+    state.batch.langs.forEach(lang => {
+      const el = document.getElementById(`b-sp-text-${lang}`);
+      if (!el) return;
+      state.batch.snspost.langs[lang] = state.batch.snspost.langs[lang] || { text: '' };
+      state.batch.snspost.langs[lang].text = el.value;
+    });
+  }
+
   // v1.19: Chalkboard 언어별 텍스트 (state.batch.chalkboard.langs에 직접 저장)
   if (state.batch.chalkboard) {
     state.batch.langs.forEach(lang => {
@@ -12014,6 +12517,7 @@ function renderBatchLangFields() {
   const isAma = tmpl === 'ask-me-anything';  // v1.10
   const isGp = tmpl === 'google-play-screenshot';  // v1.11
   const isCb = tmpl === 'chalkboard';  // v1.19
+  const isSp = tmpl === 'sns-post';  // v1.20
 
   // v1.15: Install Plz — 언어별 입력 없음 (텍스트·KO 고지문구는 레퍼런스 원본 플레이트 고정, FR-11)
   if (tmpl === 'install-plz') {
@@ -12147,6 +12651,18 @@ function renderBatchLangFields() {
         <div class="text-[11px] text-gray-500">헤더 라벨 (고정): ${escapeHTML(lp.header)}${lp.disclaimer ? ' · 고지: ' + escapeHTML(lp.disclaimer) : ''}</div>
         <textarea id="b-ama-question-${lang}" class="input-base text-sm" rows="3" placeholder="질문 (${pack.label}, Enter로 줄바꿈)">${escapeHTML(questionVal)}</textarea>
         <input id="b-ama-subtitle-${lang}" class="input-base text-sm" placeholder="자막 (${pack.label}, 우하단 검정 박스)" value="${escapeHTML(subtitleVal)}" />
+      `;
+    } else if (isSp) {
+      // v1.20: SNS Post 언어별 입력 — 본문 1필드 (state.batch.snspost.langs)
+      const spSlot = (state.batch.snspost && state.batch.snspost.langs && state.batch.snspost.langs[lang])
+        || (SNS_POST_DEFAULT.langs[lang]) || {};
+      const textVal = existing[`b-sp-text-${lang}`] !== undefined ? existing[`b-sp-text-${lang}`] : (spSlot.text || '');
+      group.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-200 font-semibold">${pack.label}</span>
+          <button type="button" class="text-[10px] text-indigo-400 hover:underline" data-copy-from="${lang}" title="이 언어의 본문을 다른 선택 언어에 복사">다른 언어에 복사</button>
+        </div>
+        <textarea id="b-sp-text-${lang}" class="input-base text-sm" rows="4" placeholder="본문 (${pack.label}, Enter로 줄바꿈)">${escapeHTML(textVal)}</textarea>
       `;
     } else if (isCb) {
       // v1.19: Chalkboard 언어별 입력 — ribbon / headline / title / body / note / cta (state.batch.chalkboard.langs)
@@ -12323,6 +12839,14 @@ function copyLangFieldsToOthers(srcLang) {
       const s = document.getElementById(`b-ama-subtitle-${lang}`);
       if (q) { q.value = srcQuestion; copied++; }
       if (s) s.value = srcSubtitle;
+    });
+  } else if (tmpl === 'sns-post') {
+    // v1.20: SNS Post — 본문 1필드
+    const srcText = document.getElementById(`b-sp-text-${srcLang}`)?.value || '';
+    langs.forEach(lang => {
+      if (lang === srcLang) return;
+      const t = document.getElementById(`b-sp-text-${lang}`);
+      if (t) { t.value = srcText; copied++; }
     });
   } else if (tmpl === 'chalkboard') {
     // v1.19: Chalkboard — 텍스트 6필드
@@ -12524,6 +13048,12 @@ function buildBatchCfgs() {
       cfg._combo = combo;
       return cfg;
     }
+    // v1.20: SNS Post 분기 — 1080×1080 전용, 4언어 × 1테마 (반응 수는 노드 공용이라 4언어 동일)
+    if (tmpl === 'sns-post') {
+      const cfg = buildSnsPostCfg(state.batch.snspost, combo.lang);
+      cfg._combo = combo;
+      return cfg;
+    }
     // v1.19: Chalkboard 분기 — 1x1 + 1200×628, 캐릭터/로고/사이즈별 위치·크기/언어별 텍스트 모두 state.batch.chalkboard
     if (tmpl === 'chalkboard') {
       const cfg = buildChalkboardCfg(state.batch.chalkboard, combo.lang, combo.size);
@@ -12666,6 +13196,7 @@ async function downloadBatchItem(idx) {
     const isAma = cfg.template === 'ask-me-anything';  // v1.10
     const isGp = cfg.template === 'google-play-screenshot';  // v1.11
     const isCb = cfg.template === 'chalkboard';  // v1.19
+    const isSp = cfg.template === 'sns-post';  // v1.20
     // filename-rule: 전 템플릿 공통 — {언어}_{타이틀}_{소재컨셉}_{규격}.{ext} (Plan FR-06)
     const filename = buildAssetFilename({
       template: cfg.template || 'today-tap',
@@ -12728,6 +13259,11 @@ async function downloadBatchItem(idx) {
       // v1.19: Chalkboard 단일 다운로드
       const cfgWithImgs = await prepChalkboardCfgImages({ ...cfg, scale: state.batch.scale });
       const canvas = await buildChalkboardCanvas(cfgWithImgs);
+      dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
+    } else if (isSp) {
+      // v1.20: SNS Post 단일 다운로드
+      const cfgWithImgs = await prepSnsPostCfgImages({ ...cfg, scale: state.batch.scale });
+      const canvas = await buildSnsPostCanvas(cfgWithImgs);
       dataURL = canvasToDataURL(canvas, state.batch.format, 0.95);
     } else if (USE_CANVAS_EXPORT) {
       await ensureFontsLoaded();
@@ -12856,6 +13392,7 @@ async function handleBatchExportZip() {
       const isGp = cfg.template === 'google-play-screenshot';  // v1.11
       const isIp = cfg.template === 'install-plz';  // v1.15
       const isCb = cfg.template === 'chalkboard';  // v1.19
+      const isSp = cfg.template === 'sns-post';  // v1.20
       try {
         let canvas;
         if (isAB) {
@@ -12934,6 +13471,10 @@ async function handleBatchExportZip() {
           // v1.19: Chalkboard — 배경/캐릭터/로고는 _imgCache가 언어 간 공유
           const cfgWithImgs = await prepChalkboardCfgImages({ ...cfg, scale: state.batch.scale });
           canvas = await buildChalkboardCanvas(cfgWithImgs);
+        } else if (isSp) {
+          // v1.20: SNS Post — 스크린샷은 _imgCache가 언어 간 공유
+          const cfgWithImgs = await prepSnsPostCfgImages({ ...cfg, scale: state.batch.scale });
+          canvas = await buildSnsPostCanvas(cfgWithImgs);
         } else {
           canvas = await buildBannerCanvas({
             ...cfg,
